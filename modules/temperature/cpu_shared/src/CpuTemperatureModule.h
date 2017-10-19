@@ -5,7 +5,7 @@
 
 namespace rhms
 {
-	class CpuTemperatureModule : public BaseTemperatureModule
+	RHMS_API_EXPORT class CpuTemperatureModule : public BaseTemperatureModule
 	{
 	public:
 		explicit CpuTemperatureModule(const char* module_name)

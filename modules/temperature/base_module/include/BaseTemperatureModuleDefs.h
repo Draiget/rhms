@@ -4,11 +4,13 @@
 namespace rhms
 {
 
+#define RHMS_API_EXPORT extern "C" __declspec(dllimport)
+
 #ifdef RHMS_TEMP_IMPORT
 #define RHMS_API_EXPOSED extern "C" __declspec(dllexport)
 #pragma comment(lib, "base_temp_module.lib")
 #else
-#define RHMS_API_EXPOSED extern "C" __declspec(dllimport)
+#define RHMS_API_EXPOSED RHMS_API_EXPORT
 #endif
 
 }

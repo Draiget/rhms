@@ -6,15 +6,19 @@ namespace server.Modules.TemperatureApi
     public class BaseTemperatureModule
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1024)]
-        private string _moduleName;
+        public string ModuleName;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [ApiCallRenaming("module_open")]
-        internal delegate bool Open(uint apiVersion, out SModuleState state, ref BaseTemperatureModule module);
+        internal delegate bool Open(uint apiVersion, out SModuleState state);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] 
         [ApiCallRenaming("module_close")]
         internal delegate bool Close(out SModuleState state);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        [ApiCallRenaming("module_get_instance")]
+        internal delegate bool GetInstance([Out] BaseTemperatureModule module);
     }
     
 }

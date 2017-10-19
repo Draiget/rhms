@@ -7,20 +7,26 @@
 #include "CpuTemperatureModule.h"
 using namespace rhms;
 
-RHMS_API_EXPOSED bool module_open(uint32_t api_version, ApiModuleState &out_state, BaseTemperatureModule* out_module) {
+extern BaseTemperatureModule* g_Module;
+
+RHMS_API_EXPOSED bool module_open(uint32_t api_version, ApiModuleState &out_state) {
 	if (api_version < 1){
 		out_state = ApiModuleState(false, "Unsupported API version");
-		out_module = nullptr;
 		return false;
 	}
 
-	*out_module = CpuTemperatureModule("CPUID module");
-	out_state = ApiModuleState(true);
+	g_Module = new CpuTemperatureModule("CPUID module");
+	out_state = ApiModuleState();
 	return true;
 }
 
 RHMS_API_EXPOSED bool module_close(ApiModuleState &out_state) {
 	out_state = ApiModuleState();
+	return true;
+}
+
+RHMS_API_EXPOSED bool module_get_instance(BaseTemperatureModule* out_module) {
+	*out_module = *g_Module;
 	return true;
 }
 
