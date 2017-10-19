@@ -1,0 +1,5 @@
+# Ignore VS stuff
+.vs
+
+/server/output
+/server/src/obj
