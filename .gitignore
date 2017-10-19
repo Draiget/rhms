@@ -3,3 +3,8 @@
 
 /server/output
 /server/src/obj
+
+modules/temperature/cpu_shared/buildstage
+modules/temperature/cpu_shared/output
+modules/temperature/base_module/buildstage
+modules/temperature/base_module/output
