@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
+using server.Utils;
 
 namespace server.Modules.TemperatureApi
 {
-    public class TemperatureModuleLoader : IModueLoader
+    public class TemperatureModuleLoader : IModuleLoader
     {
         private readonly List<NativeModuleHolder> _loadedModules;
 
@@ -31,11 +32,12 @@ namespace server.Modules.TemperatureApi
                     continue;
                 }
 
+                Logger.Debug($"Trying to load '{dynamicLibPath}' ...");
+
                 var openRename = GetApiRenameFromDelegate(typeof(BaseTemperatureModule.Open)).ProcedureName;
                 var openProc = Marshal.GetDelegateForFunctionPointer<BaseTemperatureModule.Open>(Native.GetProcAddress(handle, openRename));
                 if (openProc == null) {
-                    // Bad module?
-                    // TODO: Debug call
+                    Logger.Warn($"Cannot find '{openRename}' procedure in dll, bad module");
                     Native.FreeLibrary(handle);
                     continue;
                 }
@@ -43,12 +45,12 @@ namespace server.Modules.TemperatureApi
                 var instanceRename = GetApiRenameFromDelegate(typeof(BaseTemperatureModule.GetInstance)).ProcedureName;
                 var instanceProc = Marshal.GetDelegateForFunctionPointer<BaseTemperatureModule.GetInstance>(Native.GetProcAddress(handle, instanceRename));
                 if (instanceProc == null) {
-                    // Bad module?
-                    // TODO: Debug call
+                    Logger.Warn($"Cannot find '{openRename}' procedure in dll, corrupted module");
                     Native.FreeLibrary(handle);
                     continue;
                 }
 
+                Logger.Debug($"Calling '{openRename}' to open module instance");
                 OpenModule(openProc, instanceProc, handle);
             }
         }
@@ -58,8 +60,7 @@ namespace server.Modules.TemperatureApi
                 var isOk = openCallback(1, out var state);
                 if (!isOk) {
                     if (state.Code != 1) {
-                        // Console.WriteLine($"OpenModule error [{state}]: {state.Message}");
-                        // TODO: Debug call
+                        Logger.Debug($"Module open error [{state}]: {state.Message}");
                     }
 
                     Native.FreeLibrary(handle);
@@ -70,16 +71,18 @@ namespace server.Modules.TemperatureApi
                 var module = new BaseTemperatureModule();
                 var isInstanceOk = instanceCallback(module);
                 if (!isInstanceOk) {
-                    // Console.WriteLine($"OpenModule error [{state}]: {state.Message}");
-                    // TODO: Debug call
+                    Logger.Debug($"Getting module instance error [{state}]: {state.Message}");
 
                     Native.FreeLibrary(handle);
                     handle = -1;
                     return;
                 }
 
-                _loadedModules.Add(new NativeModuleHolder(handle, null));
-            } catch (Exception) {
+                Logger.Info($"Module '{module.ModuleName}' is loaded");
+                _loadedModules.Add(new NativeModuleHolder(handle, module));
+            } catch (Exception err) {
+                Logger.Error("Unexpected module loading error", err);
+
                 if (handle > 0) {
                     Native.FreeLibrary(handle);
                 }

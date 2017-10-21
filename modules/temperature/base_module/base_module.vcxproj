@@ -80,23 +80,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>output\$(PROCESSOR_ARCHITECTURE)\</OutDir>
-    <IntDir>buildstage\$(PROCESSOR_ARCHITECTURE)\</IntDir>
+    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
     <TargetName>base_temp_module</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>output\$(PROCESSOR_ARCHITECTURE)\</OutDir>
-    <IntDir>buildstage\$(PROCESSOR_ARCHITECTURE)\</IntDir>
+    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
     <TargetName>base_temp_module</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>output\$(PROCESSOR_ARCHITECTURE)\</OutDir>
-    <IntDir>buildstage\$(PROCESSOR_ARCHITECTURE)\</IntDir>
+    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
     <TargetName>base_temp_module</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>output\$(PROCESSOR_ARCHITECTURE)\</OutDir>
-    <IntDir>buildstage\$(PROCESSOR_ARCHITECTURE)\</IntDir>
+    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
     <TargetName>base_temp_module</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

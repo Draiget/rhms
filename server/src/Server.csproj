@@ -46,19 +46,18 @@
   <ItemGroup>
     <Compile Include="Modules\ApiCallRenamingAttribute.cs" />
     <Compile Include="Modules\EModuleType.cs" />
-    <Compile Include="Modules\IModueLoader.cs" />
+    <Compile Include="Modules\IModuleLoader.cs" />
     <Compile Include="Modules\TemperatureApi\BaseTemperatureModule.cs" />
     <Compile Include="Modules\TemperatureApi\SModuleState.cs" />
     <Compile Include="Modules\TemperatureApi\TemperatureModuleLoader.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Logger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

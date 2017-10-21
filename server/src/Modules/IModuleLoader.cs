@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace server.Modules
 {
-    public interface IModueLoader
+    public interface IModuleLoader
     {
         void LoadFromFolder(string folderName);
 

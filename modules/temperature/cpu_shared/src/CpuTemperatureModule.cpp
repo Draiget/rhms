@@ -9,7 +9,7 @@ using namespace rhms;
 
 extern BaseTemperatureModule* g_Module;
 
-RHMS_API_EXPOSED bool module_open(uint32_t api_version, ApiModuleState &out_state) {
+RHMS_API_EXPOSED bool module_open(uint32_t api_version, ApiModuleState& out_state) {
 	if (api_version < 1){
 		out_state = ApiModuleState(false, "Unsupported API version");
 		return false;
@@ -20,7 +20,7 @@ RHMS_API_EXPOSED bool module_open(uint32_t api_version, ApiModuleState &out_stat
 	return true;
 }
 
-RHMS_API_EXPOSED bool module_close(ApiModuleState &out_state) {
+RHMS_API_EXPOSED bool module_close(ApiModuleState& out_state) {
 	out_state = ApiModuleState();
 	return true;
 }
