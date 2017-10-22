@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using server.Modules.TemperatureApi;
 using server.Utils;
+using server.Utils.Logging;
 
 namespace server
 {
@@ -13,6 +15,8 @@ namespace server
         public static Logger AppLogger;
 
         static void Main(string[] args){
+            Thread.CurrentThread.Name = "main";
+
             AppLogger = new Logger();
             AppLogger.Initialize();
 

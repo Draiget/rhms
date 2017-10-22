@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using SystemDebug = System.Diagnostics.Debug;
 
-namespace server.Utils
+namespace server.Utils.Logging
 {
     public class Logger
     {
@@ -21,23 +18,23 @@ namespace server.Utils
         private string _currentLogFileName;
         private Thread _logWriterQueueThread;
 
-        private static volatile Queue<LogMessageHolder> _logWriterQueue;
+        private static volatile Queue<SLogMessageHolder> _logWriterQueue;
+
+        public static bool IsInitialized => _instance._isInitialized;
 
         public Logger(){
             _isInitialized = false;
-            _logWriterQueue = new Queue<LogMessageHolder>();
+            _logWriterQueue = new Queue<SLogMessageHolder>();
 
-            ResetColor();
+            _lastPrintColor = ConsoleColor.White;
             MakeDirs();
 
             _instance = this;
         }
 
-        private void MakeDirs(){
+        private static void MakeDirs(){
             Directory.CreateDirectory(LogsPath);
         }
-
-        public static bool IsInitialized => _instance._isInitialized;
 
         public void Initialize(){
             if (_isInitialized) {
@@ -45,6 +42,19 @@ namespace server.Utils
             }
 
             _currentLogFileName = GenerateLogFileName();
+            OpenFileStream();
+
+            _logWriterQueueThread = new Thread(WriterQueueWorker) {
+                IsBackground = true,
+                Name ="logger"
+            };
+            _logWriterQueueThread.Start();
+
+            _isInitialized = true;
+            _isRequestShutdown = false;
+        }
+
+        private void OpenFileStream(){
             FileStream logFs;
 
             try {
@@ -54,14 +64,17 @@ namespace server.Utils
                 return;
             }
 
-
-            SystemDebug.Assert(logFs != null);
             _logWriter = new StreamWriter(logFs);
-            _logWriterQueueThread = new Thread(WriterQueueWorker){IsBackground = true};
-            _logWriterQueueThread.Start();
+            SystemDebug.Assert(logFs != null);
+        }
 
-            _isInitialized = true;
-            _isRequestShutdown = false;
+        private void CloseFileStream(){
+            if (_logWriter != null) {
+                _logWriter.Flush();
+                _logWriter.Close();
+                _logWriter.Dispose();
+                _logWriter = null;
+            }
         }
 
         public void Shutdown(){
@@ -75,10 +88,17 @@ namespace server.Utils
 
         private void WriterQueueWorker(){
             while (!_isRequestShutdown) {
+                // Reopen file stream, if date was changed and we need write to another file
+                // TODO: Remake string comparing solution to date checking (will be much faster)
+                if (GenerateLogFileName() != _currentLogFileName) {
+                    CloseFileStream();
+                    OpenFileStream();
+                }
+
                 lock (_logWriterQueue) {
                     while (_logWriterQueue.Count > 0) {
                         var entry = _logWriterQueue.Dequeue();
-                        _logWriter.Write(FormatLogStr(entry.Time, entry.Message, entry.Level));
+                        _logWriter.Write(FormatLogStr(entry.Time, entry.Message, entry.Level, entry.ContextThread));
                         _logWriter.Flush();
                     }
                 }
@@ -89,36 +109,37 @@ namespace server.Utils
             _logWriter?.Close();
         }
 
-        private static void AddToLogWriteQueue(string msg, string level){
+        private static void AddToLogWriteQueue(string msg, ELogLevel level, Thread contextThread){
             lock (_logWriterQueue) {
-                _logWriterQueue.Enqueue(new LogMessageHolder(msg, level));
+                _logWriterQueue.Enqueue(new SLogMessageHolder(msg, level, contextThread));
             }
         }
 
-        private string GenerateLogFileName(){
+        private static string GenerateLogFileName(){
             return $"{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}.log";
         }
 
         internal static void SetNextColor(ConsoleColor clr){
+            _lastPrintColor = Console.ForegroundColor;
             Console.ForegroundColor = clr;
         }
 
         internal static void ResetColor(){
-            _lastPrintColor = Console.ForegroundColor;
+            Console.ForegroundColor = _lastPrintColor;
         }
 
-        internal static string FormatLogStr(long ticks, string msg, string level){
+        internal static string FormatLogStr(long ticks, string msg, ELogLevel level, Thread ctx){
             var time = new DateTime(ticks);
-            return $"{time.Hour}:{time.Minute}:{time.Second}.{time.Millisecond} ({level}) {msg}\r\n";
+            return $"{time.Hour:00}:{time.Minute:00}:{time.Second:00}.{time.Millisecond:000} [{ctx.Name}-{ctx.ManagedThreadId}] ({level}) {msg}\r\n";
         }
 
         internal static string FormatPrintStr(string msg) {
-            return $"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} {msg}";
+            return $"{DateTime.Now.Hour:00}:{DateTime.Now.Minute:00}:{DateTime.Now.Second:00} [{Thread.CurrentThread.Name}-{Thread.CurrentThread.ManagedThreadId}] {msg}";
         }
 
-        private static void AddLogMsg(string msg, string level, ConsoleColor clr){
-            SystemDebug.Assert(IsInitialized);
-            AddToLogWriteQueue($"({level}) {msg}", level);
+        private static void AddLogMsg(string msg, ELogLevel level, ConsoleColor clr){
+            SystemDebug.Assert(IsInitialized, "Logger not initialized");
+            AddToLogWriteQueue($"{msg}", level, Thread.CurrentThread);
             var str = FormatPrintStr($"({level}) {msg}");
             SetNextColor(clr);
             Console.WriteLine(str);
@@ -126,36 +147,23 @@ namespace server.Utils
         }
 
         public static void Debug(string msg){
-            AddLogMsg(msg, "Debug", ConsoleColor.Gray);
+            AddLogMsg(msg, ELogLevel.Debug, ConsoleColor.Gray);
         }
 
         public static void Info(string msg) {
-            AddLogMsg(msg, "Info", ConsoleColor.White);
+            AddLogMsg(msg, ELogLevel.Info, ConsoleColor.White);
         }
         public static void Warn(string msg) {
-            AddLogMsg(msg, "Warn", ConsoleColor.Yellow);
+            AddLogMsg(msg, ELogLevel.Warn, ConsoleColor.Yellow);
         }
 
         public static void Error(string msg, Exception err = null){
-            SystemDebug.Assert(IsInitialized);
-            AddToLogWriteQueue($"(Error) {msg}", "Error");
+            SystemDebug.Assert(IsInitialized, "Logger not initialized");
+            AddToLogWriteQueue($"{msg}", ELogLevel.Error, Thread.CurrentThread);
             var str = err != null ? FormatPrintStr($"(Error) Exception ({err.GetType()}): '{err.Message}', {msg}\n{err.StackTrace}") : FormatPrintStr($"(Error) {msg}");
             SetNextColor(ConsoleColor.Red);
             Console.WriteLine(str);
             ResetColor();
-        }
-
-        private struct LogMessageHolder
-        {
-            public string Message;
-            public long Time;
-            public string Level;
-
-            public LogMessageHolder(string msg, string level){
-                Level = level;
-                Message = msg;
-                Time = DateTime.Now.Ticks;
-            }
         }
     }
 }

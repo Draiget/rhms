@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
 using server.Utils;
+using server.Utils.Logging;
 
 namespace server.Modules.TemperatureApi
 {
