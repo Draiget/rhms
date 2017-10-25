@@ -63,16 +63,16 @@ NTSTATUS RhmsDispatch(IN PDEVICE_OBJECT driver_device, IN PIRP p_irp) {
 
 	auto const status = DispatchMajorDriverFunction(p_irp, p_irp_stack);
 
-	// We're done with I/O request, record the status of the I/O action.
+	// We're done with I/O request, record the status of the I/O action
 	p_irp->IoStatus.Status = status;
 
-	// Don't boost priority when returning since this took little time.
+	// Don't boost priority when returning since this took little time
 	IoCompleteRequest(p_irp, IO_NO_INCREMENT);
 
 	return status;
 }
 
-NTSTATUS DispatchMajorDriverFunction(IN PIRP p_irp,	IN PIO_STACK_LOCATION p_irp_stack) {
+NTSTATUS DispatchMajorDriverFunction(IN PIRP p_irp, IN PIO_STACK_LOCATION p_irp_stack) {
 	switch (p_irp_stack->MajorFunction) {
 		case IRP_MJ_CREATE:
 			if (g_RefCount != (ULONG)-1){
@@ -226,48 +226,48 @@ VOID Unload(PDRIVER_OBJECT driver_object) {
  * CPU functions
  */
 
-NTSTATUS ReadMsr(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
-	UNREFERENCED_PARAMETER(nInBufferSize);
-	UNREFERENCED_PARAMETER(nOutBufferSize);
+NTSTATUS ReadMsr(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
+	UNREFERENCED_PARAMETER(n_in_buffer_size);
+	UNREFERENCED_PARAMETER(n_out_buffer_size);
 	__try {
-		ULONGLONG data = __readmsr(*(ULONG*)lpInBuffer);
-		memcpy((PULONG)lpOutBuffer, &data, 8);
-		*lpBytesReturned = 8;
+		ULONGLONG data = __readmsr(*(ULONG*)lp_in_buffer);
+		memcpy((PULONG)lp_out_buffer, &data, 8);
+		*lp_bytes_returned = 8;
 		return STATUS_SUCCESS;
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		*lpBytesReturned = 0;
+		*lp_bytes_returned = 0;
 		return STATUS_UNSUCCESSFUL;
 	}
 }
 
-NTSTATUS WriteMsr(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
-	UNREFERENCED_PARAMETER(nInBufferSize);
-	UNREFERENCED_PARAMETER(lpOutBuffer);
-	UNREFERENCED_PARAMETER(nOutBufferSize);
+NTSTATUS WriteMsr(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
+	UNREFERENCED_PARAMETER(n_in_buffer_size);
+	UNREFERENCED_PARAMETER(lp_out_buffer);
+	UNREFERENCED_PARAMETER(n_out_buffer_size);
 
 	__try {
-		 rhms_write_msr_input* param = (rhms_write_msr_input*)lpInBuffer;
+		 rhms_write_msr_input* param = (rhms_write_msr_input*)lp_in_buffer;
 
 		__writemsr(param->Register, param->Value.QuadPart);
-		*lpBytesReturned = 0;
+		*lp_bytes_returned = 0;
 		return STATUS_SUCCESS;
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		*lpBytesReturned = 0;
+		*lp_bytes_returned = 0;
 		return STATUS_UNSUCCESSFUL;
 	}
 }
 
-NTSTATUS ReadPmc(void* lpInBuffer, ULONG nInBufferSize,	void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
-	UNREFERENCED_PARAMETER(nInBufferSize);
-	UNREFERENCED_PARAMETER(nOutBufferSize);
+NTSTATUS ReadPmc(void* lp_in_buffer, ULONG n_in_buffer_size,	void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
+	UNREFERENCED_PARAMETER(n_in_buffer_size);
+	UNREFERENCED_PARAMETER(n_out_buffer_size);
 
 	__try 	{
-		ULONGLONG data = __readpmc(*(ULONG*)lpInBuffer);
-		memcpy((PULONG)lpOutBuffer, &data, 8);
-		*lpBytesReturned = 8;
+		ULONGLONG data = __readpmc(*(ULONG*)lp_in_buffer);
+		memcpy((PULONG)lp_out_buffer, &data, 8);
+		*lp_bytes_returned = 8;
 		return STATUS_SUCCESS;
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		*lpBytesReturned = 0;
+		*lp_bytes_returned = 0;
 		return STATUS_UNSUCCESSFUL;
 	}
 }
@@ -300,16 +300,16 @@ NTSTATUS ReadIoPort(ULONG io_control_code, void* lp_in_buffer, ULONG n_in_buffer
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS WriteIoPort(ULONG ioControlCode, void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
-	UNREFERENCED_PARAMETER(nInBufferSize);
-	UNREFERENCED_PARAMETER(lpOutBuffer);
-	UNREFERENCED_PARAMETER(nOutBufferSize);
-	UNREFERENCED_PARAMETER(lpBytesReturned);
+NTSTATUS WriteIoPort(ULONG io_control_code, void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
+	UNREFERENCED_PARAMETER(n_in_buffer_size);
+	UNREFERENCED_PARAMETER(lp_out_buffer);
+	UNREFERENCED_PARAMETER(n_out_buffer_size);
+	UNREFERENCED_PARAMETER(lp_bytes_returned);
 
-	rhms_write_io_port_input* param = (rhms_write_io_port_input*)lpInBuffer;
+	rhms_write_io_port_input* param = (rhms_write_io_port_input*)lp_in_buffer;
 	const ULONG n_port = param->PortNumber;
 
-	switch (ioControlCode) {
+	switch (io_control_code) {
 		case IOCTL_RHMS_WRITE_IO_PORT_BYTE:
 			WRITE_PORT_UCHAR((PUCHAR)(ULONG_PTR)n_port, param->SharedData.CharData);
 			break;
@@ -330,35 +330,35 @@ NTSTATUS WriteIoPort(ULONG ioControlCode, void* lpInBuffer, ULONG nInBufferSize,
  * PCI functions
  */
 
-NTSTATUS ReadPciConfig(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
-	if (nInBufferSize != sizeof(rhms_read_pci_config_input)) {
+NTSTATUS ReadPciConfig(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
+	if (n_in_buffer_size != sizeof(rhms_read_pci_config_input)) {
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	rhms_read_pci_config_input* param = (rhms_read_pci_config_input*)lpInBuffer;
-	const NTSTATUS status = pciConfigRead(param->PciAddress, param->PciOffset, lpOutBuffer, nOutBufferSize);
+	rhms_read_pci_config_input* param = (rhms_read_pci_config_input*)lp_in_buffer;
+	const NTSTATUS status = pciConfigRead(param->PciAddress, param->PciOffset, lp_out_buffer, n_out_buffer_size);
 
 	if (status == STATUS_SUCCESS) {
-		*lpBytesReturned = nOutBufferSize;
+		*lp_bytes_returned = n_out_buffer_size;
 	} else {
-		*lpBytesReturned = 0;
+		*lp_bytes_returned = 0;
 	}
 
 	return status;
 }
 
-NTSTATUS WritePciConfig(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
-	UNREFERENCED_PARAMETER(lpOutBuffer);
-	UNREFERENCED_PARAMETER(nOutBufferSize);
+NTSTATUS WritePciConfig(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
+	UNREFERENCED_PARAMETER(lp_out_buffer);
+	UNREFERENCED_PARAMETER(n_out_buffer_size);
 
-	if (nInBufferSize < offsetof(rhms_write_pci_config_input, Data)) {
+	if (n_in_buffer_size < offsetof(rhms_write_pci_config_input, Data)) {
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	rhms_write_pci_config_input* param = (rhms_write_pci_config_input*)lpInBuffer;
-	const ULONG write_size = nInBufferSize - offsetof(rhms_write_pci_config_input, Data);
+	rhms_write_pci_config_input* param = (rhms_write_pci_config_input*)lp_in_buffer;
+	const ULONG write_size = n_in_buffer_size - offsetof(rhms_write_pci_config_input, Data);
 
-	*lpBytesReturned = 0;
+	*lp_bytes_returned = 0;
 
 	return pciConfigWrite(param->PciAddress, param->PciOffset, &param->Data, write_size);
 }
@@ -367,13 +367,13 @@ NTSTATUS WritePciConfig(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer
  * PCI support functions
  */
 
-NTSTATUS pciConfigRead(ULONG pciAddress, ULONG offset, void *data, int length) {
+NTSTATUS pciConfigRead(ULONG pci_address, ULONG offset, void *data, int length) {
 	PCI_SLOT_NUMBER slot;
 
-	const ULONG bus_number = PCI_GET_BUS(pciAddress);
+	const ULONG bus_number = PCI_GET_BUS(pci_address);
 	slot.u.AsULONG = 0;
-	slot.u.bits.DeviceNumber = PCI_GET_DEV(pciAddress);
-	slot.u.bits.FunctionNumber = PCI_GET_FUNC(pciAddress);
+	slot.u.bits.DeviceNumber = PCI_GET_DEV(pci_address);
+	slot.u.bits.FunctionNumber = PCI_GET_FUNC(pci_address);
 	const int error = HalGetBusDataByOffset(PCIConfiguration, bus_number, slot.u.AsULONG, data, offset, length);
 
 	if (error == 0) {
@@ -391,15 +391,15 @@ NTSTATUS pciConfigRead(ULONG pciAddress, ULONG offset, void *data, int length) {
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS pciConfigWrite(ULONG pciAddress, ULONG offset, void *data, int length)
+NTSTATUS pciConfigWrite(ULONG pci_address, ULONG offset, void *data, int length)
 {
 	PCI_SLOT_NUMBER slot;
 
-	const ULONG bus_number = PCI_GET_BUS(pciAddress);
+	const ULONG bus_number = PCI_GET_BUS(pci_address);
 
 	slot.u.AsULONG = 0;
-	slot.u.bits.DeviceNumber = PCI_GET_DEV(pciAddress);
-	slot.u.bits.FunctionNumber = PCI_GET_FUNC(pciAddress);
+	slot.u.bits.DeviceNumber = PCI_GET_DEV(pci_address);
+	slot.u.bits.FunctionNumber = PCI_GET_FUNC(pci_address);
 	const int error = HalSetBusDataByOffset(PCIConfiguration, bus_number, slot.u.AsULONG, data, offset, length);
 
 	if (error != length) {
@@ -413,17 +413,17 @@ NTSTATUS pciConfigWrite(ULONG pciAddress, ULONG offset, void *data, int length)
  * Physical memory functions
  */
 
-NTSTATUS ReadMemory(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
+NTSTATUS ReadMemory(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
 	PHYSICAL_ADDRESS address;
 
-	if (nInBufferSize != sizeof(rhms_read_memory_input)) {
+	if (n_in_buffer_size != sizeof(rhms_read_memory_input)) {
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	rhms_read_memory_input* param = (rhms_read_memory_input*)lpInBuffer;
+	rhms_read_memory_input* param = (rhms_read_memory_input*)lp_in_buffer;
 	const ULONG size = param->UnitSize * param->Count;
 
-	if (nOutBufferSize < size) {
+	if (n_out_buffer_size < size) {
 		return STATUS_INVALID_PARAMETER;
 	}
 
@@ -442,13 +442,13 @@ NTSTATUS ReadMemory(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, UL
 	BOOLEAN error = FALSE;
 	switch (param->UnitSize) {
 		case 1:
-			READ_REGISTER_BUFFER_UCHAR(maped, lpOutBuffer, param->Count);
+			READ_REGISTER_BUFFER_UCHAR(maped, lp_out_buffer, param->Count);
 			break;
 		case 2:
-			READ_REGISTER_BUFFER_USHORT(maped, lpOutBuffer, param->Count);
+			READ_REGISTER_BUFFER_USHORT(maped, lp_out_buffer, param->Count);
 			break;
 		case 4:
-			READ_REGISTER_BUFFER_ULONG(maped, lpOutBuffer, param->Count);
+			READ_REGISTER_BUFFER_ULONG(maped, lp_out_buffer, param->Count);
 			break;
 		default:
 			error = TRUE;
@@ -461,11 +461,11 @@ NTSTATUS ReadMemory(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, UL
 		return STATUS_INVALID_PARAMETER;
 	}
 
-	*lpBytesReturned = nOutBufferSize;
+	*lp_bytes_returned = n_out_buffer_size;
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS WriteMemory(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, ULONG nOutBufferSize, ULONG* lpBytesReturned) {
+NTSTATUS WriteMemory(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_buffer, ULONG n_out_buffer_size, ULONG* lp_bytes_returned) {
 #ifdef _PHYSICAL_MEMORY_SUPPORT
 	PHYSICAL_ADDRESS address;
 
@@ -512,12 +512,12 @@ NTSTATUS WriteMemory(void* lpInBuffer, ULONG nInBufferSize, void* lpOutBuffer, U
 	*lpBytesReturned = 0;
 	return STATUS_SUCCESS;
 #else
-	UNREFERENCED_PARAMETER(lpInBuffer);
-	UNREFERENCED_PARAMETER(nInBufferSize);
-	UNREFERENCED_PARAMETER(lpOutBuffer);
-	UNREFERENCED_PARAMETER(nOutBufferSize);
+	UNREFERENCED_PARAMETER(lp_in_buffer);
+	UNREFERENCED_PARAMETER(n_in_buffer_size);
+	UNREFERENCED_PARAMETER(lp_out_buffer);
+	UNREFERENCED_PARAMETER(n_out_buffer_size);
 
-	*lpBytesReturned = 0;
+	*lp_bytes_returned = 0;
 	return STATUS_INVALID_PARAMETER;
 #endif
 }
