@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace server.Utils.Logging
 {
-    public struct SLogMessageHolder
+    public struct LogMessageHolder
     {
         public readonly string Message;
         public readonly long Time;
-        public readonly ELogLevel Level;
+        public readonly LogLevel Level;
         public readonly Thread ContextThread;
 
-        public SLogMessageHolder(string msg, ELogLevel level, Thread contextThread) {
+        public LogMessageHolder(string msg, LogLevel level, Thread contextThread) {
             ContextThread = contextThread;
             Level = level;
             Message = msg;

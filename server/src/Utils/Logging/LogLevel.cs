@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace server.Utils.Logging
 {
-    public enum ELogLevel
+    public enum LogLevel
     {
         Debug,
         Info,

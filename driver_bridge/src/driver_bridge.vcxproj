@@ -20,11 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{8B209B6C-72E5-43EB-9C55-1FB3E2F87F46}</ProjectGuid>
+    <ProjectGuid>{69C46A6F-ED98-4908-8B32-09A92639C2AF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>cpu_shared</RootNamespace>
+    <RootNamespace>driver_bridge</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
-    <ProjectName>Temperature Module CPU</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -32,6 +31,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -39,12 +39,14 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -52,6 +54,7 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -73,27 +76,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
-    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
-    <TargetName>module_temp_cpu</TargetName>
+    <OutDir>..\output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>..\buildstage\win$(PlatformArchitecture)\</IntDir>
+    <TargetName>rhms_bridge</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
-    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
-    <TargetName>module_temp_cpu</TargetName>
+    <OutDir>..\output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>..\buildstage\win$(PlatformArchitecture)\</IntDir>
+    <TargetName>rhms_bridge</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
-    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
-    <TargetName>module_temp_cpu</TargetName>
+    <OutDir>..\output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>..\buildstage\win$(PlatformArchitecture)\</IntDir>
+    <TargetName>rhms_bridge</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>output\win$(PlatformArchitecture)\</OutDir>
-    <IntDir>buildstage\win$(PlatformArchitecture)\</IntDir>
-    <TargetName>module_temp_cpu</TargetName>
+    <OutDir>..\output\win$(PlatformArchitecture)\</OutDir>
+    <IntDir>..\buildstage\win$(PlatformArchitecture)\</IntDir>
+    <TargetName>rhms_bridge</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -101,13 +104,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CPU_SHARED_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base_module\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DRIVER_BRIDGE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\base_module\output\win$(PlatformArchitecture)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
+copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -115,13 +120,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;CPU_SHARED_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base_module\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;DRIVER_BRIDGE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\base_module\output\win$(PlatformArchitecture)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
+copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -131,15 +138,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CPU_SHARED_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base_module\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DRIVER_BRIDGE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\base_module\output\win$(PlatformArchitecture)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
+copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -149,21 +158,27 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;CPU_SHARED_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\base_module\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;DRIVER_BRIDGE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\base_module\output\win$(PlatformArchitecture)\</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
+copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\CpuTemperatureModule.cpp" />
+    <ClCompile Include="RhmsBridge.cpp" />
+    <ClCompile Include="RhmsDriverManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\CpuTemperatureModule.h" />
+    <ClInclude Include="RhmsBridge.h" />
+    <ClInclude Include="RhmsBridgeAPI.h" />
+    <ClInclude Include="RhmsDefs.h" />
+    <ClInclude Include="RhmsDriverManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

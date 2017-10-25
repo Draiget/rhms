@@ -18,13 +18,13 @@ namespace server.Utils.Logging
         private string _currentLogFileName;
         private Thread _logWriterQueueThread;
 
-        private static volatile Queue<SLogMessageHolder> _logWriterQueue;
+        private static volatile Queue<LogMessageHolder> _logWriterQueue;
 
         public static bool IsInitialized => _instance._isInitialized;
 
         public Logger(){
             _isInitialized = false;
-            _logWriterQueue = new Queue<SLogMessageHolder>();
+            _logWriterQueue = new Queue<LogMessageHolder>();
 
             _lastPrintColor = ConsoleColor.White;
             MakeDirs();
@@ -109,9 +109,9 @@ namespace server.Utils.Logging
             _logWriter?.Close();
         }
 
-        private static void AddToLogWriteQueue(string msg, ELogLevel level, Thread contextThread){
+        private static void AddToLogWriteQueue(string msg, LogLevel level, Thread contextThread){
             lock (_logWriterQueue) {
-                _logWriterQueue.Enqueue(new SLogMessageHolder(msg, level, contextThread));
+                _logWriterQueue.Enqueue(new LogMessageHolder(msg, level, contextThread));
             }
         }
 
@@ -128,7 +128,7 @@ namespace server.Utils.Logging
             Console.ForegroundColor = _lastPrintColor;
         }
 
-        internal static string FormatLogStr(long ticks, string msg, ELogLevel level, Thread ctx){
+        internal static string FormatLogStr(long ticks, string msg, LogLevel level, Thread ctx){
             var time = new DateTime(ticks);
             return $"{time.Hour:00}:{time.Minute:00}:{time.Second:00}.{time.Millisecond:000} [{ctx.Name}-{ctx.ManagedThreadId}] ({level}) {msg}\r\n";
         }
@@ -137,7 +137,7 @@ namespace server.Utils.Logging
             return $"{DateTime.Now.Hour:00}:{DateTime.Now.Minute:00}:{DateTime.Now.Second:00} [{Thread.CurrentThread.Name}-{Thread.CurrentThread.ManagedThreadId}] {msg}";
         }
 
-        private static void AddLogMsg(string msg, ELogLevel level, ConsoleColor clr){
+        private static void AddLogMsg(string msg, LogLevel level, ConsoleColor clr){
             SystemDebug.Assert(IsInitialized, "Logger not initialized");
             AddToLogWriteQueue($"{msg}", level, Thread.CurrentThread);
             var str = FormatPrintStr($"({level}) {msg}");
@@ -147,19 +147,19 @@ namespace server.Utils.Logging
         }
 
         public static void Debug(string msg){
-            AddLogMsg(msg, ELogLevel.Debug, ConsoleColor.Gray);
+            AddLogMsg(msg, LogLevel.Debug, ConsoleColor.Gray);
         }
 
         public static void Info(string msg) {
-            AddLogMsg(msg, ELogLevel.Info, ConsoleColor.White);
+            AddLogMsg(msg, LogLevel.Info, ConsoleColor.White);
         }
         public static void Warn(string msg) {
-            AddLogMsg(msg, ELogLevel.Warn, ConsoleColor.Yellow);
+            AddLogMsg(msg, LogLevel.Warn, ConsoleColor.Yellow);
         }
 
         public static void Error(string msg, Exception err = null){
             SystemDebug.Assert(IsInitialized, "Logger not initialized");
-            AddToLogWriteQueue($"{msg}", ELogLevel.Error, Thread.CurrentThread);
+            AddToLogWriteQueue($"{msg}", LogLevel.Error, Thread.CurrentThread);
             var str = err != null ? FormatPrintStr($"(Error) Exception ({err.GetType()}): '{err.Message}', {msg}\n{err.StackTrace}") : FormatPrintStr($"(Error) {msg}");
             SetNextColor(ConsoleColor.Red);
             Console.WriteLine(str);
