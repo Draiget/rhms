@@ -189,7 +189,6 @@
     <ClInclude Include="RhmsApiPmc.h" />
     <ClInclude Include="RhmsApiTsc.h" />
     <ClInclude Include="RhmsBridge.h" />
-    <ClInclude Include="RhmsBridgeAPI.h" />
     <ClInclude Include="RhmsDefs.h" />
     <ClInclude Include="RhmsDriverManager.h" />
     <ClInclude Include="RhmsApiHlt.h" />

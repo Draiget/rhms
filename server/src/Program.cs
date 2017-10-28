@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using server.Drivers;
-using server.Modules.TemperatureApi;
 using server.Utils;
 using server.Utils.Logging;
 
@@ -15,14 +14,14 @@ namespace server
     {
         public static Logger AppLogger;
 
-        static void Main(string[] args){
+        internal static void Main(string[] args) {
+            Console.Title = "RHMS Client Data Collecting Server";
             Thread.CurrentThread.Name = "main";
 
             AppLogger = new Logger();
             AppLogger.Initialize();
+            Logger.Info("Starting server ...");
 
-            /*var loader = new TemperatureModuleLoader();
-            loader.LoadFromFolder(@"..\..\..\modules\temperature\cpu_shared\output\win32");*/
             var state = KernelDriverBridge.InitializeEnvironment();
 
             Console.WriteLine($"Load driver state: {state}");

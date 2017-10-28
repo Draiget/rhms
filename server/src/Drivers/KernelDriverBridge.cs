@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace server.Drivers
@@ -22,34 +23,49 @@ namespace server.Drivers
             return _initState;
         }
 
-        public static void Test(){
-            uint index = 0, eax = 0, ebx = 0, ecx = 0, edx = 0;
-            var str = string.Empty;
+        private const uint Ia32ThermStatusMsr = 0x019C;
+        private const uint Ia32TemperatureTarget = 0x01A2;
 
-            index = 0x00000010; // Time Stamp Counter
-            if (DriverReadMsrTx(index, ref eax, ref edx, (UIntPtr)1) != 0) {
-                str += "index     63-32    31-0\r\n";
-                str += index.ToString("X8") + ": " + edx.ToString("X8")
-                       + " " + eax.ToString("X8") + "\r\n";
-            } else {
-                str += "Failure : Change Thread Affinity Mask\r\n";
+        private static float GetTjMaxFromMsr(){
+            uint eax = 0, edx = 0;
+            if (Kernel.Msr.ReadTx(Ia32TemperatureTarget, ref eax, ref edx, (UIntPtr)1)) {
+                return (eax >> 16) & 0xFF;
             }
 
-            Console.WriteLine(str);
+            return 100;
         }
 
-        private const string DriverFullPath = "bin\\" + DriverName + ".dll";
+        public static void Test(){
+            uint eax = 0, edx = 0;
+
+            while (true) {
+                if (Kernel.Msr.ReadTx(Ia32ThermStatusMsr, ref eax, ref edx, (UIntPtr) 1) && (eax & 0x80000000) != 0) {
+                    // get the dist from tjMax from bits 22:16
+                    float deltaT = ((eax & 0x007F0000) >> 16);
+                    var tjMax = GetTjMaxFromMsr();
+                    var tSlope = 1;
+                    var temp = tjMax - tSlope * deltaT;
+                    Console.Write($"\rTemperature: {temp}");
+                    Thread.Sleep(700);
+                }
+            }
+        }
+
+        internal const string DriverFullPath = "bin\\" + DriverName + ".dll";
+
 
         [DllImport(DriverFullPath, EntryPoint = "RHMS_InitializeDriver", CallingConvention = CallingConvention.Cdecl)]
         private static extern KernelDriverInitState ApiInitializeDriver();
 
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadMsr", CallingConvention = CallingConvention.Winapi)]
-        private static extern int DriverReadMsr(uint index, ref uint eax, ref uint edx);
+        
 
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadMsrTx", CallingConvention = CallingConvention.Winapi)]
-        private static extern int DriverReadMsrTx(uint index, ref uint eax, ref uint edx, UIntPtr threadAffinityMask);
+        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadPciConfigByte", CallingConvention = CallingConvention.Winapi)]
+        internal static extern byte DriverReadPciConfigByte(uint pciAddress, byte regAddress);
 
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadMsrPx", CallingConvention = CallingConvention.Winapi)]
-        private static extern int DriverReadMsrPx(uint index, ref uint eax, ref uint edx, UIntPtr processAffinityMask);
+        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadPciConfigWord", CallingConvention = CallingConvention.Winapi)]
+        internal static extern ushort DriverReadPciConfigWord(uint pciAddress, byte regAddress);
+
+        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadPciConfigDword", CallingConvention = CallingConvention.Winapi)]
+        internal static extern uint DriverReadPciConfigDword(uint pciAddress, byte regAddress);
     }
 }

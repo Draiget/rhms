@@ -71,12 +71,8 @@
   <ItemGroup>
     <Compile Include="Drivers\KernelDriverInitState.cs" />
     <Compile Include="Drivers\KernelDriverBridge.cs" />
-    <Compile Include="Modules\ApiCallRenamingAttribute.cs" />
-    <Compile Include="Modules\EModuleType.cs" />
+    <Compile Include="Drivers\Kernel\Msr.cs" />
     <Compile Include="Modules\IModuleLoader.cs" />
-    <Compile Include="Modules\TemperatureApi\BaseTemperatureModule.cs" />
-    <Compile Include="Modules\TemperatureApi\SModuleState.cs" />
-    <Compile Include="Modules\TemperatureApi\TemperatureModuleLoader.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,7 +83,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Networking\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

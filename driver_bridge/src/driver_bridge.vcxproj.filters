@@ -47,9 +47,6 @@
     <ClInclude Include="RhmsBridge.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="RhmsBridgeAPI.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="RhmsDefs.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>

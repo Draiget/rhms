@@ -49,8 +49,8 @@ RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadMsrPx(
 /**
 * \brief Write MSR data shared function
 * \param index IO buffer index
-* \param eax EAX out register (bit 0-31)
-* \param edx EDX out register (bit 32-63)
+* \param eax EAX register (bit 0-31)
+* \param edx EDX register (bit 32-63)
 * \return Success of failure
 */
 RHMS_API_EXPOSED BOOL WINAPI RHMS_WriteMsr(
@@ -62,8 +62,8 @@ RHMS_API_EXPOSED BOOL WINAPI RHMS_WriteMsr(
 /**
 * \brief Write MSR data (thread context)
 * \param index IO buffer index
-* \param eax EAX out register (bit 0-31)
-* \param edx EDX out register (bit 32-63)
+* \param eax EAX register (bit 0-31)
+* \param edx EDX register (bit 32-63)
 * \param thread_affinity_mask Thread affinity mask
 * \return Success of failure
 */
@@ -77,8 +77,8 @@ RHMS_API_EXPOSED BOOL WINAPI RHMS_WriteMsrTx(
 /**
 * \brief Write MSR data (process context)
 * \param index IO buffer index
-* \param eax EAX out register (bit 0-31)
-* \param edx EDX out register (bit 32-63)
+* \param eax EAX register (bit 0-31)
+* \param edx EDX register (bit 32-63)
 * \param process_affinity_mask Process affinity mask
 * \return Success of failure
 */
