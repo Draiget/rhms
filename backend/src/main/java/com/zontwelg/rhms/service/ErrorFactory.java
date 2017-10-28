@@ -1,6 +1,6 @@
 package com.zontwelg.rhms.service;
 
-import com.zontwelg.rhms.com.zontwelg.rhms.domain.ResponseContainer;
+import com.zontwelg.rhms.domain.ResponseContainer;
 
 public class ErrorFactory {
 

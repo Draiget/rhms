@@ -1,6 +1,6 @@
 package com.zontwelg.rhms.controller;
 
-import com.zontwelg.rhms.com.zontwelg.rhms.domain.ResponseContainer;
+import com.zontwelg.rhms.domain.ResponseContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

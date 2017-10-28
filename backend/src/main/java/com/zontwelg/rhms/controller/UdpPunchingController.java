@@ -1,7 +1,7 @@
 package com.zontwelg.rhms.controller;
 
-import com.zontwelg.rhms.com.zontwelg.rhms.domain.ResponseContainer;
-import com.zontwelg.rhms.com.zontwelg.rhms.domain.UdpSession;
+import com.zontwelg.rhms.domain.ResponseContainer;
+import com.zontwelg.rhms.domain.UdpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/udp-hp")
