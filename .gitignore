@@ -15,3 +15,5 @@ driver_bridge/output
 
 backend/.idea
 backend/target
+
+deployment-ssh.log
