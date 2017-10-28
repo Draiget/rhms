@@ -1,5 +1,5 @@
 @echo off
-set IDN_FILE="C:\Users\Administrator\.ssh\dc_key_rsa"
+set IDN_FILE="C:\Windows\ssh\dc_key_rsa"
 set REMOTE_HOST="deploy-deb.dc.zontwelg.com"
 set REMOTE_PATH="/deployment/rhms"
 set SNAPSHOT_NAME="rhms-api-1.0-SNAPSHOT.jar"
