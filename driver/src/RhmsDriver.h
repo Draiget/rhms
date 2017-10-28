@@ -121,7 +121,7 @@ NTSTATUS WriteMemory(
  * PCI support function declarations
  */
 
-NTSTATUS pciConfigRead(ULONG pciAddress, ULONG offset, void *data, int length);
-NTSTATUS pciConfigWrite(ULONG pciAddress, ULONG offset, void *data, int length);
+NTSTATUS PciConfigRead(ULONG pci_address, ULONG offset, void *data, int length);
+NTSTATUS PciConfigWrite(ULONG pci_address, ULONG offset, void *data, int length);
 
 #endif

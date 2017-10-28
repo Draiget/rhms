@@ -1,5 +1,5 @@
-#ifndef RHMS_BRIDGE_API_H
-#define RHMS_BRIDGE_API_H
+#ifndef RHMS_EXPORTS_API_H
+#define RHMS_EXPORTS_API_H
 
 #define RHMS_API_IMPORT extern "C" __declspec(dllimport)
 #define RHMS_API_EXPORT extern "C" __declspec(dllexport)
@@ -12,4 +12,3 @@
 #endif
 
 #endif
-

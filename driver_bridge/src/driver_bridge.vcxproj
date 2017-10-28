@@ -110,8 +110,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
-copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+      <Command>copy /Y "$(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys" "$(SolutionDir)server\output\$(Configuration)\bin"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,8 +125,7 @@ copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuratio
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
-copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+      <Command>copy /Y "$(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys" "$(SolutionDir)server\output\$(Configuration)\bin"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,8 +144,7 @@ copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuratio
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
-copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+      <Command>copy /Y "$(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys" "$(SolutionDir)server\output\$(Configuration)\bin"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -166,19 +163,33 @@ copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuratio
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys $(SolutionDir)server\output\$(Configuration)\bin
-copy /Y $(TargetDir)$(TargetFileName) $(SolutionDir)server\output\$(Configuration)\bin</Command>
+      <Command>copy /Y "$(SolutionDir)driver\output\win$(PlatformArchitecture)\rhms_kernel.sys" "$(SolutionDir)server\output\$(Configuration)\bin"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="RhmsApiCpuid.cpp" />
+    <ClCompile Include="RhmsApiHlt.cpp" />
+    <ClCompile Include="RhmsApiIO.cpp" />
+    <ClCompile Include="RhmsApiMsr.cpp" />
+    <ClCompile Include="RhmsApiPci.cpp" />
+    <ClCompile Include="RhmsApiPmc.cpp" />
+    <ClCompile Include="RhmsApiTsc.cpp" />
     <ClCompile Include="RhmsBridge.cpp" />
     <ClCompile Include="RhmsDriverManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RhmsApiCpuid.h" />
+    <ClInclude Include="RhmsApiIO.h" />
+    <ClInclude Include="RhmsApiMsr.h" />
+    <ClInclude Include="RhmsApiPci.h" />
+    <ClInclude Include="RhmsApiPmc.h" />
+    <ClInclude Include="RhmsApiTsc.h" />
     <ClInclude Include="RhmsBridge.h" />
     <ClInclude Include="RhmsBridgeAPI.h" />
     <ClInclude Include="RhmsDefs.h" />
     <ClInclude Include="RhmsDriverManager.h" />
+    <ClInclude Include="RhmsApiHlt.h" />
+    <ClInclude Include="RhmsExportsApi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

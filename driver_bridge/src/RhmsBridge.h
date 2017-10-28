@@ -1,6 +1,7 @@
 #ifndef RHMS_DRIVER_BRIDGE_H
 #define RHMS_DRIVER_BRIDGE_H
-#include "RhmsBridgeAPI.h"
+
+#include "RhmsExportsApi.h"
 
 /*
  * API functions
@@ -55,25 +56,47 @@ RHMS_API_EXPOSED void RHMS_DeinitializeDriver();
  * MSR Stuff
  */
 
-RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadMsr(
-	DWORD index,	// MSR index
-	PDWORD eax,		// bit  0-31
-	PDWORD edx		// bit 32-63
-);
+#include "RhmsApiMsr.h"
 
-RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadMsrTx(
-	DWORD index,					// MSR index
-	PDWORD eax,						// bit  0-31
-	PDWORD edx,						// bit 32-63
-	DWORD_PTR thread_affinity_mask
-);
+/**
+ * PMC functions (Performance Monitor Count Registers)
+ * \link http://wiki.dreamrunner.org/public_html/Embedded-System/Cortex-A8/PerformanceMonitorControlRegister.html
+ */
 
-RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadMsrPx(
-	DWORD index,					// MSR index
-	PDWORD eax,						// bit  0-31
-	PDWORD edx,						// bit 32-63
-	DWORD_PTR process_affinity_mask
-);
+#include "RhmsApiPmc.h"
+
+/**
+ * CPUID functions
+ * \link https://ru.wikipedia.org/wiki/CPUID
+ */
+
+#include "RhmsApiCpuid.h"
+
+/**
+ * TSC (Time Stamp Counter) registers
+ * \link https://ru.wikipedia.org/wiki/Rdtsc
+ */
+
+#include "RhmsApiTsc.h"
+
+/**
+ * HLT (Halt)
+ * \link https://en.wikipedia.org/wiki/HLT_(x86_instruction)
+ */
+
+#include "RhmsApiHlt.h"
+
+/*
+ * I/O
+ */
+
+#include "RhmsApiIO.h"
+
+/*
+ * PCI
+ */
+
+#include "RhmsApiPci.h"
 
 /*
  * Internals

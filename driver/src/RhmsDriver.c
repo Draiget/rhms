@@ -336,7 +336,7 @@ NTSTATUS ReadPciConfig(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out_
 	}
 
 	rhms_read_pci_config_input* param = (rhms_read_pci_config_input*)lp_in_buffer;
-	const NTSTATUS status = pciConfigRead(param->PciAddress, param->PciOffset, lp_out_buffer, n_out_buffer_size);
+	const NTSTATUS status = PciConfigRead(param->PciAddress, param->PciOffset, lp_out_buffer, n_out_buffer_size);
 
 	if (status == STATUS_SUCCESS) {
 		*lp_bytes_returned = n_out_buffer_size;
@@ -360,14 +360,14 @@ NTSTATUS WritePciConfig(void* lp_in_buffer, ULONG n_in_buffer_size, void* lp_out
 
 	*lp_bytes_returned = 0;
 
-	return pciConfigWrite(param->PciAddress, param->PciOffset, &param->Data, write_size);
+	return PciConfigWrite(param->PciAddress, param->PciOffset, &param->Data, write_size);
 }
 
 /*
  * PCI support functions
  */
 
-NTSTATUS pciConfigRead(ULONG pci_address, ULONG offset, void *data, int length) {
+NTSTATUS PciConfigRead(ULONG pci_address, ULONG offset, void *data, int length) {
 	PCI_SLOT_NUMBER slot;
 
 	const ULONG bus_number = PCI_GET_BUS(pci_address);
@@ -391,7 +391,7 @@ NTSTATUS pciConfigRead(ULONG pci_address, ULONG offset, void *data, int length) 
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS pciConfigWrite(ULONG pci_address, ULONG offset, void *data, int length)
+NTSTATUS PciConfigWrite(ULONG pci_address, ULONG offset, void *data, int length)
 {
 	PCI_SLOT_NUMBER slot;
 
