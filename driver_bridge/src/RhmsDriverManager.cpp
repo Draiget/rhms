@@ -2,8 +2,10 @@
 #include "RhmsDriverManager.h"
 #include "RhmsBridge.h"
 #include <cstdio>
+#include "RhmsDefs.h"
 
 extern HANDLE g_Handle;
+RHMS_USE_LOGGER();
 
 static BOOL InstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
 static BOOL RemoveDriver(SC_HANDLE h_sc_manager, const char* driver_id);
@@ -28,6 +30,17 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
 
 	const auto h_sc_manager = OpenSCManagerA(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
 	if (h_sc_manager == nullptr) {
+		auto const err = GetLastError();
+		if (err == ERROR_ACCESS_DENIED){
+			RHMS_Log(RHMS_LOGLEVEL_ERROR, "OpenSCManagerA: Access denied (user must have administrator rights)", err);
+			return RHMS_DRIVER_MANAGER_OPENSCM_FAILED_ACCESS_DENIED;
+		}
+		
+		if (err == ERROR_DATABASE_DOES_NOT_EXIST) {
+			RHMS_Log(RHMS_LOGLEVEL_ERROR, "OpenSCManagerA: The specified database does not exist (ERROR_DATABASE_DOES_NOT_EXIST)", err);
+			return RHMS_DRIVER_MANAGER_OPENSCM_FAILED_DATABASE_DOES_NOT_EXIST;
+		}
+
 		return RHMS_DRIVER_MANAGER_OPENSCM_FAILED;
 	}
 
@@ -96,7 +109,7 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
  * \return Status of installing driver
  */
 BOOL InstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path) {
-	printf("%s: Creating service\n", __FUNCTION__);
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Creating service\n", __FUNCTION__);
 	auto const h_service = CreateServiceA(	h_sc_manager,
 											driver_id,
 											driver_id,
@@ -114,12 +127,12 @@ BOOL InstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* dr
 
 	if (h_service == nullptr) {
 		auto const error = GetLastError();
-		printf("%s: Creating service error: %d\n", __FUNCTION__, error);
+		RHMS_Log(RHMS_LOGLEVEL_ERROR, "%s: Creating service error: %d\n", __FUNCTION__, error);
 		if (error == ERROR_SERVICE_EXISTS) {
 			return true;
 		}
 	} else {
-		printf("%s: Install done, close handle\n", __FUNCTION__);
+		RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Install done, close handle\n", __FUNCTION__);
 		CloseServiceHandle(h_service);
 		return true;
 	}
@@ -182,7 +195,7 @@ BOOL RemoveDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
  * \return Status of starting
  */
 int StartDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
-	printf("%s: Starting driver\n", __FUNCTION__);
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Starting driver\n", __FUNCTION__);
 	int retn_code = false;
 
 	auto const service_handle = OpenServiceA(h_sc_manager, driver_id, SERVICE_ALL_ACCESS);
@@ -192,14 +205,14 @@ int StartDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
 			if (error == ERROR_INVALID_IMAGE_HASH){
 				retn_code = RHMS_DRIVER_MANAGER_INCORRECT_DRV_SIGNATURE;
 			} else {
-				printf("%s: Starting driver error: %d\n", __FUNCTION__, error);
+				RHMS_Log(RHMS_LOGLEVEL_ERROR, "%s: Starting driver error: %d\n", __FUNCTION__, error);
 			}
 
 			if (error == ERROR_SERVICE_ALREADY_RUNNING) {
 				retn_code = RHMS_DRIVER_MANAGER_OK;
 			}
 		} else {
-			printf("%s: Driver started!\n", __FUNCTION__);
+			RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Driver started!\n", __FUNCTION__);
 			retn_code = RHMS_DRIVER_MANAGER_OK;
 		}
 

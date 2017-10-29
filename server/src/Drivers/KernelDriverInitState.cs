@@ -21,6 +21,8 @@ namespace server.Drivers
         RhmsDriverManagerOk = 10,
         RhmsDriverManagerIdOrPathEmpty = 11,
         RhmsDriverManagerOpenscmFailed = 12,
-        RhmsDriverManagerIncorrectDrvSignature = 13
+        RhmsDriverManagerOpenscmFailedAccessDenied = 13,
+        RhmsDriverManagerOpenscmFailedDatabaseDoesNotExist = 14,
+        RhmsDriverManagerIncorrectDrvSignature = 15
     }
 }

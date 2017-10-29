@@ -5,6 +5,7 @@
 #include "RhmsDefs.h"
 #include "RhmsDriverManager.h"
 #include "../../driver/src/include/RhmsIOCTL.h"
+#include <mutex>
 
 #pragma warning(disable: 4996)
 
@@ -27,6 +28,13 @@ bool g_IsMSR = false;
 bool g_IsNT = false;
 bool g_IsCPUID = false;
 bool g_IsTSC = false;
+logger_callback_fn g_LoggerCallbackFn = nullptr;
+
+/*
+ * Locking
+ */
+
+std::mutex g_LoggerMutex;
 
 /*
  * API realisation
@@ -123,6 +131,35 @@ void RHMS_DeinitializeDriver() {
 	}
 
 	g_DriverInitizlied = false;
+}
+
+bool RHMS_RegisterLoggerCallback(logger_callback_fn callback_ref) {
+	if (callback_ref == nullptr){
+		return false;
+	}
+
+	g_LoggerMutex.lock();
+	g_LoggerCallbackFn = callback_ref;
+	g_LoggerMutex.unlock();
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "Logger callback is registered");
+	return true;
+}
+
+void RHMS_Log(e_rhms_loglevel level, const char* format, ...) {
+	g_LoggerMutex.lock();
+	if (g_LoggerCallbackFn == nullptr) {
+		g_LoggerMutex.unlock();
+		return;
+	}
+
+	char buffer[1024 * 16];
+	va_list argptr;
+	va_start(argptr, format);
+	vsprintf_s(buffer, format, argptr);
+	va_end(argptr);
+
+	g_LoggerCallbackFn( level, buffer );
+	g_LoggerMutex.unlock();
 }
 
 DWORD LoadDriver() {

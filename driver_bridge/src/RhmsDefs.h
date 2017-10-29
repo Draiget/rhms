@@ -32,4 +32,7 @@
 #define RHMS_DRIVER_FILE_NAME_WIN_NT_X64		RHMS_DRIVER_ID "64.sys"
 #define RHMS_DRIVER_FILE_NAME_WIN_NT_IA64		RHMS_DRIVER_ID "ia64.sys"  // Reserved
 
+#define RHMS_USE_LOGGER() \
+		extern void RHMS_Log(e_rhms_loglevel level, const char* message, ...)
+
 #endif

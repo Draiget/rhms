@@ -1,6 +1,7 @@
 #ifndef RHMS_DRIVER_BRIDGE_H
 #define RHMS_DRIVER_BRIDGE_H
 
+#include <string>
 #include "RhmsExportsApi.h"
 
 /*
@@ -51,6 +52,22 @@ RHMS_API_EXPOSED bool RHMS_IsArch64();
 
 RHMS_API_EXPOSED int RHMS_InitializeDriver();
 RHMS_API_EXPOSED void RHMS_DeinitializeDriver();
+
+/*
+ * Logging agent
+ */
+
+enum e_rhms_loglevel
+{
+	RHMS_LOGLEVEL_DEBUG = 0,
+	RHMS_LOGLEVEL_ERROR,
+	RHMS_LOGLEVEL_WARNING
+};
+
+typedef void(__stdcall *logger_callback_fn)(e_rhms_loglevel level, const char* message);
+
+RHMS_API_EXPOSED bool RHMS_RegisterLoggerCallback(logger_callback_fn callback_ref);
+void RHMS_Log(e_rhms_loglevel level, const char* message, ...);
 
 /*
  * MSR Stuff

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using server.Drivers;
+using server.Drivers.Kernel;
 using server.Utils;
 using server.Utils.Logging;
 
@@ -22,12 +23,18 @@ namespace server
             AppLogger.Initialize();
             Logger.Info("Starting server ...");
 
+            BridgeDriver.RegisterLoggerCallback(Target);
+
             var state = KernelDriverBridge.InitializeEnvironment();
 
             Console.WriteLine($"Load driver state: {state}");
             Console.ReadLine();
 
             AppLogger.Shutdown();
+        }
+
+        private static void Target(BridgeDriver.LogLevel level, string message){
+            Logger.Auto(level, message);
         }
     }
 }

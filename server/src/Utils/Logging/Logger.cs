@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using server.Drivers.Kernel;
 using SystemDebug = System.Diagnostics.Debug;
 
 namespace server.Utils.Logging
@@ -164,6 +165,13 @@ namespace server.Utils.Logging
             SetNextColor(ConsoleColor.Red);
             Console.WriteLine(str);
             ResetColor();
+        }
+
+        public static void Auto(BridgeDriver.LogLevel level, string message){
+            AddLogMsg(
+                message, 
+                level == BridgeDriver.LogLevel.Error ? LogLevel.Error : (level == BridgeDriver.LogLevel.Warning ? LogLevel.Warn : LogLevel.Debug), 
+                ConsoleColor.Gray);
         }
     }
 }

@@ -63,5 +63,19 @@ namespace server.Drivers.Kernel
         /// </summary>
         [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_DeinitializeDriver", CallingConvention = CallingConvention.Winapi)]
         internal static extern void Deinitialize();
+
+        public enum LogLevel
+        {
+            Debug = 0,
+            Error,
+            Warning
+        }
+
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        public delegate void LoggerCallback([MarshalAs(UnmanagedType.I4)] LogLevel level, [MarshalAs(UnmanagedType.LPStr)] string message);
+
+        [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_RegisterLoggerCallback", CallingConvention = CallingConvention.Winapi)]
+        internal static extern bool RegisterLoggerCallback(LoggerCallback callback);
     }
 }
