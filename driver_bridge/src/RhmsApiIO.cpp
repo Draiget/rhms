@@ -145,7 +145,7 @@ BOOL WINAPI RHMS_ReadIoPortDwordEx(WORD port, PDWORD value) {
 		nullptr
 	);
 
-	if (result)	{
+	if (result) {
 		*value = val;
 		return true;
 	}

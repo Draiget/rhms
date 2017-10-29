@@ -23,7 +23,7 @@ RHMS_API_EXPOSED BOOL WINAPI RHMS_HltTx(
 * \param process_affinity_mask Process affinity mask
 * \return Success of failure
 */
-RHMS_API_EXPOSED BOOL WINAPI RHMS_HltTx(
+RHMS_API_EXPOSED BOOL WINAPI RHMS_HltPx(
 	DWORD_PTR process_affinity_mask
 );
 

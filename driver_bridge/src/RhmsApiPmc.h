@@ -17,7 +17,7 @@ RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadPmc(
 );
 
 /**
-* \brief Read PMC data shared function (thread context)
+* \brief Read PMC data function (thread context)
 * \param index IO buffer index
 * \param eax EAX register (bit 0-31)
 * \param edx EDX register (bit 32-63)
@@ -32,7 +32,7 @@ RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadPmcTx(
 );
 
 /**
-* \brief Read PMC data shared function (process context)
+* \brief Read PMC data function (process context)
 * \param index IO buffer index
 * \param eax EAX register (bit 0-31)
 * \param edx EDX register (bit 32-63)

@@ -22,7 +22,7 @@ BOOL WINAPI RHMS_ReadTscTx(PDWORD eax, PDWORD edx, DWORD_PTR thread_affinity_mas
 	DWORD_PTR mask = 0;
 	HANDLE h_thread = nullptr;
 
-	if (g_IsNT)	{
+	if (g_IsNT) {
 		h_thread = GetCurrentThread();
 		mask = SetThreadAffinityMask(h_thread, thread_affinity_mask);
 		if (mask == 0) {
@@ -32,7 +32,7 @@ BOOL WINAPI RHMS_ReadTscTx(PDWORD eax, PDWORD edx, DWORD_PTR thread_affinity_mas
 
 	auto const result = RHMS_ReadTsc(eax, edx);
 
-	if (g_IsNT)	{
+	if (g_IsNT) {
 		SetThreadAffinityMask(h_thread, mask);
 	}
 
@@ -44,7 +44,7 @@ BOOL WINAPI RHMS_ReadTscPx(PDWORD eax, PDWORD edx, DWORD_PTR process_affinity_ma
 	DWORD_PTR system_mask = 0;
 	HANDLE h_process = nullptr;
 
-	if (g_IsNT)	{
+	if (g_IsNT) {
 		h_process = GetCurrentProcess();
 		GetProcessAffinityMask(h_process, &process_mask, &system_mask);
 		if (!SetProcessAffinityMask(h_process, process_affinity_mask)) {
@@ -54,7 +54,7 @@ BOOL WINAPI RHMS_ReadTscPx(PDWORD eax, PDWORD edx, DWORD_PTR process_affinity_ma
 
 	auto const result = RHMS_ReadTsc(eax, edx);
 
-	if (g_IsNT)	{
+	if (g_IsNT) {
 		SetProcessAffinityMask(h_process, process_mask);
 	}
 

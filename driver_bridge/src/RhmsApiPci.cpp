@@ -63,11 +63,11 @@ BOOL RHMS_PciConfigWrite(DWORD pci_address, DWORD reg_address, PBYTE value, DWOR
 	}
 
 	// alignment check
-	if (size == 2 && (reg_address & 1) != 0)	{
+	if (size == 2 && (reg_address & 1) != 0) {
 		return false;
 	}
 
-	if (size == 4 && (reg_address & 3) != 0)	{
+	if (size == 4 && (reg_address & 3) != 0) {
 		return false;
 	}
 
@@ -249,7 +249,7 @@ DWORD WINAPI RHMS_FindPciDeviceByClass(BYTE base_class, BYTE sub_class, BYTE pro
 							static_cast<DWORD>(sub_class) << 16 |
 						   static_cast<DWORD>(program_if) << 8)
 						)
-					{
+				 {
 						if (count == index) {
 							return pciAddress;
 						}

@@ -15,7 +15,7 @@ namespace server.Drivers
         private const string DriverName = "rhms_bridge";
 
         public static KernelDriverInitState InitializeEnvironment(){
-            _initState = ApiInitializeDriver();
+            _initState = Kernel.BridgeDriver.Initialize();
             if (_initState == KernelDriverInitState.RhmsDrvNoError) {
                 Test();
             }
@@ -53,19 +53,5 @@ namespace server.Drivers
 
         internal const string DriverFullPath = "bin\\" + DriverName + ".dll";
 
-
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_InitializeDriver", CallingConvention = CallingConvention.Cdecl)]
-        private static extern KernelDriverInitState ApiInitializeDriver();
-
-        
-
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadPciConfigByte", CallingConvention = CallingConvention.Winapi)]
-        internal static extern byte DriverReadPciConfigByte(uint pciAddress, byte regAddress);
-
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadPciConfigWord", CallingConvention = CallingConvention.Winapi)]
-        internal static extern ushort DriverReadPciConfigWord(uint pciAddress, byte regAddress);
-
-        [DllImport(DriverFullPath, EntryPoint = "RHMS_ReadPciConfigDword", CallingConvention = CallingConvention.Winapi)]
-        internal static extern uint DriverReadPciConfigDword(uint pciAddress, byte regAddress);
     }
 }
