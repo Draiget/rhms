@@ -18,5 +18,4 @@ backend/target
 
 deployment-ssh.log
 
-packages/NUnit.3.5.0/lib
-packages/NUnit.3.5.0/*.txt
+packages
