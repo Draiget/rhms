@@ -5,13 +5,13 @@
 extern bool g_IsCPUID;
 extern bool g_IsNT;
 
-BOOL WINAPI RHMS_Cpuid(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD edx) {
+BOOL WINAPI RHMS_Cpuid(DWORD index, DWORD sub_leaf, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD edx) {
 	if (eax == nullptr || ebx == nullptr || ecx == nullptr || edx == nullptr || !g_IsCPUID) {
 		return FALSE;
 	}
 
 	int info[4];
-	__cpuid(info, index);
+	__cpuidex(info, index, sub_leaf);
 	*eax = info[0];
 	*ebx = info[1];
 	*ecx = info[2];
@@ -20,7 +20,7 @@ BOOL WINAPI RHMS_Cpuid(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD e
 	return true;
 }
 
-BOOL WINAPI RHMS_CpuidTx(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD edx, DWORD_PTR thread_affinity_mask) {
+BOOL WINAPI RHMS_CpuidTx(DWORD index, DWORD sub_leaf, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD edx, DWORD_PTR thread_affinity_mask) {
 	DWORD_PTR mask = 0;
 	HANDLE h_thread = nullptr;
 
@@ -32,7 +32,7 @@ BOOL WINAPI RHMS_CpuidTx(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD
 		}
 	}
 
-	auto const result = RHMS_Cpuid(index, eax, ebx, ecx, edx);
+	auto const result = RHMS_Cpuid(index, sub_leaf, eax, ebx, ecx, edx);
 
 	if (g_IsNT) {
 		SetThreadAffinityMask(h_thread, mask);
@@ -41,7 +41,7 @@ BOOL WINAPI RHMS_CpuidTx(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD
 	return result;
 }
 
-BOOL WINAPI RHMS_CpuidPx(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD edx, DWORD_PTR process_affinity_mask) {
+BOOL WINAPI RHMS_CpuidPx(DWORD index, DWORD sub_leaf, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD edx, DWORD_PTR process_affinity_mask) {
 	DWORD_PTR process_mask = 0;
 	DWORD_PTR system_mask = 0;
 	HANDLE h_process = nullptr;
@@ -57,7 +57,7 @@ BOOL WINAPI RHMS_CpuidPx(DWORD index, PDWORD eax, PDWORD ebx, PDWORD ecx, PDWORD
 		}
 	}
 
-	auto const result = RHMS_Cpuid(index, eax, ebx, ecx, edx);
+	auto const result = RHMS_Cpuid(index, sub_leaf, eax, ebx, ecx, edx);
 	
 	if (g_IsNT) {
 		SetProcessAffinityMask(h_process, process_mask);

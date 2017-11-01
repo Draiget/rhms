@@ -17,7 +17,7 @@ namespace server.Drivers
         public static KernelDriverInitState InitializeEnvironment(){
             _initState = Kernel.BridgeDriver.Initialize();
             if (_initState == KernelDriverInitState.RhmsDrvNoError) {
-                Test();
+                // Test();
             }
 
             return _initState;

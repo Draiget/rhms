@@ -26,6 +26,12 @@ namespace server
             BridgeDriver.RegisterLoggerCallback(Target);
 
             var state = KernelDriverBridge.InitializeEnvironment();
+            if (state == KernelDriverInitState.RhmsDrvNoError) {
+                var cpuInfo = Drivers.Presentation.Cpuid.CollectAll();
+                if (cpuInfo != null) {
+                    Console.WriteLine(cpuInfo.ToString());
+                }
+            }
 
             Console.WriteLine($"Load driver state: {state}");
             Console.ReadLine();

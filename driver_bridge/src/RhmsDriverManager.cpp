@@ -109,7 +109,7 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
  * \return Status of installing driver
  */
 BOOL InstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path) {
-	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Creating service\n", __FUNCTION__);
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Creating service", __FUNCTION__);
 	auto const h_service = CreateServiceA(	h_sc_manager,
 											driver_id,
 											driver_id,
@@ -127,12 +127,12 @@ BOOL InstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* dr
 
 	if (h_service == nullptr) {
 		auto const error = GetLastError();
-		RHMS_Log(RHMS_LOGLEVEL_ERROR, "%s: Creating service error: %d\n", __FUNCTION__, error);
+		RHMS_Log(RHMS_LOGLEVEL_ERROR, "%s: Creating service error: %d", __FUNCTION__, error);
 		if (error == ERROR_SERVICE_EXISTS) {
 			return true;
 		}
 	} else {
-		RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Install done, close handle\n", __FUNCTION__);
+		RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Install done, close handle", __FUNCTION__);
 		CloseServiceHandle(h_service);
 		return true;
 	}
@@ -177,6 +177,7 @@ BOOL SystemInstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const ch
  * \return Status of removing driver
  */
 BOOL RemoveDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Removing driver", __FUNCTION__);
 	auto const service_handle = OpenServiceA(h_sc_manager, driver_id, SERVICE_ALL_ACCESS);
 	if (service_handle == nullptr) {
 		return true;
@@ -195,7 +196,7 @@ BOOL RemoveDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
  * \return Status of starting
  */
 int StartDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
-	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Starting driver\n", __FUNCTION__);
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Starting driver", __FUNCTION__);
 	int retn_code = false;
 
 	auto const service_handle = OpenServiceA(h_sc_manager, driver_id, SERVICE_ALL_ACCESS);
@@ -205,14 +206,14 @@ int StartDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
 			if (error == ERROR_INVALID_IMAGE_HASH){
 				retn_code = RHMS_DRIVER_MANAGER_INCORRECT_DRV_SIGNATURE;
 			} else {
-				RHMS_Log(RHMS_LOGLEVEL_ERROR, "%s: Starting driver error: %d\n", __FUNCTION__, error);
+				RHMS_Log(RHMS_LOGLEVEL_ERROR, "%s: Starting driver error: %d", __FUNCTION__, error);
 			}
 
 			if (error == ERROR_SERVICE_ALREADY_RUNNING) {
 				retn_code = RHMS_DRIVER_MANAGER_OK;
 			}
 		} else {
-			RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Driver started!\n", __FUNCTION__);
+			RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Driver started!", __FUNCTION__);
 			retn_code = RHMS_DRIVER_MANAGER_OK;
 		}
 
@@ -234,6 +235,7 @@ BOOL StopDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
 
 	UNREFERENCED_PARAMETER(service_status);
 
+	RHMS_Log(RHMS_LOGLEVEL_DEBUG, "%s: Stopping driver", __FUNCTION__);
 	auto const service_handle = OpenServiceA(h_sc_manager, driver_id, SERVICE_ALL_ACCESS);
 	if (service_handle != nullptr) {
 		retn_code = ControlService(service_handle, SERVICE_CONTROL_STOP, &service_status);
