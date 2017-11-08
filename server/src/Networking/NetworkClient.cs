@@ -20,7 +20,5 @@ namespace server.Networking
         public void RegisterOnServer(){
             
         }
-
-        
     }
 }

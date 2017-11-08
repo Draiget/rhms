@@ -8,6 +8,10 @@ namespace server.Drivers.Presentation
 {
     public class CpuidCoreInfo
     {
+        
 
+        public CpuidCoreInfo(CpuidRegisters registers){
+            
+        }
     }
 }

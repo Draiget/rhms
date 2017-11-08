@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace server.Modules
+namespace server.Hardware
 {
-    public interface IModuleLoader
+    public class HardwareIdentifer
     {
-        void LoadFromFolder(string folderName);
-
-        void UnloadAll();
     }
 }

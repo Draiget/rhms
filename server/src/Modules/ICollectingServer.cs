@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace server.Modules
 {
-    public interface IModuleLoader
+    public interface ICollectingServer
     {
-        void LoadFromFolder(string folderName);
+        bool HasActiveRemoteConnection();
 
-        void UnloadAll();
+        ICollectingServerLogger GetLoggerInstance();
     }
 }

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using server.Drivers;
 using server.Drivers.Kernel;
-using server.Utils;
 using server.Utils.Logging;
 
 namespace server
@@ -23,13 +22,14 @@ namespace server
             AppLogger.Initialize();
             Logger.Info("Starting server ...");
 
-            BridgeDriver.RegisterLoggerCallback(Target);
+            BridgeDriver.RegisterLoggerCallback(DriverLoggerCallback);
 
             var state = KernelDriverBridge.InitializeEnvironment();
             if (state == KernelDriverInitState.RhmsDrvNoError) {
                 var cpuInfo = Drivers.Presentation.Cpuid.CollectAll();
                 if (cpuInfo != null) {
                     Console.WriteLine(cpuInfo.ToString());
+                    Console.WriteLine($"Core loads: {cpuInfo.GetCpuLoad()}");
                 }
             }
 
@@ -39,7 +39,7 @@ namespace server
             AppLogger.Shutdown();
         }
 
-        private static void Target(BridgeDriver.LogLevel level, string message){
+        private static void DriverLoggerCallback(BridgeDriver.LogLevel level, string message){
             Logger.Auto(level, message);
         }
     }

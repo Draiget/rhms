@@ -82,10 +82,15 @@
     <Compile Include="Drivers\Kernel\Pci.cs" />
     <Compile Include="Drivers\Kernel\Pmc.cs" />
     <Compile Include="Drivers\Kernel\Tsc.cs" />
+    <Compile Include="Drivers\NT\NativeNt.cs" />
+    <Compile Include="Drivers\NT\SSystemProcessorPerformanceInformation.cs" />
+    <Compile Include="Drivers\NT\SystemInformationClass.cs" />
     <Compile Include="Drivers\Presentation\Cpuid.cs" />
     <Compile Include="Drivers\Presentation\CpuidRegisters.cs" />
     <Compile Include="Drivers\Presentation\CpuidCoreInfo.cs" />
     <Compile Include="Drivers\Presentation\CpuVendor.cs" />
+    <Compile Include="Hardware\CPU\GenericCpu.cs" />
+    <Compile Include="Hardware\HardwareType.cs" />
     <Compile Include="Modules\IModuleLoader.cs" />
     <Compile Include="Native.cs" />
     <Compile Include="Networking\NetworkClient.cs" />
