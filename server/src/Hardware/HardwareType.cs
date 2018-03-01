@@ -9,5 +9,6 @@ namespace server.Hardware
     public enum HardwareType
     {
         Cpu,
+        Gpu
     }
 }

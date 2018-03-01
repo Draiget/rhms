@@ -1,6 +1,7 @@
 # Ignore VS stuff
 .vs
 
+/server/buildstage
 /server/output
 /server/src/obj
 

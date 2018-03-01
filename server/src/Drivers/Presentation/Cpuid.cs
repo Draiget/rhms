@@ -5,7 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework.Internal;
-using server.Drivers.NT;
+using server.Utils;
+using server.Utils.Natives;
 using Logger = server.Utils.Logging.Logger;
 
 namespace server.Drivers.Presentation
@@ -272,7 +273,7 @@ namespace server.Drivers.Presentation
             idle = null;
             total = null;
 
-            if (NativeNt.NtQuerySystemInformation(
+            if (Native.NtQuerySystemInformation(
                 SystemInformationClass.SystemProcessorPerformanceInformation, 
                 informations,
                 informations.Length * size, 

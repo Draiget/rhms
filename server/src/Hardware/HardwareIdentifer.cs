@@ -6,7 +6,18 @@ using System.Threading.Tasks;
 
 namespace server.Hardware
 {
-    public class HardwareIdentifer
+    public abstract class HardwareIdentifer
     {
+        protected IHardware HardwareRef;
+
+        protected HardwareIdentifer(IHardware hardware){
+            HardwareRef = hardware;
+        }
+
+        public abstract HardwareType GetHardwareType();
+
+        public abstract string GetVendor();
+
+        public abstract string GetModel();
     }
 }

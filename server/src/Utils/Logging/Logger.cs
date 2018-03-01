@@ -168,10 +168,29 @@ namespace server.Utils.Logging
         }
 
         public static void Auto(BridgeDriver.LogLevel level, string message){
-            AddLogMsg(
-                message, 
-                level == BridgeDriver.LogLevel.Error ? LogLevel.Error : (level == BridgeDriver.LogLevel.Warning ? LogLevel.Warn : LogLevel.Debug), 
-                ConsoleColor.Gray);
+            LogLevel logLevel;
+            ConsoleColor logColor;
+
+            switch (level) {
+                case BridgeDriver.LogLevel.Info:
+                    logLevel = LogLevel.Info;
+                    logColor = ConsoleColor.White;
+                    break;
+                case BridgeDriver.LogLevel.Warning:
+                    logLevel = LogLevel.Warn;
+                    logColor = ConsoleColor.Yellow;
+                    break;
+                case BridgeDriver.LogLevel.Error:
+                    logLevel = LogLevel.Error;
+                    logColor = ConsoleColor.Red;
+                    break;
+                default:
+                    logLevel = LogLevel.Debug;
+                    logColor = ConsoleColor.Gray;
+                    break;
+            }
+
+            AddLogMsg(message, logLevel, logColor);
         }
     }
 }

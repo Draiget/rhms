@@ -106,6 +106,11 @@ int RHMS_InitializeDriver() {
 			if (g_DriverStatus == RHMS_BRIDGE_NO_ERROR) {
 				break;
 			}
+
+			if (g_DriverStatus == RHMS_DRIVER_MANAGER_INCORRECT_DRV_SIGNATURE){
+				return g_DriverStatus;
+			}
+
 			Sleep(100 * i);
 		}
 	}

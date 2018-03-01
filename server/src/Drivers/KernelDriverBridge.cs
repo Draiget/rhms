@@ -23,6 +23,16 @@ namespace server.Drivers
             return _initState;
         }
 
+        public static void DeinitializeEnvironment(bool forceUnloadService = false){
+            if (_initState != KernelDriverInitState.RhmsDrvNoError) {
+                return;
+            }
+
+            if (forceUnloadService) {
+                Kernel.BridgeDriver.Deinitialize();
+            }
+        }
+
         private const uint Ia32ThermStatusMsr = 0x019C;
         private const uint Ia32TemperatureTarget = 0x01A2;
 

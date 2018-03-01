@@ -68,7 +68,8 @@ namespace server.Drivers.Kernel
         {
             Debug = 0,
             Error,
-            Warning
+            Warning,
+            Info
         }
 
 

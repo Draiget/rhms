@@ -7,11 +7,11 @@ using server.Modules;
 
 namespace server.Utils.Logging
 {
-    public class ModuleLogger : ICollectingServerLogger
+    public class BaseModuleLogger : ICollectingServerLogger
     {
         private readonly IModule _currentModule;
 
-        public ModuleLogger(IModule module){
+        public BaseModuleLogger(IModule module){
             _currentModule = module;
         }
 

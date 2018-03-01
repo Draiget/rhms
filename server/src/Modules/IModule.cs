@@ -4,19 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using server.Hardware;
+using server.Modules.Base;
+using server.Utils.Logging;
 
 namespace server.Modules
 {
     public interface IModule
     {
-        bool OpenModule(ICollectingServer server);
-
-        void CloseModule();
-
-        HardwareType GetServicedHardwareType();
-
-        List<HardwareIdentifer> GetApplyableHardware();
-
         string GetLogIdentifer();
+
+        string GetName();
+
+        ModuleState GetState();
+
+        BaseModuleLoader GetLoader();
+
+        bool Open();
+
+        void Close();
+
+        BaseModuleLogger GetLogger();
     }
 }
