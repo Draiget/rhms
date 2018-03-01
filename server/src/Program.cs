@@ -45,6 +45,12 @@ namespace server
             Logger.Auto(state == KernelDriverInitState.RhmsDrvNoError ? BridgeDriver.LogLevel.Info : BridgeDriver.LogLevel.Error,
                         $"Load driver state: {state}");
 
+            if (state != KernelDriverInitState.RhmsDrvNoError) {
+                Logger.Error("Kernel driver are failed to initializate, maybe driver signing checks are enabled on target system.");
+                AppLogger.Shutdown();
+                return;
+            }
+
             var collectingServer = new RhmsCollectingServer();
             Debug.Assert(collectingServer.GetModuleLoader() != null);
 
@@ -52,6 +58,7 @@ namespace server
             collectingServer.GetModuleLoader().LoadFromFolder(Directory.GetCurrentDirectory() + @"\modules");
             Logger.Info("Loading modules has finished.");
 
+            // There's no commands yet, just listen for any line and close
             Console.ReadLine();
 
             // Do not remove service if we are create one

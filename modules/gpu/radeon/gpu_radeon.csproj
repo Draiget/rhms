@@ -49,6 +49,11 @@
     <Compile Include="Api\Hardware\Sensors\SensorRadeonTemperature.cs" />
     <Compile Include="Api\Helpers\LinkedDelegateAttribute.cs" />
     <Compile Include="Api\Helpers\LinkedFieldAttribute.cs" />
+    <Compile Include="Api\Structures\AdlAdapterInfo.cs" />
+    <Compile Include="Api\Structures\ADLFanSpeedInfo.cs" />
+    <Compile Include="Api\Structures\AdlFanSpeedValue.cs" />
+    <Compile Include="Api\Structures\AdlpmActivity.cs" />
+    <Compile Include="Api\Structures\AdlTemperature.cs" />
     <Compile Include="ModuleGpuRadeon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -72,19 +72,25 @@ namespace server.Modules.Base
                 throw new ModuleLoadingException("Unknown exception thrown", ex);
             }
 
-            var targetType = assembly.GetExportedTypes().FirstOrDefault(type => type.BaseType == typeof(BaseModule));
-            if (targetType == null) {
-                throw new ModuleLoadingException("Assembly doesn't contains BaseModule class instance");
-            }
-
-            dynamic obj;
             try {
-                obj = Activator.CreateInstance(targetType, this);
-            } catch (Exception err) {
-                throw new ModuleLoadingException("Unnable to create BaseModule class instance", err);
-            }
+                var targetType = assembly.GetExportedTypes().FirstOrDefault(type => type.BaseType == typeof(BaseModule));
+                if (targetType == null) {
+                    throw new ModuleLoadingException("Assembly doesn't contains BaseModule class instance");
+                }
 
-            return (BaseModule)obj;
+                dynamic obj;
+                try {
+                    obj = Activator.CreateInstance(targetType, this);
+                }
+                catch (Exception err) {
+                    throw new ModuleLoadingException("Unnable to create BaseModule class instance", err);
+                }
+
+                return (BaseModule) obj;
+            }
+            catch (TypeLoadException err) {
+                throw new ModuleLoadingException($"Target module doesn't propertly release API for target type '{err.TypeName}'", err);
+            }
         }
 
         public abstract bool UnloadModule(BaseModule module);

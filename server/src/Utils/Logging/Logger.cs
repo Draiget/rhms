@@ -161,8 +161,9 @@ namespace server.Utils.Logging
         public static void Error(string msg, Exception err = null){
             SystemDebug.Assert(IsInitialized, "Logger not initialized");
             AddToLogWriteQueue($"{msg}", LogLevel.Error, Thread.CurrentThread);
-            var str = err != null ? FormatPrintStr($"(Error) Exception ({err.GetType()}): '{err.Message}', {msg}\n{err.StackTrace}") : FormatPrintStr($"(Error) {msg}");
+            var str = err != null ? FormatPrintStr($"Exception details ({err.GetType()}): '{err.Message}'\n{err.StackTrace}") : FormatPrintStr($"(Error) {msg}");
             SetNextColor(ConsoleColor.Red);
+            Console.WriteLine(FormatPrintStr($"(Error) {msg}"));
             Console.WriteLine(str);
             ResetColor();
         }

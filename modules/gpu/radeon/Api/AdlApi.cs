@@ -4,10 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using gpu_radeon.Api.Delegates;
 using gpu_radeon.Api.Enums;
 using gpu_radeon.Api.Helpers;
+using gpu_radeon.Api.Structures;
 using server.Utils;
 
 namespace gpu_radeon.Api
@@ -41,7 +43,44 @@ namespace gpu_radeon.Api
         public static AdlApiGpu.ADL_Main_Control_DestroyDelegate AdlMainControlDestroy;
 
         [LinkedField(typeof(AdlApiGpu))]
-        public static AdlApiGpu.ADL_Adapter_AdapterInfo_GetDelegate AldAdapterGetInfo;
+        private static AdlApiGpu.ADL_Adapter_AdapterInfo_GetDelegate _aldAdapterGetInfo;
+
+        public const int AdlMaxPath = 256;
+
+        public static int AldAdapterGetInfo(int numberOfAdapters, out AdlAdapterInfo[] info) {
+            var typeSize = Marshal.SizeOf(typeof(AdlAdapterInfo));
+            var ptr = Marshal.AllocHGlobal(typeSize * numberOfAdapters);
+            var result = _aldAdapterGetInfo(ptr, typeSize * numberOfAdapters);
+
+            info = new AdlAdapterInfo[numberOfAdapters];
+            for (var i=0; i < info.Length; i++) {
+                info[i] = (AdlAdapterInfo) Marshal.PtrToStructure((IntPtr)((long)ptr + i * typeSize),typeof(AdlAdapterInfo));
+            }
+
+            Marshal.FreeHGlobal(ptr);
+
+            // Maybe wrong on Windows subsystem (parsing error)
+            FixAdvAdapterVendorInfo(ref info);
+
+            return result;
+        }
+
+        public static void FixAdvAdapterVendorInfo(ref AdlAdapterInfo[] info){
+            for (var i=0; i < info.Length; i++) {
+                // Try Windows UUID format first, it can fail
+                var m = Regex.Match(info[i].UDID, "PCI_VEN_([A-Fa-f0-9]{1,4})&.*");;
+                if (m.Success && m.Groups.Count == 2) {
+                    info[i].VendorID = Convert.ToInt32(m.Groups[1].Value, 16);
+                    continue;
+                }
+
+                // Try Unix UUID format
+                m = Regex.Match(info[i].UDID, "[0-9]+:[0-9]+:([0-9]+):[0-9]+:[0-9]+");
+                if (m.Success && m.Groups.Count == 2) {
+                    info[i].VendorID = Convert.ToInt32(m.Groups[1].Value, 10);
+                }
+            }
+        }
 
         private static AdlStatus AdlMainControlCreate(int connectedAdapters = 1){
             try {
@@ -108,16 +147,6 @@ namespace gpu_radeon.Api
 
             Native.CreatePInvokeDelegate(attribute, field.FieldType, out var delegateInstance);
             return delegateInstance;
-        }
-
-        private static void GetDelegate<T>(string entryPoint, out T newDelegate) where T : class {
-            var attribute = new DllImportAttribute(DllName) {
-                CallingConvention = CallingConvention.Cdecl,
-                PreserveSig = true,
-                EntryPoint = entryPoint
-            };
-
-            Native.CreatePInvokeDelegate(attribute, out newDelegate);
         }
 
         public static void Shutdown(){
