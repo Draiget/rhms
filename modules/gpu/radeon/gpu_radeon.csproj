@@ -45,6 +45,7 @@
     <Compile Include="Api\Delegates\AdlApiGpu.cs" />
     <Compile Include="Api\Enums\AdlStatus.cs" />
     <Compile Include="Api\Hardware\RadeonGpu.cs" />
+    <Compile Include="Api\Hardware\RadeonGpuIdentifer.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonTemperature.cs" />
     <Compile Include="Api\Helpers\LinkedDelegateAttribute.cs" />
     <Compile Include="Api\Helpers\LinkedFieldAttribute.cs" />
