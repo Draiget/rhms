@@ -19,11 +19,11 @@ namespace gpu_radeon.Api.Hardware
             _adapterInfo = info;
             _hardwareIdentifer = new RadeonGpuIdentifer(this);
 
-            AddAvaliableSensor(SensorType.Temperature, new SensorRadeonTemperature(this));
-            AddAvaliableSensor(SensorType.Temperature, new SensorRadeonLoadCoreActivity(this));
-            AddAvaliableSensor(SensorType.Temperature, new SensorRadeonLoadEngine(this));
-            AddAvaliableSensor(SensorType.Temperature, new SensorRadeonLoadMemory(this));
-            AddAvaliableSensor(SensorType.Temperature, new SensorRadeonLoadVddc(this));
+            AddAvaliableSensor(new SensorRadeonTemperature(this));
+            AddAvaliableSensor(new SensorRadeonLoadCoreActivity(this));
+            AddAvaliableSensor(new SensorRadeonLoadEngine(this));
+            AddAvaliableSensor(new SensorRadeonLoadMemory(this));
+            AddAvaliableSensor(new SensorRadeonLoadVddc(this));
         }
 
         public int AdapterIndex => _adapterInfo.AdapterIndex;

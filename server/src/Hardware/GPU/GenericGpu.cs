@@ -24,8 +24,8 @@ namespace server.Hardware.GPU
             return AvaliableSensors.ContainsKey(type);
         }
 
-        protected void AddAvaliableSensor(SensorType sensorType, BaseGpuSensor sensor){
-            AvaliableSensors[sensorType].Add(sensor);
+        protected void AddAvaliableSensor(BaseGpuSensor sensor){
+            AvaliableSensors[sensor.GetSensorType()].Add(sensor);
         }
 
         public BaseGpuSensor GetSensorByType(SensorType type){
