@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using gpu_radeon.Api;
 using gpu_radeon.Api.Hardware;
 using gpu_radeon.Api.Structures;
+using server.Addons;
 using server.Modules.Base;
 using server.Utils.Logging;
 
@@ -15,12 +16,14 @@ namespace gpu_radeon
     {
         public static BaseModuleLoader Loader;
         public static BaseModuleLogger Logger;
+        private static BaseCollectingServer _server;
 
         public ModuleGpuRadeon(BaseModuleLoader loader)
             : base(loader)
         {
             Loader = loader;
             Logger = GetLogger();
+            _server = loader.GetServer();
         }
 
         public override string GetLogIdentifer() {
@@ -85,6 +88,29 @@ namespace gpu_radeon
 
             gpu.SetActive(isActive == 1);
             gpu.SetAdapterId(adapterId);
+        }
+
+        public override void AfterHardwareTick() {
+            if (!_server.GetSettings().InfluxOutput.Enabled) {
+                return;
+            }
+
+            var influxDb = _server.GetInfluxDbConnection();
+            foreach (var hardware in Hardware) {
+                var influxData = new List<InfluxDataPair> {
+                    new InfluxDataTag("vendor", hardware.Identify().GetVendor())
+                };
+
+                foreach (var sensor in hardware.GetSensors()) {
+                    if (sensor.IsAvaliable()) {
+                        continue;
+                    }
+
+                    influxData.Add(new InfluxDataPair(sensor.GetSystemName(), $"{sensor.GetValue():F4}"));
+                }
+
+                influxDb.Write(new InfluxWriteData("gpu", influxData.ToArray()));
+            }
         }
     }
 }

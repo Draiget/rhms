@@ -38,6 +38,8 @@ namespace server.Modules.Base
 
         public abstract void Close();
 
+        public virtual void AfterHardwareTick() { }
+
         public abstract bool InitializeHardware();
 
         public virtual bool CheckForSystemSupport() {

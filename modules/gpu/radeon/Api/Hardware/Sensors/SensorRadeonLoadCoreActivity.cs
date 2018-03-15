@@ -17,6 +17,15 @@ namespace gpu_radeon.Api.Hardware.Sensors
         public override void TickSpecificLoad(AdlpmActivity activity) {
             if (activity.Vddc > 0) {
                 Value = Math.Min(activity.ActivityPercent, 100);
+
+                if (!MinMaxSet) {
+                    MinMaxSet = true;
+                    MinValue = MaxValue = Value;
+                } else {
+                    MinValue = Math.Min(MinValue, Value);
+                    MaxValue = Math.Max(MaxValue, Value);
+                }
+
                 IsSensorActive = true;
                 return;
             }

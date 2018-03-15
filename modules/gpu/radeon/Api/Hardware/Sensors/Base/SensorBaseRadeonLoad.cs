@@ -10,9 +10,14 @@ namespace gpu_radeon.Api.Hardware.Sensors.Base
         protected AdlpmActivity Activity;
         protected double Value;
 
+        protected bool MinMaxSet;
+        protected double MinValue;
+        protected double MaxValue;
+
         protected SensorBaseRadeonLoad(RadeonGpu gpu)
             : base(gpu) {
             Gpu = gpu;
+            MinMaxSet = false;
         }
 
         public override double GetValue() {
@@ -21,6 +26,14 @@ namespace gpu_radeon.Api.Hardware.Sensors.Base
 
         public override bool InitSensor() {
             return true;
+        }
+
+        public override double GetMin() {
+            return MinValue;
+        }
+
+        public override double GetMax() {
+            return MaxValue;
         }
 
         public override void Tick() {

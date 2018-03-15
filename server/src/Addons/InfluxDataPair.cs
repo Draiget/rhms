@@ -7,11 +7,24 @@ using NUnit.Framework.Interfaces;
 
 namespace server.Addons
 {
+    public class InfluxDataTag : InfluxDataPair
+    {
+        public InfluxDataTag(string key, string value) 
+            : base(key, value, true) {
+        }
+    }
+
     public class InfluxDataPair
     {
         public string Key;
         public string Value;
         public bool IsTag;
+
+        public InfluxDataPair(string key, string value, bool isTag = false) {
+            Key = key;
+            Value = value;
+            IsTag = isTag;
+        }
     }
 
     public class InfluxWriteData

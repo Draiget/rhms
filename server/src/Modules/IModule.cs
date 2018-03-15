@@ -23,6 +23,8 @@ namespace server.Modules
 
         void Close();
 
+        void AfterHardwareTick();
+
         bool CheckForSystemSupport();
 
         bool InitializeHardware();

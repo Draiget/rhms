@@ -4,6 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 using server.Addons;
 using server.Hardware;
+using server.Networking;
 using server.Utils.Logging;
 
 namespace server.Modules.Base
@@ -15,6 +16,7 @@ namespace server.Modules.Base
         public abstract InfluxDbConnection GetInfluxDbConnection();
 
         protected RhmsSettings Settings;
+        protected NetworkConnectionManager Manager;
 
         public bool LoadSettings(){
             if (!File.Exists(SettingsFileName)) {
@@ -80,6 +82,10 @@ namespace server.Modules.Base
 
         public void RegisterHardware(IHardware hardware) {
             throw new NotImplementedException();
+        }
+
+        public NetworkConnectionManager GetNetConnectionManager() {
+            return Manager;
         }
 
         public abstract void OnShutdown();

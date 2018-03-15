@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using server.Hardware;
 using server.Modules.Base;
+using server.Networking;
 using server.Utils.Logging;
 
 namespace server.Modules
@@ -20,5 +21,7 @@ namespace server.Modules
         void Shutdown();
 
         void RegisterHardware(IHardware hardware);
+
+        NetworkConnectionManager GetNetConnectionManager();
     }
 }

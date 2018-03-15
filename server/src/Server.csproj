@@ -116,6 +116,7 @@
     <Compile Include="Hardware\ISensor.cs" />
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
     <Compile Include="Modules\Helpers\LinkedFunctionIdBaseAttribute.cs" />
+    <Compile Include="Networking\NetworkConnectionManager.cs" />
     <Compile Include="RhmsSettings.cs" />
     <Compile Include="Utils\AssemblyUtils.cs" />
     <Compile Include="Utils\Natives\SSystemProcessorPerformanceInformation.cs" />

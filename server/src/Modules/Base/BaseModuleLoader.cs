@@ -110,5 +110,9 @@ namespace server.Modules.Base
         public List<BaseModule> GetModules() {
             return _modules;
         }
+
+        public RhmsSettings GetSettings() {
+            return _server.GetSettings();
+        }
     }
 }

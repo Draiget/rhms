@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef Rhms_DebugSensors
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,7 @@ using server.Addons;
 using server.Modules;
 using server.Modules.Base;
 using server.Modules.Extended;
+using server.Networking;
 using server.Utils;
 using server.Utils.Logging;
 
@@ -35,6 +38,9 @@ namespace server
                 _influxConnection = new InfluxDbConnection(Settings.InfluxOutput.Host, Settings.InfluxOutput.Database, Settings.InfluxOutput.Retention);
             }
 
+            // Temporary here
+            Manager = new NetworkConnectionManager();
+
             _isThreadsActive = true;
             return true;
         }
@@ -59,9 +65,20 @@ namespace server
                 foreach (var module in loadedModules) {
                     foreach (var hardware in module.GetHardware()) {
                         hardware.TickUpdate();
+
+                        #if Rhms_DebugSensors
                         foreach (var sensor in hardware.GetSensors()) {
                             Logger.Info($"[{hardware.Identify().GetFullSystemName()}] {sensor.GetDisplayName()}: {sensor.GetValue()}");
                         }
+                        #endif
+                    }
+                }
+
+                foreach (var module in loadedModules) {
+                    try {
+                        module.AfterHardwareTick();
+                    } catch (Exception e) {
+                        Logger.Error($"Error after hardware tick in module [{module.GetLogIdentifer()}] '{module.GetName()}'", e);
                     }
                 }
 
