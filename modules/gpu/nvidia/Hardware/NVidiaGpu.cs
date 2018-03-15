@@ -16,5 +16,9 @@ namespace gpu_nvidia.Hardware
         public override HardwareIdentifer Identify(){
             throw new System.NotImplementedException();
         }
+
+        public override void TickUpdate() {
+            throw new System.NotImplementedException();
+        }
     }
 }

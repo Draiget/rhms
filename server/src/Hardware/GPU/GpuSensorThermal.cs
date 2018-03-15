@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace server.Hardware.GPU
 {
-    public class GpuSensorThermal : BaseGpuSensor
+    public abstract class GpuSensorThermal : BaseGpuSensor
     {
-        public GpuSensorThermal(GenericGpu gpu)
+        protected GpuSensorThermal(GenericGpu gpu)
             : base(gpu){
         }
 

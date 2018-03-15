@@ -18,6 +18,8 @@ namespace gpu_radeon.Api
     {
         private static bool _isInitialized;
 
+        public const int AtiVendorId = 0x1002;
+
         public static bool Initialize(){
             AdlMainMemoryAlloc = Marshal.AllocHGlobal;
 
@@ -43,9 +45,28 @@ namespace gpu_radeon.Api
         public static AdlApiGpu.ADL_Main_Control_DestroyDelegate AdlMainControlDestroy;
 
         [LinkedField(typeof(AdlApiGpu))]
-        private static AdlApiGpu.ADL_Adapter_AdapterInfo_GetDelegate _aldAdapterGetInfo;
+        public static AdlApiGpu.ADL_Overdrive5_Temperature_GetDelegate AdlGetAdapterTemperature;
+
+        [LinkedField(typeof(AdlApiGpu))]
+        public static AdlApiGpu.ADL_Adapter_Active_GetDelegate AdlGetAdapterIsActive;
+
+        [LinkedField(typeof(AdlApiGpu))]
+        public static AdlApiGpu.ADL_Overdrive5_CurrentActivity_GetDelegate AdlGetCurrentActivity;
+
+        [LinkedField(typeof(AdlApiGpu))]
+        public static AdlApiGpu.ADL_Adapter_NumberOfAdapters_GetDelegate AdlGetNumberOfAdapters;
+
+        [LinkedField(typeof(AdlApiGpu))]
+        internal static AdlApiGpu.ADL_Adapter_ID_GetDelegate _adlAdapterGetId;
+
+        [LinkedField(typeof(AdlApiGpu))]
+        internal static AdlApiGpu.ADL_Display_AdapterID_GetDelegate _adlDisplayAdapterGetId;
+
+        [LinkedField(typeof(AdlApiGpu))]
+        internal static AdlApiGpu.ADL_Adapter_AdapterInfo_GetDelegate _aldAdapterGetInfo;
 
         public const int AdlMaxPath = 256;
+        public const int AdlOk = 0;
 
         public static int AldAdapterGetInfo(int numberOfAdapters, out AdlAdapterInfo[] info) {
             var typeSize = Marshal.SizeOf(typeof(AdlAdapterInfo));
@@ -63,6 +84,19 @@ namespace gpu_radeon.Api
             FixAdvAdapterVendorInfo(ref info);
 
             return result;
+        }
+
+        public static int AdlAdapterGetId(int adapterIndex, out int adapterId) {
+            try {
+                return _adlAdapterGetId(adapterIndex, out adapterId);
+            } catch (EntryPointNotFoundException) {
+                try {
+                    return _adlDisplayAdapterGetId(adapterIndex, out adapterId);
+                } catch (EntryPointNotFoundException) {
+                    adapterId = 1;
+                    return AdlOk;
+                }
+            }
         }
 
         public static void FixAdvAdapterVendorInfo(ref AdlAdapterInfo[] info){
@@ -98,15 +132,18 @@ namespace gpu_radeon.Api
             // Add all fields with delegate function id linking attribute to list for futhure iteration
             foreach (var assemblyType in Assembly.GetExecutingAssembly().GetTypes()) {
                 fieldsList.AddRange(
-                    from typeField in assemblyType.GetFields()
+                    from typeField in assemblyType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | 
+                                                             BindingFlags.Instance | BindingFlags.Static)
                     let fieldAttribute = typeField.GetCustomAttribute<LinkedFieldAttribute>()
                     where fieldAttribute != null
                     select typeField);
             }
 
+            var linkedFields = new Dictionary<FieldInfo,bool>();
+
             // Search target field for each delegate attributes
-            foreach (var delegateContainerClass in delegatesList) {
-                var attr = delegateContainerClass.GetCustomAttribute<LinkedDelegateAttribute>();
+            foreach (var delegateFieldType in delegatesList) {
+                var attr = delegateFieldType.GetCustomAttribute<LinkedDelegateAttribute>();
                 if (attr == null) {
                     continue;
                 }
@@ -114,21 +151,26 @@ namespace gpu_radeon.Api
                 var hasLinkedField = false;
 
                 foreach (var field in fieldsList) {
+                    if (linkedFields.ContainsKey(field)) {
+                        continue;
+                    }
+
                     var linkedAttr = field.GetCustomAttribute<LinkedFieldAttribute>();
-                    if (linkedAttr?.TargetLookType == delegateContainerClass.ReflectedType) {
+                    if (linkedAttr?.TargetLookType == delegateFieldType.ReflectedType && field.FieldType == delegateFieldType) {
                         hasLinkedField = true;
 
                         try {
                             field.SetValue(null, ApplyDelegate(attr.FunctionName, field));
-                            ModuleGpuRadeon.Logger.Debug($"Linked delegate field '{field.Name}' with function '{delegateContainerClass}' ({attr.FunctionName})");
+                            linkedFields[field] = true;
+                            ModuleGpuRadeon.Logger.Debug($"Linked delegate field '{field.Name}' with function '{delegateFieldType}' ({attr.FunctionName})");
                         } catch (FieldAccessException e) {
-                            ModuleGpuRadeon.Logger.Error($"Failed to linke delegate field '{field.Name}' with function id '{delegateContainerClass}' ({attr.FunctionName})", e);
+                            ModuleGpuRadeon.Logger.Error($"Failed to linke delegate field '{field.Name}' with function id '{delegateFieldType}' ({attr.FunctionName})", e);
                         }
                     }
                 }
 
                 if (!hasLinkedField) {
-                    ModuleGpuRadeon.Logger.Warn($"Delegate with function '{delegateContainerClass}' is not linked (not using)");
+                    ModuleGpuRadeon.Logger.Warn($"Delegate with function '{delegateFieldType}' is not linked (not using)");
                 }
             }
 

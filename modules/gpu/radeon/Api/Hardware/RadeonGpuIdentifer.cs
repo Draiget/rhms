@@ -13,18 +13,23 @@ namespace gpu_radeon.Api.Hardware
 
         public RadeonGpuIdentifer(RadeonGpu hardware)
             : base(hardware) {
+            HardwareRef = hardware;
         }
 
         public override HardwareType GetHardwareType(){
             return HardwareType.Gpu;
         }
 
-        public override string GetVendor(){
-            throw new NotImplementedException();
+        public override string GetVendor() {
+            return "AMD";
         }
 
-        public override string GetModel(){
-            throw new NotImplementedException();
+        public override string GetModel() {
+            return HardwareRef.GetAdlInfo().AdapterName;
+        }
+
+        public override string GetFullSystemName() {
+            return $"{HardwareRef.AdapterIndex}-" + HardwareRef.GetAdlInfo().AdapterName.Replace(' ', '-').ToLower();
         }
     }
 }

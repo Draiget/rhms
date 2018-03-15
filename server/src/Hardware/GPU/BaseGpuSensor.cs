@@ -8,28 +8,47 @@ namespace server.Hardware.GPU
 {
     public abstract class BaseGpuSensor : ISensor
     {
-        private readonly GenericGpu _gpu;
+        protected readonly GenericGpu Gpu;
+        protected bool IsInitialized;
+        protected bool IsSensorActive;
 
         protected BaseGpuSensor(GenericGpu gpu){
-            _gpu = gpu;
+            Gpu = gpu;
         }
+
+        public bool Initialize() {
+            IsSensorActive = false;
+            IsInitialized = InitSensor();
+            return IsInitialized;
+        }
+
+        public abstract bool InitSensor();
 
         public bool IsAvaliable(){
-            return _gpu.IsSensorAvaliable(GetSensorType());
+            return Gpu.IsSensorAvaliable(GetSensorType());
         }
 
-        public double GetMax(){
-            throw new NotImplementedException();
+        public bool IsActive() {
+            return IsSensorActive;
         }
 
-        public double GetMin(){
-            throw new NotImplementedException();
+        public virtual double GetMax() {
+            return double.NaN;
         }
 
-        public double GetValue(){
-            throw new NotImplementedException();
+        public virtual double GetMin(){
+            return double.NaN;
         }
+
+        public abstract double GetValue();
+
+        public abstract void Tick();
 
         public abstract SensorType GetSensorType();
+
+        public abstract string GetDisplayName();
+
+        public abstract string GetSystemName();
+
     }
 }

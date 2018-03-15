@@ -23,6 +23,16 @@ namespace server.Modules
 
         void Close();
 
+        bool CheckForSystemSupport();
+
+        bool InitializeHardware();
+
+        void AddHardware(IHardware hardware);
+
+        List<IHardware> GetHardware();
+
         BaseModuleLogger GetLogger();
     }
+
+    
 }

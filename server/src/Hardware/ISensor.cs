@@ -8,7 +8,11 @@ namespace server.Hardware
 {
     public interface ISensor
     {
+        bool Initialize();
+
         bool IsAvaliable();
+
+        bool IsActive();
 
         double GetMax();
 
@@ -16,6 +20,12 @@ namespace server.Hardware
 
         double GetValue();
 
+        void Tick();
+
         SensorType GetSensorType();
+
+        string GetDisplayName();
+
+        string GetSystemName();
     }
 }

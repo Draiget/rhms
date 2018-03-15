@@ -1,4 +1,7 @@
-﻿using server.Utils.Logging;
+﻿using System.Collections;
+using System.Collections.Generic;
+using server.Hardware;
+using server.Utils.Logging;
 
 namespace server.Modules.Base
 {
@@ -7,9 +10,12 @@ namespace server.Modules.Base
         private readonly BaseModuleLoader _moduleLoader;
         private readonly BaseModuleLogger _moduleLogger;
 
+        protected List<IHardware> Hardware;
+
         protected BaseModule(BaseModuleLoader loader){
             _moduleLoader = loader;
             _moduleLogger = new BaseModuleLogger(this);
+            Hardware = new List<IHardware>();
         }
 
         public virtual string GetLogIdentifer(){
@@ -32,12 +38,30 @@ namespace server.Modules.Base
 
         public abstract void Close();
 
+        public abstract bool InitializeHardware();
+
+        public virtual bool CheckForSystemSupport() {
+            return true;
+        }
+
+        public virtual string GetUnsupportedReason() {
+            return "unknown";
+        }
+
+        public List<IHardware> GetHardware() {
+            return Hardware;
+        }
+
         public BaseModuleLogger GetLogger(){
             return _moduleLogger;
         }
 
         public override string ToString(){
             return $"BaseModule[logId='{GetLogIdentifer()}', name='{GetName()}']";
+        }
+
+        public void AddHardware(IHardware hardware) {
+            Hardware.Add(hardware);
         }
     }
 }

@@ -14,6 +14,9 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AllowedReferenceRelatedFileExtensions>
+		.dll;.pdb
+	</AllowedReferenceRelatedFileExtensions>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -27,6 +30,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AllowedReferenceRelatedFileExtensions>
+		.dll;.pdb
+	</AllowedReferenceRelatedFileExtensions>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -40,6 +46,9 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <AllowedReferenceRelatedFileExtensions>
+		.dll;.pdb
+	</AllowedReferenceRelatedFileExtensions>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\output\Debug\</OutputPath>
     <BaseIntermediateOutputPath>..\buildstage\x64\$(Configuration)\</BaseIntermediateOutputPath>
@@ -52,6 +61,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <AllowedReferenceRelatedFileExtensions>
+		.dll;.pdb
+	</AllowedReferenceRelatedFileExtensions>
     <OutputPath>..\output\Debug\</OutputPath>
     <BaseIntermediateOutputPath>..\buildstage\x64\$(Configuration)\</BaseIntermediateOutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -62,12 +74,17 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <ApplicationManifest>AppConfig\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NUnit.3.8.1\lib\net45\nunit.framework.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -79,6 +96,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Addons\HttpUtils.cs" />
+    <Compile Include="Addons\InfluxDataPair.cs" />
+    <Compile Include="Addons\InfluxDbConnection.cs" />
     <Compile Include="Drivers\KernelDriverInitState.cs" />
     <Compile Include="Drivers\KernelDriverBridge.cs" />
     <Compile Include="Drivers\Kernel\BridgeDriver.cs" />
@@ -96,6 +116,7 @@
     <Compile Include="Hardware\ISensor.cs" />
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
     <Compile Include="Modules\Helpers\LinkedFunctionIdBaseAttribute.cs" />
+    <Compile Include="RhmsSettings.cs" />
     <Compile Include="Utils\AssemblyUtils.cs" />
     <Compile Include="Utils\Natives\SSystemProcessorPerformanceInformation.cs" />
     <Compile Include="Utils\Natives\SystemInformationClass.cs" />
@@ -131,11 +152,13 @@
     <Compile Include="Utils\Logging\Logger.cs" />
     <Compile Include="Utils\Logging\LogMessageHolder.cs" />
     <Compile Include="Utils\Logging\BaseModuleLogger.cs" />
+    <Compile Include="Utils\ThreadUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AppConfig\App.config" />
     <None Include="AppConfig\app.manifest" />
     <None Include="AppConfig\packages.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Backend\" />

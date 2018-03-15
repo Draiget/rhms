@@ -11,5 +11,7 @@ namespace server.Hardware
         HardwareIdentifer Identify();
 
         ISensor[] GetSensors();
+
+        void TickUpdate();
     }
 }

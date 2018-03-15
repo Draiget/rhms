@@ -9,6 +9,7 @@ using gpu_nvidia.Api.Structures;
 using gpu_nvidia.Helpers;
 using server.Modules.Helpers;
 using server.Utils;
+using server.Utils.Logging;
 using FunctionId = gpu_nvidia.Helpers.FunctionId;
 
 namespace gpu_nvidia.Api
@@ -35,8 +36,8 @@ namespace gpu_nvidia.Api
         public const int MaxMemoryValuesPerGpu = 5;
 
         private static NvStatus _initStatus;
-        private static readonly NvApiQueryInterfaceDelegate NvApiQueryInterface;
-        private static readonly NvApiInitializeDelegate NvApiInitialize;
+        private static NvApiQueryInterfaceDelegate _nvApiQueryInterface;
+        private static NvApiInitializeDelegate _nvApiInitialize;
 
         [LinkedFunctionId(FunctionId.NvAPI_EnumPhysicalGPUs)]
         public static NvApiGpu.NvAPI_EnumPhysicalGPUs NvApiEnumPhysicalGpUs;
@@ -45,16 +46,35 @@ namespace gpu_nvidia.Api
         private delegate NvStatus NvApiInitializeDelegate();
 
         public static bool Initialize() {
-            if (NvApiInitialize == null) {
-                return false;
+            if (_nvApiInitialize != null) {
+                return true;
             }
 
-            _initStatus = NvApiInitialize();
-            //if (_initStatus == NvStatus.Ok) {
-                SetupDelegates();
-            //}
+            var attribute = new DllImportAttribute(DllName) {
+                CallingConvention = CallingConvention.Cdecl,
+                PreserveSig = true,
+                EntryPoint = "nvapi_QueryInterface"
+            };
 
-            return true;
+            Native.CreatePInvokeDelegate(attribute, out _nvApiQueryInterface);
+
+            try {
+                GetDelegate((uint)FunctionId.NvAPI_Initialize, out _nvApiInitialize);
+
+                _initStatus = _nvApiInitialize();
+                if (_initStatus == NvStatus.Ok) {
+                    SetupDelegates();
+                }
+                return true;
+            } catch (DllNotFoundException e) {
+                ModuleGpuNvidia.Logger.Error($"Could not found nvapi dll '{DllName}'", e);
+            } catch (EntryPointNotFoundException e) {
+                ModuleGpuNvidia.Logger.Error($"Could not found entry point in '{DllName}'", e);
+            } catch (ArgumentNullException e) {
+                ModuleGpuNvidia.Logger.Error($"Could not query pointer to NvAPI_Initialize in '{DllName}'", e);
+            }
+
+            return false;
         }
 
         private static void SetupDelegates(){
@@ -105,37 +125,18 @@ namespace gpu_nvidia.Api
             fieldsList.Clear();
         }
 
-        static NvApi(){
-            var attribute = new DllImportAttribute(DllName) {
-                CallingConvention = CallingConvention.Cdecl,
-                PreserveSig = true,
-                EntryPoint = "nvapi_QueryInterface"
-            };
-
-            Native.CreatePInvokeDelegate(attribute, out NvApiQueryInterface);
-
-            try {
-                GetDelegate((uint) FunctionId.NvAPI_Initialize, out NvApiInitialize);
-            }
-            catch (DllNotFoundException e) {
-                ModuleGpuNvidia.Logger.Error($"Could not found nvapi dll '{DllName}'", e);
-            }
-            catch (EntryPointNotFoundException e) {
-                ModuleGpuNvidia.Logger.Error($"Could not found entry point in '{DllName}'", e);
-            }
-            catch (ArgumentNullException e) {
-                ModuleGpuNvidia.Logger.Error($"Could not query pointer to NvAPI_Initialize in '{DllName}'", e);
-            }
+        public static bool CheckIsApiDllExists() {
+            return Native.IfLibraryIsExists(DllName);
         }
 
-        private static string DllName = IntPtr.Size == 4 ? "nvapi.dll" : "nvapi64.dll";
+        public static readonly string DllName = IntPtr.Size == 4 ? "nvapi.dll" : "nvapi64.dll";
 
         public static bool IsAvailable => _initStatus == NvStatus.Ok;
 
         public static NvStatus ApiStatus => _initStatus;
 
         private static void GetDelegate<T>(uint id, out T newDelegate) where T : class {
-            var ptr = NvApiQueryInterface(id);
+            var ptr = _nvApiQueryInterface(id);
             if (ptr != IntPtr.Zero) {
                 newDelegate = Marshal.GetDelegateForFunctionPointer(ptr, typeof(T)) as T;
             } else {
@@ -144,7 +145,7 @@ namespace gpu_nvidia.Api
         }
 
         private static object ApplyDelegate(uint id, FieldInfo field) {
-            var ptr = NvApiQueryInterface(id);
+            var ptr = _nvApiQueryInterface(id);
             if (ptr != IntPtr.Zero) {
                 return Marshal.GetDelegateForFunctionPointer(ptr, field.FieldType);
             }

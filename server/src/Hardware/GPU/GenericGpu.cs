@@ -63,5 +63,7 @@ namespace server.Hardware.GPU
 
             return list.ToArray();
         }
+
+        public abstract void TickUpdate();
     }
 }

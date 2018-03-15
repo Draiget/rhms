@@ -1,6 +1,8 @@
 ﻿using gpu_nvidia.Api;
 using gpu_nvidia.Api.Enums;
+using server.Modules;
 using server.Modules.Base;
+using server.Utils;
 using server.Utils.Logging;
 
 namespace gpu_nvidia
@@ -23,6 +25,18 @@ namespace gpu_nvidia
 
         public override string GetName(){
             return "NVIDIA GPU Module";
+        }
+
+        public override bool InitializeHardware() {
+            return true;
+        }
+
+        public override bool CheckForSystemSupport() {
+            return NvApi.CheckIsApiDllExists();
+        }
+
+        public override string GetUnsupportedReason() {
+            return $"nVidia api dll '{NvApi.DllName}' is not found in your system";
         }
 
         public override bool Open(){

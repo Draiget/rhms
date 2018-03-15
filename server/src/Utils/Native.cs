@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
+using server.Utils.Logging;
 using server.Utils.Natives;
 
 // ReSharper disable InconsistentNaming
@@ -46,9 +47,9 @@ namespace server.Utils
             public readonly uint dwPlatformId;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public readonly string szCSDVersion;
-            public readonly UInt16 wServicePackMajor;
-            public readonly UInt16 wServicePackMinor;
-            public readonly UInt16 wSuiteMask;
+            public readonly ushort wServicePackMajor;
+            public readonly ushort wServicePackMinor;
+            public readonly ushort wSuiteMask;
             public readonly byte wProductType;
             public readonly byte wReserved;
         }
@@ -118,6 +119,33 @@ namespace server.Utils
             }
 
             return typeBuilder.CreateType();
+        }
+
+        public static bool IfLibraryIsExists(string dllName) {
+            try {
+                var code = LoadLibrary(dllName);
+                return code != 0;
+            } catch (DllNotFoundException) {
+                return false;
+            } catch (BadImageFormatException) {
+                return true;
+            } catch (Exception e) {
+                Logger.Error("Library exists check unexpected error", e);
+                return false;
+            }
+        }
+
+        [DllImport("Kernel32")]
+        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+
+        public delegate bool HandlerRoutine(CtrlTypes CtrlType);
+
+        public enum CtrlTypes {
+            CTRL_C_EVENT = 0,
+            CTRL_BREAK_EVENT,
+            CTRL_CLOSE_EVENT,
+            CTRL_LOGOFF_EVENT = 5,
+            CTRL_SHUTDOWN_EVENT
         }
     }
 }

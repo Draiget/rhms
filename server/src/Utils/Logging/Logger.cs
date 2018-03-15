@@ -117,7 +117,7 @@ namespace server.Utils.Logging
         }
 
         private static string GenerateLogFileName(){
-            return $"{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}.log";
+            return $"{DateTime.Now.Day:00}_{DateTime.Now.Month:00}_{DateTime.Now.Year}.log";
         }
 
         internal static void SetNextColor(ConsoleColor clr){

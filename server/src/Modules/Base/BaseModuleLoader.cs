@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,6 +46,11 @@ namespace server.Modules.Base
                     Logger.Info($"Loaded '{module.GetName()}' [{module.GetLogIdentifer()}]");
                 } catch (ModuleLoadingException err) {
                     Logger.Error($"Unnable to load dll module file {dllFile}: {err.Message}", err.InnerException);
+                    continue;
+                }
+
+                if (!module.CheckForSystemSupport()) {
+                    Logger.Warn($"Unable to load '{module.GetName()}': {module.GetUnsupportedReason()} [Module is not supported]");
                     continue;
                 }
 
@@ -99,6 +105,10 @@ namespace server.Modules.Base
 
         public BaseCollectingServer GetServer(){
             return _server;
+        }
+
+        public List<BaseModule> GetModules() {
+            return _modules;
         }
     }
 }
