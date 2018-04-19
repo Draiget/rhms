@@ -30,7 +30,7 @@ namespace server.Tests
             Assert.AreEqual(KernelDriverInitState.RhmsDrvNoError, state, "Unnable to load driver or create service");
         }
 
-        private static void Target(BridgeDriver.LogLevel level, string message){
+        private static void Target(DriverLogLevel level, string message){
             Console.WriteLine($"{level} {message}");
         }
     }

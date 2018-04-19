@@ -5,7 +5,7 @@ extern bool g_IsTSC;
 extern bool g_IsNT;
 
 BOOL WINAPI RHMS_ReadTsc(PDWORD eax, PDWORD edx) {
-	if (eax == nullptr || edx == nullptr || g_IsTSC == false) {
+	if (eax == nullptr || edx == nullptr || !g_IsTSC) {
 		return false;
 	}
 

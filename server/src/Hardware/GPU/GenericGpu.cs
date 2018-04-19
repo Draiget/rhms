@@ -18,7 +18,7 @@ namespace server.Hardware.GPU
             }
         }
 
-        public abstract void InitializeInformation();
+        public virtual void InitializeSensors() { }
 
         public bool IsSensorAvaliable(SensorType type){
             return AvaliableSensors.ContainsKey(type);

@@ -11,7 +11,7 @@ namespace server.Drivers.Kernel
     /// CPUID functions
     /// <see cref="https://ru.wikipedia.org/wiki/CPUID"/>
     /// </summary>
-    public static class Cpuid
+    internal static class Cpuid
     {
         /// <summary>
         /// Read PMC data shared function

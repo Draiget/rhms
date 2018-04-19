@@ -16,5 +16,10 @@ namespace server.Utils
         public static Type[] GetTypesInNamespace(string nameSpace){
             return GetTypesInNamespace(Assembly.GetExecutingAssembly(), nameSpace);
         }
+
+        public static Type[] GetAttributesInModule<T>(Type assemblyClass, T attribute) where T : Type {
+            var classes = assemblyClass.Assembly.GetTypes().Where(t => t.GetCustomAttributes(attribute).Any());
+            return classes.Where(x => x.IsClass).ToArray();
+        }
     }
 }

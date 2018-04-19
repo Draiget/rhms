@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using gpu_radeon.Api.Structures;
+using server.Drivers.Presentation;
 using server.Hardware;
 using server.Hardware.GPU;
+using server.Modules.Base;
 
 namespace gpu_radeon.Api.Hardware.Sensors
 {
+    [SensorRegister]
     public class SensorRadeonTemperature : BaseGpuSensor
     {
         private readonly RadeonGpu _gpu;
@@ -71,6 +74,10 @@ namespace gpu_radeon.Api.Hardware.Sensors
 
         public override string GetSystemName() {
             return "temp";
+        }
+
+        public override BaseModule GetModuleHandle() {
+            return ModuleGpuRadeon.ModuleHandle;
         }
     }
 }

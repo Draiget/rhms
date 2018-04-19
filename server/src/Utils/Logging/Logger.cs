@@ -154,6 +154,7 @@ namespace server.Utils.Logging
         public static void Info(string msg) {
             AddLogMsg(msg, LogLevel.Info, ConsoleColor.White);
         }
+
         public static void Warn(string msg) {
             AddLogMsg(msg, LogLevel.Warn, ConsoleColor.Yellow);
         }
@@ -168,20 +169,20 @@ namespace server.Utils.Logging
             ResetColor();
         }
 
-        public static void Auto(BridgeDriver.LogLevel level, string message){
+        public static void Auto(DriverLogLevel level, string message){
             LogLevel logLevel;
             ConsoleColor logColor;
 
             switch (level) {
-                case BridgeDriver.LogLevel.Info:
+                case DriverLogLevel.Info:
                     logLevel = LogLevel.Info;
                     logColor = ConsoleColor.White;
                     break;
-                case BridgeDriver.LogLevel.Warning:
+                case DriverLogLevel.Warning:
                     logLevel = LogLevel.Warn;
                     logColor = ConsoleColor.Yellow;
                     break;
-                case BridgeDriver.LogLevel.Error:
+                case DriverLogLevel.Error:
                     logLevel = LogLevel.Error;
                     logColor = ConsoleColor.Red;
                     break;

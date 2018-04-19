@@ -1,4 +1,4 @@
-﻿#undef Rhms_DebugSensors
+﻿#define Rhms_DebugSensors
 
 using System;
 using System.Collections.Generic;

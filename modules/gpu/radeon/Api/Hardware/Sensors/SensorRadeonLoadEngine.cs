@@ -5,9 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using gpu_radeon.Api.Hardware.Sensors.Base;
 using gpu_radeon.Api.Structures;
+using server.Hardware;
+using server.Utils;
 
 namespace gpu_radeon.Api.Hardware.Sensors
 {
+    [SensorRegister]
     public class SensorRadeonLoadEngine : SensorBaseRadeonLoad
     {
         public SensorRadeonLoadEngine(RadeonGpu gpu)
@@ -38,7 +41,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemName() {
-            return "engine_clock";
+            return GetDisplayName().ConvertToIdString();
         }
     }
 }

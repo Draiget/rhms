@@ -11,7 +11,7 @@ namespace server.Drivers.Kernel
     /// TSC (Time Stamp Counter) registers
     /// <see cref="https://ru.wikipedia.org/wiki/Rdtsc"/>
     /// </summary>
-    public static class Tsc
+    internal static class Tsc
     {
         /// <summary>
         /// Read TSC data shared

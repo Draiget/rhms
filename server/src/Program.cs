@@ -48,7 +48,7 @@ namespace server
                 }
             }
 
-            Logger.Auto(state == KernelDriverInitState.RhmsDrvNoError ? BridgeDriver.LogLevel.Info : BridgeDriver.LogLevel.Error,
+            Logger.Auto(state == KernelDriverInitState.RhmsDrvNoError ? DriverLogLevel.Info : DriverLogLevel.Error,
                         $"Load driver state: {state}");
 
             if (state != KernelDriverInitState.RhmsDrvNoError) {
@@ -104,7 +104,7 @@ namespace server
             AppLogger?.Shutdown();
         }
 
-        private static void DriverLoggerCallback(BridgeDriver.LogLevel level, string message){
+        private static void DriverLoggerCallback(DriverLogLevel level, string message){
             Logger.Auto(level, message);
         }
 

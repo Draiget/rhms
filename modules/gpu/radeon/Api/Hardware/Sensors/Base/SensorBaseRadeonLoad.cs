@@ -1,12 +1,13 @@
 ﻿using gpu_radeon.Api.Structures;
 using server.Hardware;
 using server.Hardware.GPU;
+using server.Modules.Base;
 
 namespace gpu_radeon.Api.Hardware.Sensors.Base
 {
     public abstract class SensorBaseRadeonLoad : BaseGpuSensor
     {
-        protected RadeonGpu Gpu;
+        protected new RadeonGpu Gpu;
         protected AdlpmActivity Activity;
         protected double Value;
 
@@ -50,6 +51,10 @@ namespace gpu_radeon.Api.Hardware.Sensors.Base
 
         public override SensorType GetSensorType() {
             return SensorType.Utilization;
+        }
+
+        public override BaseModule GetModuleHandle() {
+            return ModuleGpuRadeon.ModuleHandle;
         }
     }
 }

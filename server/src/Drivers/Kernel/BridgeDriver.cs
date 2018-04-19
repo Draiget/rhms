@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace server.Drivers.Kernel
 {
-    public static class BridgeDriver
+    internal static class BridgeDriver
     {
         /// <summary>
         /// Checking if current windows is based on NT version
@@ -64,19 +64,19 @@ namespace server.Drivers.Kernel
         [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_DeinitializeDriver", CallingConvention = CallingConvention.Winapi)]
         internal static extern void Deinitialize();
 
-        public enum LogLevel
-        {
-            Debug = 0,
-            Error,
-            Warning,
-            Info
-        }
-
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        public delegate void LoggerCallback([MarshalAs(UnmanagedType.I4)] LogLevel level, [MarshalAs(UnmanagedType.LPStr)] string message);
+        public delegate void LoggerCallback([MarshalAs(UnmanagedType.I4)] DriverLogLevel level, [MarshalAs(UnmanagedType.LPStr)] string message);
 
         [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_RegisterLoggerCallback", CallingConvention = CallingConvention.Winapi)]
         internal static extern bool RegisterLoggerCallback(LoggerCallback callback);
+    }
+
+    public enum DriverLogLevel
+    {
+        Debug = 0,
+        Error,
+        Warning,
+        Info
     }
 }

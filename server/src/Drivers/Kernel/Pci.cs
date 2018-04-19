@@ -10,7 +10,7 @@ namespace server.Drivers.Kernel
     /// <summary>
     /// PCI functions (read\write device config)
     /// </summary>
-    public static class Pci
+    internal static class Pci
     {
         #region Read Functions
 

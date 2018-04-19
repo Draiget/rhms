@@ -14,6 +14,8 @@ namespace gpu_radeon
 {
     public class ModuleGpuRadeon : BaseModule
     {
+        public static ModuleGpuRadeon ModuleHandle;
+
         public static BaseModuleLoader Loader;
         public static BaseModuleLogger Logger;
         private static BaseCollectingServer _server;
@@ -24,6 +26,7 @@ namespace gpu_radeon
             Loader = loader;
             Logger = GetLogger();
             _server = loader.GetServer();
+            ModuleHandle = this;
         }
 
         public override string GetLogIdentifer() {
@@ -76,7 +79,12 @@ namespace gpu_radeon
 
                 var radeonAdapter = new RadeonGpu(adaptersInfo[i]);
                 ProcessAdlAdapter(radeonAdapter);
-                AddHardware(radeonAdapter);
+                try {
+                    radeonAdapter.InitializeSensors();
+                    AddHardware(radeonAdapter);
+                } catch (Exception e) {
+                    Logger.Error($"Unable to initialize sensors for {radeonAdapter}", e);
+                }
             }
 
             return true;

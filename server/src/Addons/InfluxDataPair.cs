@@ -31,8 +31,8 @@ namespace server.Addons
     {
         private readonly string _tableTag;
 
-        private Dictionary<string, string> _tags;
-        private Dictionary<string, string> _values;
+        private readonly Dictionary<string, string> _tags;
+        private readonly Dictionary<string, string> _values;
 
         public InfluxWriteData(string table, params InfluxDataPair[] values) {
             _tableTag = table;

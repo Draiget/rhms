@@ -110,6 +110,7 @@
     <Compile Include="Drivers\Kernel\Pmc.cs" />
     <Compile Include="Drivers\Kernel\Tsc.cs" />
     <Compile Include="Hardware\GPU\BaseGpuSensor.cs" />
+    <Compile Include="Hardware\SensorRegisterAttribute.cs" />
     <Compile Include="Hardware\SensorType.cs" />
     <Compile Include="Hardware\GPU\GpuSensorThermal.cs" />
     <Compile Include="Hardware\IHardware.cs" />
@@ -125,10 +126,7 @@
     <Compile Include="Drivers\Presentation\CpuidRegisters.cs" />
     <Compile Include="Drivers\Presentation\CpuidCoreInfo.cs" />
     <Compile Include="Drivers\Presentation\CpuVendor.cs" />
-    <Compile Include="Drivers\Presentation\GenericGpuSensor.cs" />
     <Compile Include="Drivers\Presentation\GpuVendor.cs" />
-    <Compile Include="Drivers\Presentation\Sensors\LoadingGpuSensor.cs" />
-    <Compile Include="Drivers\Presentation\Sensors\ThermalGpuSensor.cs" />
     <Compile Include="Hardware\CPU\GenericCpu.cs" />
     <Compile Include="Hardware\GPU\GenericGpu.cs" />
     <Compile Include="Hardware\HardwareIdentifer.cs" />
@@ -153,6 +151,7 @@
     <Compile Include="Utils\Logging\Logger.cs" />
     <Compile Include="Utils\Logging\LogMessageHolder.cs" />
     <Compile Include="Utils\Logging\BaseModuleLogger.cs" />
+    <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Utils\ThreadUtils.cs" />
   </ItemGroup>
   <ItemGroup>

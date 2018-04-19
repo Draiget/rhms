@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using server.Modules.Base;
 
 namespace server.Hardware.GPU
 {
@@ -50,5 +51,6 @@ namespace server.Hardware.GPU
 
         public abstract string GetSystemName();
 
+        public abstract BaseModule GetModuleHandle();
     }
 }

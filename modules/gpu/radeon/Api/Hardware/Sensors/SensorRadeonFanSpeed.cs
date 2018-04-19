@@ -5,39 +5,33 @@ using System.Text;
 using System.Threading.Tasks;
 using gpu_radeon.Api.Hardware.Sensors.Base;
 using gpu_radeon.Api.Structures;
-using server.Drivers.Presentation;
 using server.Hardware;
+using server.Hardware.GPU;
+using server.Modules.Base;
 using server.Utils;
 
 namespace gpu_radeon.Api.Hardware.Sensors
 {
     [SensorRegister]
-    public class SensorRadeonLoadMemory : SensorBaseRadeonLoad
+    public class SensorRadeonFanSpeed : SensorBaseRadeonLoad
     {
-        public SensorRadeonLoadMemory(RadeonGpu gpu)
+        public SensorRadeonFanSpeed(RadeonGpu gpu)
             : base(gpu) {
         }
 
         public override void TickSpecificLoad(AdlpmActivity activity) {
-            if (activity.MemoryClock > 0) {
-                Value = 0.01f * activity.MemoryClock;
-
-                if (!MinMaxSet) {
-                    MinMaxSet = true;
-                    MinValue = MaxValue = Value;
-                } else {
-                    MinValue = Math.Min(MinValue, Value);
-                    MaxValue = Math.Max(MaxValue, Value);
-                }
-
-                IsSensorActive = true;
+            var adlSpeed = new AdlFanSpeedValue();
+            if (AdlApi.AdlGetFanSpeed(Gpu.AdapterIndex, 0, ref adlSpeed) != AdlApi.AdlOk) {
+                IsSensorActive = false;
                 return;
             }
 
-            IsSensorActive = false;
+            Value = adlSpeed.FanSpeed;
+            IsSensorActive = true;
         }
+
         public override string GetDisplayName() {
-            return "Memory Clock";
+            return "FAN Speed";
         }
 
         public override string GetSystemName() {

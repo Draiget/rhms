@@ -13,18 +13,24 @@
     </TestCertificate>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <SignMode>Off</SignMode>
+    <SignMode>TestSign</SignMode>
     <ProductionCertificate>
     </ProductionCertificate>
     <CrossCertificateFile>
     </CrossCertificateFile>
-    <TestCertificate>
-    </TestCertificate>
+    <TestCertificate>A:\rhms\Certs\ZontWelgAppCert.pfx</TestCertificate>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <SignMode>Off</SignMode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <SignMode>Off</SignMode>
+    <SignMode>TestSign</SignMode>
+    <TestCertificate>A:\rhms\Certs\ZontWelgAppCert.pfx</TestCertificate>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <TestCertificate>A:\rhms\Certs\ZontWelgAppCert.pfx</TestCertificate>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <TestCertificate>A:\rhms\Certs\ZontWelgAppCert.pfx</TestCertificate>
   </PropertyGroup>
 </Project>

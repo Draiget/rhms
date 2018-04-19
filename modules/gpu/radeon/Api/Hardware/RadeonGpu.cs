@@ -7,6 +7,7 @@ using gpu_radeon.Api.Hardware.Sensors;
 using gpu_radeon.Api.Structures;
 using server.Hardware;
 using server.Hardware.GPU;
+using server.Utils;
 
 namespace gpu_radeon.Api.Hardware
 {
@@ -18,12 +19,6 @@ namespace gpu_radeon.Api.Hardware
         public RadeonGpu(AdlAdapterInfo info) {
             _adapterInfo = info;
             _hardwareIdentifer = new RadeonGpuIdentifer(this);
-
-            AddAvaliableSensor(new SensorRadeonTemperature(this));
-            AddAvaliableSensor(new SensorRadeonLoadCoreActivity(this));
-            AddAvaliableSensor(new SensorRadeonLoadEngine(this));
-            AddAvaliableSensor(new SensorRadeonLoadMemory(this));
-            AddAvaliableSensor(new SensorRadeonLoadVddc(this));
         }
 
         public int AdapterIndex => _adapterInfo.AdapterIndex;
@@ -42,8 +37,11 @@ namespace gpu_radeon.Api.Hardware
             private set;
         }
 
-        public override void InitializeInformation(){
-
+        public override void InitializeSensors(){
+            var sensors = AssemblyUtils.GetAttributesInModule(typeof(RadeonGpu), typeof(SensorRegisterAttribute));
+            foreach (var sensor in sensors) {
+                AddAvaliableSensor((BaseGpuSensor)Activator.CreateInstance(sensor, this));
+            }
         }
 
         public override HardwareIdentifer Identify(){
@@ -73,7 +71,7 @@ namespace gpu_radeon.Api.Hardware
         }
 
         public override string ToString() {
-            return $"RadeonGpu [Name='{_adapterInfo.AdapterName}', DeviceNumber={_adapterInfo.DeviceNumber}, BusNumber={_adapterInfo.BusNumber}]";
+            return $"RadeonGpu[Name='{_adapterInfo.AdapterName}', DeviceNumber={_adapterInfo.DeviceNumber}, BusNumber={_adapterInfo.BusNumber}]";
         }
     }
 }

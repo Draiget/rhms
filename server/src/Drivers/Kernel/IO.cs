@@ -10,7 +10,7 @@ namespace server.Drivers.Kernel
     /// <summary>
     /// I/O Functions (ports read\write)
     /// </summary>
-    public static class Io
+    internal static class Io
     {
         #region Read Functions
 

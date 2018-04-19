@@ -57,6 +57,12 @@ namespace gpu_radeon.Api
         public static AdlApiGpu.ADL_Adapter_NumberOfAdapters_GetDelegate AdlGetNumberOfAdapters;
 
         [LinkedField(typeof(AdlApiGpu))]
+        public static AdlApiGpu.ADL_Overdrive5_FanSpeed_GetDelegate AdlGetFanSpeed;
+
+        // Warning disabled because this field are accessed dynamically thought LinkedField attribute
+        #pragma warning disable 0649
+        // ReSharper disable InconsistentNaming
+        [LinkedField(typeof(AdlApiGpu))]
         internal static AdlApiGpu.ADL_Adapter_ID_GetDelegate _adlAdapterGetId;
 
         [LinkedField(typeof(AdlApiGpu))]
@@ -64,6 +70,8 @@ namespace gpu_radeon.Api
 
         [LinkedField(typeof(AdlApiGpu))]
         internal static AdlApiGpu.ADL_Adapter_AdapterInfo_GetDelegate _aldAdapterGetInfo;
+        // ReSharper restore InconsistentNaming
+        #pragma warning restore 0649
 
         public const int AdlMaxPath = 256;
         public const int AdlOk = 0;

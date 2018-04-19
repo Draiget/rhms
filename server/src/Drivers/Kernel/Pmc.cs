@@ -11,7 +11,7 @@ namespace server.Drivers.Kernel
     /// PMC functions (Performance Monitor Count Registers)
     /// <see cref="http://wiki.dreamrunner.org/public_html/Embedded-System/Cortex-A8/PerformanceMonitorControlRegister.html"/>
     /// </summary>
-    public static class Pmc
+    internal static class Pmc
     {
         /// <summary>
         /// Read PMC data shared function

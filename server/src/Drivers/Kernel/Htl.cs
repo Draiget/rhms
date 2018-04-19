@@ -11,7 +11,7 @@ namespace server.Drivers.Kernel
     /// HLT (Halt)
     /// <see cref="https://en.wikipedia.org/wiki/HLT_(x86_instruction)"/>
     /// </summary>
-    public static class Htl
+    internal static class Htl
     {
         /// <summary>
         /// Halt to the next instruction

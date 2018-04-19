@@ -11,7 +11,7 @@ namespace server.Drivers.Kernel
     /// Model-specific register functions.
     /// <see cref="http://download.intel.com/products/processor/manual/325384.pdf"/>
     /// </summary>
-    public static class Msr
+    internal static class Msr
     {
         /// <summary>
         /// Read MSR data shared function

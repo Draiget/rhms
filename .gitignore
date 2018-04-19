@@ -20,3 +20,4 @@ backend/target
 deployment-ssh.log
 
 packages
+certs
