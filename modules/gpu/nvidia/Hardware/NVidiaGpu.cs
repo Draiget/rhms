@@ -9,7 +9,7 @@ namespace gpu_nvidia.Hardware
             
         }
 
-        public override void InitializeInformation(){
+        public override void InitializeSensors(){
             
         }
 

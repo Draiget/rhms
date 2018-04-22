@@ -44,77 +44,77 @@ NTSTATUS DispatchIoCtlDriverFunction(
  */
 
 NTSTATUS ReadMsr(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS WriteMsr(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS ReadPmc(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS ReadIoPort(
-	ULONG ioControlCode,
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	ULONG io_control_code,
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS WriteIoPort(
-	ULONG ioControlCode,
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	ULONG io_control_code,
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS ReadPciConfig(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS WritePciConfig(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS ReadMemory(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 NTSTATUS WriteMemory(
-	void *lpInBuffer,
-	ULONG nInBufferSize,
-	void *lpOutBuffer,
-	ULONG nOutBufferSize,
-	ULONG *lpBytesReturned
+	void * lp_in_buffer,
+	ULONG n_in_buffer_size,
+	void * lp_out_buffer,
+	ULONG n_out_buffer_size,
+	ULONG * lp_bytes_returned
 );
 
 /*

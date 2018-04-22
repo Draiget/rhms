@@ -12,7 +12,8 @@ static BOOL RemoveDriver(SC_HANDLE h_sc_manager, const char* driver_id);
 static int StartDriver(SC_HANDLE h_sc_manager, const char* driver_id);
 static BOOL StopDriver(SC_HANDLE h_sc_manager, const char* driver_id);
 static BOOL SystemInstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
-static BOOL IsSystemInstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
+static BOOL IsSystemDriverInstalled(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
+static BOOL IsServiceExists(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
 
 /**
  * \brief Manage driver in system (install, remove, permanent/system install)
@@ -46,20 +47,26 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
 
 	switch (function) {
 		case RHMS_DRIVER_INSTALL:
-			if (InstallDriver(h_sc_manager, driver_id, driver_path)) {
-				retn_code = StartDriver(h_sc_manager, driver_id);
+			if (IsServiceExists(h_sc_manager, driver_id, driver_path)) {
+				if (InstallDriver(h_sc_manager, driver_id, driver_path)) {
+					retn_code = StartDriver(h_sc_manager, driver_id);
+				}
 			}
 			break;
 
 		case RHMS_DRIVER_REMOVE:
-			if (!IsSystemInstallDriver(h_sc_manager, driver_id, driver_path)) {
-				StopDriver(h_sc_manager, driver_id);
-				retn_code = RemoveDriver(h_sc_manager, driver_id);
+			if (!IsSystemDriverInstalled(h_sc_manager, driver_id, driver_path)) {
+				if (IsServiceExists(h_sc_manager, driver_id, driver_path)) {
+					StopDriver(h_sc_manager, driver_id);
+					retn_code = RemoveDriver(h_sc_manager, driver_id);
+				} else {
+					retn_code = TRUE;
+				}
 			}
 			break;
 
 		case RHMS_DRIVER_SYSTEM_INSTALL:
-			if (IsSystemInstallDriver(h_sc_manager, driver_id, driver_path)) {
+			if (IsSystemDriverInstalled(h_sc_manager, driver_id, driver_path)) {
 				retn_code = TRUE;
 			} else {
 				if (!OpenDriver()) {
@@ -75,7 +82,7 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
 			break;
 
 		case RHMS_DRIVER_SYSTEM_UNINSTALL:
-			if (!IsSystemInstallDriver(h_sc_manager, driver_id, driver_path)) {
+			if (!IsSystemDriverInstalled(h_sc_manager, driver_id, driver_path)) {
 				retn_code = TRUE;
 			} else {
 				if (g_Handle != INVALID_HANDLE_VALUE) {
@@ -247,13 +254,13 @@ BOOL StopDriver(SC_HANDLE h_sc_manager, const char* driver_id) {
 
 
 /**
- * \brief Does system install the driver
+ * \brief Checking if system driver is installed in system
  * \param h_sc_manager Service control manager
  * \param driver_id Driver id
  * \param driver_path Driver file path
- * \return Return status is system install driver
+ * \return Installed status
  */
-BOOL IsSystemInstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path) {
+BOOL IsSystemDriverInstalled(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path) {
 	UNREFERENCED_PARAMETER(driver_path);
 
 	BOOL retn_code = false;
@@ -274,4 +281,17 @@ BOOL IsSystemInstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const 
 	}
 
 	return retn_code;
+}
+
+BOOL IsServiceExists(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path) {
+	UNREFERENCED_PARAMETER(driver_path);
+
+	auto const service_handle = OpenServiceA(h_sc_manager, driver_id, SERVICE_ALL_ACCESS);
+	if (service_handle != nullptr) {
+		CloseServiceHandle(service_handle);
+		return true;
+	}
+
+	// TODO: Maybe check GetLastError() and ERROR_SERVICE_DOES_NOT_EXIST
+	return true;
 }

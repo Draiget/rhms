@@ -12,7 +12,7 @@ using server.Utils.Logging;
 
 namespace gpu_radeon
 {
-    public class ModuleGpuRadeon : BaseModule
+    public class ModuleGpuRadeon : BaseHardwareModule
     {
         public static ModuleGpuRadeon ModuleHandle;
 

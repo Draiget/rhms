@@ -60,7 +60,6 @@ NTSTATUS RhmsDispatch(IN PDEVICE_OBJECT driver_device, IN PIRP p_irp) {
 	// Initi irp information field, used to return the number of transfered bytes
 	p_irp->IoStatus.Information = 0;
 	const PIO_STACK_LOCATION p_irp_stack = IoGetCurrentIrpStackLocation(p_irp);
-
 	auto const status = DispatchMajorDriverFunction(p_irp, p_irp_stack);
 
 	// We're done with I/O request, record the status of the I/O action

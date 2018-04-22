@@ -7,7 +7,7 @@ using server.Utils.Logging;
 
 namespace gpu_nvidia
 {
-    public class ModuleGpuNvidia : BaseModule
+    public class ModuleGpuNvidia : BaseHardwareModule
     {
         public static BaseModuleLoader Loader;
         public static BaseModuleLogger Logger;

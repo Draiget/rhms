@@ -115,9 +115,18 @@
     <Compile Include="Hardware\GPU\GpuSensorThermal.cs" />
     <Compile Include="Hardware\IHardware.cs" />
     <Compile Include="Hardware\ISensor.cs" />
+    <Compile Include="Modules\Base\BaseHardwareModule.cs" />
+    <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
     <Compile Include="Modules\Helpers\LinkedFunctionIdBaseAttribute.cs" />
     <Compile Include="Networking\NetworkConnectionManager.cs" />
+    <Compile Include="Networking\Stun\StunChangeRequest.cs" />
+    <Compile Include="Networking\Stun\StunErrorCode.cs" />
+    <Compile Include="Networking\Stun\StunMessage.cs" />
+    <Compile Include="Networking\Stun\StunMessageType.cs" />
+    <Compile Include="Networking\Stun\StunNetworkType.cs" />
+    <Compile Include="Networking\Stun\StunQuery.cs" />
+    <Compile Include="Networking\Stun\StunQueryResult.cs" />
     <Compile Include="RhmsSettings.cs" />
     <Compile Include="Utils\AssemblyUtils.cs" />
     <Compile Include="Utils\Natives\SSystemProcessorPerformanceInformation.cs" />
@@ -136,7 +145,7 @@
     <Compile Include="Modules\Base\BaseModuleLoader.cs" />
     <Compile Include="Modules\ICollectingServer.cs" />
     <Compile Include="Modules\ICollectingServerLogger.cs" />
-    <Compile Include="Modules\IModule.cs" />
+    <Compile Include="Modules\IHardwareModule.cs" />
     <Compile Include="Modules\IModuleLoader.cs" />
     <Compile Include="Modules\ModuleLoadingException.cs" />
     <Compile Include="Modules\ModuleState.cs" />
@@ -162,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Backend\" />
+    <Folder Include="Modules\OutputModules\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -79,9 +79,13 @@ namespace server.Modules.Base
             }
 
             try {
-                var targetType = assembly.GetExportedTypes().FirstOrDefault(type => type.BaseType == typeof(BaseModule));
+                var targetType = assembly.GetExportedTypes().FirstOrDefault(type => type.BaseType == typeof(BaseHardwareModule));
                 if (targetType == null) {
-                    throw new ModuleLoadingException("Assembly doesn't contains BaseModule class instance");
+                    // Try to load as base module instead
+                    targetType = assembly.GetExportedTypes().FirstOrDefault(type => type.BaseType == typeof(BaseModule));
+                    if (targetType == null) {
+                        throw new ModuleLoadingException($"Assembly doesn't contains {nameof(BaseHardwareModule)} or {nameof(BaseModule)} class instance");
+                    }
                 }
 
                 dynamic obj;
@@ -107,8 +111,12 @@ namespace server.Modules.Base
             return _server;
         }
 
-        public List<BaseModule> GetModules() {
+        public List<BaseModule> GetAllModules() {
             return _modules;
+        }
+
+        public List<BaseHardwareModule> GetHardwareModules() {
+            return _modules.Where(x => x is BaseHardwareModule).Cast<BaseHardwareModule>().ToList();
         }
 
         public RhmsSettings GetSettings() {

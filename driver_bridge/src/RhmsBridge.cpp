@@ -192,8 +192,11 @@ DWORD LoadDriver() {
 		}
 
 		ManageDriver(RHMS_DRIVER_ID, g_DriverPath, RHMS_DRIVER_REMOVE);
+
+		RHMS_Log(RHMS_LOGLEVEL_DEBUG, "Installing and starting driver ...");
 		auto const install_code = ManageDriver(RHMS_DRIVER_ID, g_DriverPath, RHMS_DRIVER_INSTALL);
 		if (install_code != RHMS_DRIVER_MANAGER_OK) {
+			RHMS_Log(RHMS_LOGLEVEL_DEBUG, "Unable to install or start driver, removing ...");
 			ManageDriver(RHMS_DRIVER_ID, g_DriverPath, RHMS_DRIVER_REMOVE);
 			return install_code;
 		}
@@ -219,11 +222,7 @@ bool OpenDriver() {
 		nullptr
 	);
 
-	if (g_Handle == INVALID_HANDLE_VALUE) {
-		return false;
-	}
-
-	return true;
+	return g_Handle != INVALID_HANDLE_VALUE;
 }
 
 DWORD GetDriverInfo() {

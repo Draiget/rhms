@@ -1,4 +1,4 @@
-﻿#define Rhms_DebugSensors
+﻿#undef Rhms_DebugSensors
 
 using System;
 using System.Collections.Generic;
@@ -40,6 +40,7 @@ namespace server
 
             // Temporary here
             Manager = new NetworkConnectionManager();
+            Manager.Initialize();
 
             _isThreadsActive = true;
             return true;
@@ -60,7 +61,7 @@ namespace server
         }
 
         private void WorkerHardwareUpdater() {
-            var loadedModules = _moduleLoader.GetModules();
+            var loadedModules = _moduleLoader.GetHardwareModules();
             while (_isThreadsActive) {
                 foreach (var module in loadedModules) {
                     foreach (var hardware in module.GetHardware()) {
