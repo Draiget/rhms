@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using gpu_radeon.Api.Hardware.Sensors.Base;
 using gpu_radeon.Api.Structures;
 using server.Drivers.Presentation;
 using server.Hardware;
@@ -12,55 +13,31 @@ using server.Modules.Base;
 namespace gpu_radeon.Api.Hardware.Sensors
 {
     [SensorRegister]
-    public class SensorRadeonTemperature : BaseGpuSensor
+    public class SensorRadeonTemperature : BaseGpuSensor, ISingleValueSensor
     {
-        private readonly RadeonGpu _gpu;
-        private double _temperature;
-
-        private bool _minMaxSet;
-        private double _minValue;
-        private double _maxValue;
+        protected new RadeonGpu Gpu;
+        private readonly SensorElementRadeonTemperature _sensorTemperature;
 
         public SensorRadeonTemperature(RadeonGpu gpu)
             : base(gpu) {
-            _gpu = gpu;
-            _minMaxSet = false;
+            Gpu = gpu;
+            _sensorTemperature = new SensorElementRadeonTemperature();
         }
 
         public override bool InitSensor() {
-            _temperature = -1;
+            _sensorTemperature.SetValue(-1);
             return true;
-        }
-
-        public override double GetValue() {
-            return _temperature;
-        }
-
-        public override double GetMin() {
-            return _minValue;
-        }
-
-        public override double GetMax() {
-            return _maxValue;
         }
 
         public override void Tick() {
             var temperature = new AdlTemperature();
-            if (AdlApi.AdlGetAdapterTemperature(_gpu.AdapterIndex, 0, ref temperature) == AdlApi.AdlOk) {
-                _temperature = 0.001f * temperature.Temperature;
-
-                if (!_minMaxSet) {
-                    _minMaxSet = true;
-                    _minValue = _maxValue = _temperature;
-                } else {
-                    _minValue = Math.Min(_minValue, _temperature);
-                    _maxValue = Math.Max(_maxValue, _temperature);
-                }
-
+            if (AdlApi.AdlGetAdapterTemperature(Gpu.AdapterIndex, 0, ref temperature) == AdlApi.AdlOk) {
+                _sensorTemperature.Update(temperature);
                 IsSensorActive = true;
+                _sensorTemperature.SetActive(IsSensorActive);
             } else {
                 IsSensorActive = false;
-                _temperature = -1;
+                _sensorTemperature.SetActive(IsSensorActive);
             }
         }
 
@@ -78,6 +55,30 @@ namespace gpu_radeon.Api.Hardware.Sensors
 
         public override BaseModule GetModuleHandle() {
             return ModuleGpuRadeon.ModuleHandle;
+        }
+
+        public ISensorElement GetElement() {
+            return _sensorTemperature;
+        }
+    }
+
+    internal class SensorElementRadeonTemperature : SensorElementBaseRadeonLoad<AdlTemperature>
+    {
+        public override void Update(AdlTemperature info) {
+            Value = 0.001f * info.Temperature;
+            AfterUpdate();
+        }
+
+        public override string GetMeasurement() {
+            return "V";
+        }
+
+        public void SetValue(double value) {
+            Value = value;
+        }
+
+        public override string GetSystemTag() {
+            return "temp";
         }
     }
 }

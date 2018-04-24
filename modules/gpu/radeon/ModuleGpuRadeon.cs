@@ -7,6 +7,7 @@ using gpu_radeon.Api;
 using gpu_radeon.Api.Hardware;
 using gpu_radeon.Api.Structures;
 using server.Addons;
+using server.Hardware;
 using server.Modules.Base;
 using server.Utils.Logging;
 
@@ -114,7 +115,19 @@ namespace gpu_radeon
                         continue;
                     }
 
-                    influxData.Add(new InfluxDataPair(sensor.GetSystemName(), $"{sensor.GetValue():F4}"));
+                    influxData.Add(new InfluxDataTag("sensor", sensor.GetSystemName()));
+
+                    if (sensor is IMultiValueSensor multi) {
+                        foreach (var sensorElement in multi.GetElements()) {
+                            influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
+                        }
+                    }
+
+                    if (sensor is ISingleValueSensor single) {
+                        var sensorElement = single.GetElement();
+                        influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
+                    }
+                    
                 }
 
                 influxDb.Write(new InfluxWriteData("gpu", influxData.ToArray()));

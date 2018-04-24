@@ -59,6 +59,9 @@ namespace gpu_radeon.Api
         [LinkedField(typeof(AdlApiGpu))]
         public static AdlApiGpu.ADL_Overdrive5_FanSpeed_GetDelegate AdlGetFanSpeed;
 
+        [LinkedField(typeof(AdlApiGpu))]
+        public static AdlApiGpu.ADL_Overdrive5_FanSpeedInfo_GetDelegate AdlGetFanSpeedInfo;
+
         // Warning disabled because this field are accessed dynamically thought LinkedField attribute
         #pragma warning disable 0649
         // ReSharper disable InconsistentNaming

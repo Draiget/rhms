@@ -13,27 +13,26 @@ namespace gpu_radeon.Api.Hardware.Sensors
     [SensorRegister]
     public class SensorRadeonLoadVddc : SensorBaseRadeonLoad
     {
+        private readonly SensorElementRadeonVddc _sensorVddc;
+
         public SensorRadeonLoadVddc(RadeonGpu gpu)
             : base(gpu) {
+            _sensorVddc = new SensorElementRadeonVddc();
         }
 
         public override void TickSpecificLoad(AdlpmActivity activity) {
-            if (activity.Vddc > 0) {
-                Value = 0.001f * activity.Vddc;
-
-                if (!MinMaxSet) {
-                    MinMaxSet = true;
-                    MinValue = MaxValue = Value;
-                } else {
-                    MinValue = Math.Min(MinValue, Value);
-                    MaxValue = Math.Max(MaxValue, Value);
-                }
-
+            _sensorVddc.SetActive(activity.Vddc >= 0);
+            if (activity.Vddc >= 0) {
                 IsSensorActive = true;
+                _sensorVddc.Update(activity);
                 return;
             }
 
             IsSensorActive = false;
+        }
+
+        public override ISensorElement GetElement() {
+            return _sensorVddc;
         }
 
         public override string GetDisplayName() {
@@ -42,6 +41,22 @@ namespace gpu_radeon.Api.Hardware.Sensors
 
         public override string GetSystemName() {
             return GetDisplayName().ConvertToIdString();
+        }
+    }
+
+    internal class SensorElementRadeonVddc : SensorElementBaseRadeonLoad<AdlpmActivity>
+    {
+        public override void Update(AdlpmActivity info) {
+            Value = 0.001f * info.Vddc;
+            AfterUpdate();
+        }
+
+        public override string GetMeasurement() {
+            return "V";
+        }
+
+        public override string GetSystemTag() {
+            return "core_vddc";
         }
     }
 }

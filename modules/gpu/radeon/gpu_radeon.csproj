@@ -47,7 +47,9 @@
     <Compile Include="Api\Hardware\RadeonGpu.cs" />
     <Compile Include="Api\Hardware\RadeonGpuIdentifer.cs" />
     <Compile Include="Api\Hardware\Sensors\Base\SensorBaseRadeonLoad.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonFanSpeed.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorBaseRadeonLoadMulti.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseRadeonLoad.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorRadeonFanInfo.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadCoreActivity.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadEngine.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadMemory.cs" />

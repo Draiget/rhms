@@ -12,12 +12,16 @@ namespace server
         public static RhmsSettings Default => new RhmsSettings {
             BindAddress = "0.0.0.0",
             InfluxOutput = new SectionInfluxDb("http://127.0.0.1:8086", "rhms") { Enabled = false },
-            HardwareSensorsUpdateInterval = 500
+            HardwareSensorsUpdateInterval = 500,
+            PeerSignalServer = new RequiredSectionPeerSignalServer("http://srv-ps.rhms.zontwelg.com/"),
+            CollectingServerPeerName = "srv-dc1.cp-rig1"
         };
 
+        public string CollectingServerPeerName;
         public string BindAddress;
         public SectionInfluxDb InfluxOutput;
         public int HardwareSensorsUpdateInterval;
+        public RequiredSectionPeerSignalServer PeerSignalServer;
 
         public abstract class Section
         {
@@ -34,6 +38,15 @@ namespace server
             public SectionInfluxDb(string influxDbHost, string influxDbName){
                 Host = influxDbHost;
                 Database = influxDbName;
+            }
+        }
+
+        public class RequiredSectionPeerSignalServer
+        {
+            public string Host;
+
+            public RequiredSectionPeerSignalServer(string host) {
+                Host = host;
             }
         }
     }

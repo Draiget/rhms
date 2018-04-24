@@ -13,27 +13,26 @@ namespace gpu_radeon.Api.Hardware.Sensors
     [SensorRegister]
     public class SensorRadeonLoadEngine : SensorBaseRadeonLoad
     {
+        private readonly SensorElementRadeonLoadEngine _loadEngine;
+
         public SensorRadeonLoadEngine(RadeonGpu gpu)
             : base(gpu) {
+            _loadEngine = new SensorElementRadeonLoadEngine();
         }
 
         public override void TickSpecificLoad(AdlpmActivity activity) {
-            if (activity.EngineClock > 0) {
-                Value = 0.01f * activity.EngineClock;
-
-                if (!MinMaxSet) {
-                    MinMaxSet = true;
-                    MinValue = MaxValue = Value;
-                } else {
-                    MinValue = Math.Min(MinValue, Value);
-                    MaxValue = Math.Max(MaxValue, Value);
-                }
-
+            _loadEngine.SetActive(activity.EngineClock >= 0);
+            if (activity.EngineClock >= 0) {
                 IsSensorActive = true;
+                _loadEngine.Update(activity);
                 return;
             }
 
             IsSensorActive = false;
+        }
+
+        public override ISensorElement GetElement() {
+            return _loadEngine;
         }
 
         public override string GetDisplayName() {
@@ -42,6 +41,22 @@ namespace gpu_radeon.Api.Hardware.Sensors
 
         public override string GetSystemName() {
             return GetDisplayName().ConvertToIdString();
+        }
+    }
+
+    internal class SensorElementRadeonLoadEngine : SensorElementBaseRadeonLoad<AdlpmActivity>
+    {
+        public override void Update(AdlpmActivity info) {
+            Value = 0.01f * info.EngineClock;
+            AfterUpdate();
+        }
+
+        public override string GetMeasurement() {
+            return "MHz";
+        }
+
+        public override string GetSystemTag() {
+            return "load_engine_mhz";
         }
     }
 }

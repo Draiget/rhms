@@ -11,7 +11,14 @@ namespace server.Utils
     {
         public static void JoinIgnoreErrors(Thread thread, int waitTime = 1000) {
             try {
-                thread.Join(1000);
+                thread.Join(waitTime);
+
+                if (thread.ThreadState != ThreadState.Stopped &&
+                    thread.ThreadState != ThreadState.Aborted && 
+                    thread.ThreadState != ThreadState.AbortRequested) 
+                {
+                    thread.Abort();
+                }
             } catch {
                 ;
             }

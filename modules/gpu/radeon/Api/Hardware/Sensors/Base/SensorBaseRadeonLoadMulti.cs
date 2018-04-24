@@ -1,17 +1,21 @@
-﻿using gpu_radeon.Api.Structures;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using gpu_radeon.Api.Structures;
 using server.Hardware;
 using server.Hardware.GPU;
 using server.Modules.Base;
 
 namespace gpu_radeon.Api.Hardware.Sensors.Base
 {
-    public abstract class SensorBaseRadeonLoad : BaseGpuSensor, ISingleValueSensor
+    public abstract class SensorBaseRadeonLoadMulti : BaseGpuSensor, IMultiValueSensor
     {
         protected new RadeonGpu Gpu;
         protected AdlpmActivity Activity;
-        protected double Value;
 
-        protected SensorBaseRadeonLoad(RadeonGpu gpu)
+        protected SensorBaseRadeonLoadMulti(RadeonGpu gpu)
             : base(gpu) {
             Gpu = gpu;
         }
@@ -40,6 +44,6 @@ namespace gpu_radeon.Api.Hardware.Sensors.Base
             return ModuleGpuRadeon.ModuleHandle;
         }
 
-        public abstract ISensorElement GetElement();
+        public abstract ISensorElement[] GetElements();
     }
 }

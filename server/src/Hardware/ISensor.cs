@@ -15,12 +15,6 @@ namespace server.Hardware
 
         bool IsActive();
 
-        double GetMax();
-
-        double GetMin();
-
-        double GetValue();
-
         void Tick();
 
         SensorType GetSensorType();

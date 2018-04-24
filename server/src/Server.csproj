@@ -110,6 +110,9 @@
     <Compile Include="Drivers\Kernel\Pmc.cs" />
     <Compile Include="Drivers\Kernel\Tsc.cs" />
     <Compile Include="Hardware\GPU\BaseGpuSensor.cs" />
+    <Compile Include="Hardware\IMultiValueSensor.cs" />
+    <Compile Include="Hardware\ISensorElement.cs" />
+    <Compile Include="Hardware\ISingleValueSensor.cs" />
     <Compile Include="Hardware\SensorRegisterAttribute.cs" />
     <Compile Include="Hardware\SensorType.cs" />
     <Compile Include="Hardware\GPU\GpuSensorThermal.cs" />
@@ -129,6 +132,7 @@
     <Compile Include="Networking\Stun\StunQueryResult.cs" />
     <Compile Include="RhmsSettings.cs" />
     <Compile Include="Utils\AssemblyUtils.cs" />
+    <Compile Include="Utils\MathUtils.cs" />
     <Compile Include="Utils\Natives\SSystemProcessorPerformanceInformation.cs" />
     <Compile Include="Utils\Natives\SystemInformationClass.cs" />
     <Compile Include="Drivers\Presentation\Cpuid.cs" />

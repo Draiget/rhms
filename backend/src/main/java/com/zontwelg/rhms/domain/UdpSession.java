@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 
 public class UdpSession implements Serializable {
 
-    public final long SESSION_TIMEOUT = 5000;
+    public final long SESSION_TIMEOUT = 15000;
 
     private long lastAliveTime;
     public InetSocketAddress publicAddress;

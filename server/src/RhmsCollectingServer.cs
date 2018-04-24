@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using server.Addons;
+using server.Hardware;
 using server.Modules;
 using server.Modules.Base;
 using server.Modules.Extended;
@@ -39,7 +40,7 @@ namespace server
             }
 
             // Temporary here
-            Manager = new NetworkConnectionManager();
+            Manager = new NetworkConnectionManager(this);
             Manager.Initialize();
 
             _isThreadsActive = true;
@@ -52,6 +53,8 @@ namespace server
 
         public override void OnShutdown() {
             _isThreadsActive = false;
+
+            Manager.Shutdown();
             ThreadUtils.JoinIgnoreErrors(_hardwareUpdaterThread);
         }
 
@@ -69,7 +72,21 @@ namespace server
 
                         #if Rhms_DebugSensors
                         foreach (var sensor in hardware.GetSensors()) {
-                            Logger.Info($"[{hardware.Identify().GetFullSystemName()}] {sensor.GetDisplayName()}: {sensor.GetValue()}");
+                            if (sensor is IMultiValueSensor multi) {
+                                var outStr = string.Empty;
+                                foreach (var sensorElement in multi.GetElements()) {
+                                    if (!string.IsNullOrEmpty(outStr)) {
+                                        outStr += ", ";
+                                    }
+
+                                    outStr += $"{sensorElement.GetSystemTag()}={sensorElement.GetValue()}{sensorElement.GetMeasurement()}";
+                                }
+
+                                Logger.Info($"[{hardware.Identify().GetFullSystemName()}] M | {sensor.GetDisplayName()}: {outStr}");
+                            } else if (sensor is ISingleValueSensor single) {
+                                var sensorElement = single.GetElement();
+                                Logger.Info($"[{hardware.Identify().GetFullSystemName()}] S | {sensor.GetDisplayName()}: {sensorElement.GetValue()}{sensorElement.GetMeasurement()}");
+                            }
                         }
                         #endif
                     }

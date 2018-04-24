@@ -28,13 +28,21 @@ public class UdpPeerController extends AbstractController {
 
     @GetMapping("/register")
     public ResponseEntity<ResponseContainer> processSessionRequest(@RequestParam("name") String peerName,
-                                                                   @RequestParam("port") int natPort,
+                                                                   @RequestParam(value = "ip", required = false) String publicIp,
+                                                                   @RequestParam("port") String natPort,
                                                                    HttpServletRequest request)
     {
-        InetSocketAddress remoteUser = InetSocketAddress.createUnresolved(request.getRemoteAddr(), natPort);
-        UdpSession activeInstance = udpSessionsRepository.findByAddress(remoteUser);
-        if (activeInstance != null){
-            udpSessionsRepository.updateSpecificSession(activeInstance, peerName);
+        if (publicIp == null || publicIp.isEmpty()){
+            publicIp = request.getHeader("X-FORWARDED-FOR");
+            if (publicIp == null || publicIp.isEmpty()){
+                publicIp = request.getRemoteAddr();
+            }
+        }
+
+        InetSocketAddress remoteUser = InetSocketAddress.createUnresolved(publicIp, Integer.parseInt(natPort));
+        UdpSession activeSession = udpSessionsRepository.findByAddress(remoteUser);
+        if (activeSession != null){
+            udpSessionsRepository.updateSpecificSession(activeSession, peerName);
             ResponseContainer<String> container = new ResponseContainer<>();
             container.setBody("Already registered");
 
@@ -44,11 +52,11 @@ public class UdpPeerController extends AbstractController {
             return new ResponseEntity<>(container, responseHeaders, HttpStatus.OK);
         }
 
-        activeInstance = udpSessionsRepository.registerSession(remoteUser, peerName);
-        if (activeInstance == null){
+        activeSession = udpSessionsRepository.registerSession(remoteUser, peerName);
+        if (activeSession == null){
             log.warn("Registered session for peer [ip={}, port={}, name={}] is failed, service return null",
-                    request.getRemoteAddr(),
-                    natPort,
+                    activeSession.publicAddress.getHostName(),
+                    activeSession.publicAddress.getPort(),
                     peerName);
 
             ResponseContainer container = new ResponseContainer<>();
@@ -61,9 +69,9 @@ public class UdpPeerController extends AbstractController {
         }
 
         log.info("Registered session for peer [ip={}, port={}, name={}] is successful",
-                request.getRemoteAddr(),
-                natPort,
-                peerName);
+                activeSession.publicAddress.getHostName(),
+                activeSession.publicAddress.getPort(),
+                activeSession.peerName);
 
         ResponseContainer<String> container = new ResponseContainer<>();
         container.setBody("Successfully registered");
@@ -75,15 +83,28 @@ public class UdpPeerController extends AbstractController {
     }
 
     @GetMapping("/ping")
-    public ResponseEntity<ResponseContainer> processPingRequest(@RequestParam("port") int natPort,
+    public ResponseEntity<ResponseContainer> processPingRequest(@RequestParam("port") String natPort,
+                                                                @RequestParam(value = "ip", required = false) String publicIp,
                                                                 HttpServletRequest request)
     {
-        InetSocketAddress remoteUser = InetSocketAddress.createUnresolved(request.getRemoteAddr(), natPort);
+        if (publicIp == null || publicIp.isEmpty()){
+            publicIp = request.getHeader("X-FORWARDED-FOR");
+            if (publicIp == null || publicIp.isEmpty()){
+                publicIp = request.getRemoteAddr();
+            }
+        }
+
+        InetSocketAddress remoteUser = InetSocketAddress.createUnresolved(publicIp, Integer.parseInt(natPort));
         UdpSession activeSession = udpSessionsRepository.findByAddress(remoteUser);
         if (activeSession == null){
             return responseSessionExpiredOrNotExists();
         }
         activeSession.updateKeepAlive();
+
+        /*log.debug("Update session for peer [ip={}, port={}, name={}]",
+                activeSession.publicAddress.getHostName(),
+                activeSession.publicAddress.getPort(),
+                activeSession.peerName);*/
 
         ResponseContainer<String> container = new ResponseContainer<>();
         container.setBody("Session updated");
@@ -130,9 +151,9 @@ public class UdpPeerController extends AbstractController {
     @GetMapping("/connect")
     public ResponseEntity<ResponseContainer> processPeerConnection(@RequestParam("name") String peerName,
                                                                    @RequestParam("ip") String peerIp,
-                                                                   @RequestParam("peerPort") int peerPort)
+                                                                   @RequestParam("peerPort") String peerPort)
     {
-        UdpSession session = udpSessionsRepository.findByPeerNameAndAddress(peerIp, peerPort, peerName);
+        UdpSession session = udpSessionsRepository.findByPeerNameAndAddress(peerIp, Integer.parseInt(peerPort), peerName);
         if (session == null){
             return responseSessionExpiredOrNotExists();
         }

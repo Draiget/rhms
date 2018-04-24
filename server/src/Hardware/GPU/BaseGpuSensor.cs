@@ -33,16 +33,6 @@ namespace server.Hardware.GPU
             return IsSensorActive;
         }
 
-        public virtual double GetMax() {
-            return double.NaN;
-        }
-
-        public virtual double GetMin(){
-            return double.NaN;
-        }
-
-        public abstract double GetValue();
-
         public abstract void Tick();
 
         public abstract SensorType GetSensorType();

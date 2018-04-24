@@ -4,21 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using server.Utils;
 
 namespace server.Networking
 {
     public class NetworkConnectionManager
     {
+        public const int NetPingInterval = 10000;
+        private const int NetPingThreadInterval = 2000;
+
         private readonly Thread _networkThread;
         private readonly NetworkClient _networkClient;
+        private readonly RhmsCollectingServer _collectingServer;
+        private bool _isRequestShutdown;
 
-        public NetworkConnectionManager() {
-            _networkClient = new NetworkClient();
+        public NetworkConnectionManager(RhmsCollectingServer server) {
+            _isRequestShutdown = false;
+            _collectingServer = server;
+            _networkClient = new NetworkClient(server, this);
             _networkThread = new Thread(WorkerUpdateNetworkThread);
         }
 
         private void WorkerUpdateNetworkThread() {
             _networkClient.Initialize();
+
+            while (!_isRequestShutdown) {
+                _networkClient.UpdateNetwork();
+                Thread.Sleep(NetPingThreadInterval);
+            }
         }
 
         public void Initialize() {
@@ -27,7 +40,12 @@ namespace server.Networking
         }
 
         public string GetSelfHostId() {
-            return "dev-srv";
+            return _collectingServer.GetSettings().CollectingServerPeerName;
+        }
+
+        public void Shutdown() {
+            _isRequestShutdown = true;
+            ThreadUtils.JoinIgnoreErrors(_networkThread);
         }
     }
 }
