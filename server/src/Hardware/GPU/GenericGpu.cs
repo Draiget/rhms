@@ -55,8 +55,8 @@ namespace server.Hardware.GPU
 
         public abstract HardwareIdentifer Identify();
 
-        public ISensor[] GetSensors(){
-            var list = new List<ISensor>();
+        public ISensorBase[] GetSensors(){
+            var list = new List<ISensorBase>();
             foreach (var s in AvaliableSensors.Values) {
                 list.AddRange(s);
             }

@@ -7,7 +7,7 @@ using server.Modules.Base;
 
 namespace server.Hardware
 {
-    public interface ISensor
+    public interface ISensorBase
     {
         bool Initialize();
 

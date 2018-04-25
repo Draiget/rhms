@@ -10,7 +10,7 @@ namespace server.Hardware
     {
         HardwareIdentifer Identify();
 
-        ISensor[] GetSensors();
+        ISensorBase[] GetSensors();
 
         void TickUpdate();
     }

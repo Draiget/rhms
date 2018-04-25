@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Open.Nat;
 using server.Addons;
 using server.Networking.Stun;
 using server.Utils;
@@ -22,6 +23,7 @@ namespace server.Networking
         private readonly RhmsCollectingServer _collectingServer;
         private readonly NetworkConnectionManager _connectionManager;
         private readonly IPEndPoint _bindEp;
+        private IPEndPoint _remoteEp;
 
         private string _peerControlHost;
         private long _lastPeerPingTime;
@@ -34,6 +36,7 @@ namespace server.Networking
             _peerControlHost = _collectingServer.GetSettings().PeerSignalServer.Host;
             _bindEp = new IPEndPoint(IPAddress.Parse(_collectingServer.GetSettings().BindAddress), 0);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _socket.Bind(_bindEp);
 
             if (_peerControlHost.EndsWith("/")) {
                 _peerControlHost = _peerControlHost.Substring(0, _peerControlHost.Length - 1);
@@ -42,7 +45,7 @@ namespace server.Networking
 
         public void Initialize() {
             Logger.Info("Initializing networking");
-
+            
             while (true) {
                 try {
                     _stunQuery = null;
@@ -57,10 +60,44 @@ namespace server.Networking
                 }
             }
 
-            _bindEp.Port = _stunQuery.PublicEndPoint.Port;
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            _socket.Bind(_bindEp);
-            Logger.Debug($"P2P connections are listen as external {_stunQuery.PublicEndPoint.Address}:{_bindEp.Port}, local bind ip is {_bindEp.Address}");
+            _remoteEp = _stunQuery.PublicEndPoint;
+            var internalPort = ((IPEndPoint)_socket.LocalEndPoint).Port;
+
+            Logger.Debug($"P2P connections are listen as external {_stunQuery.PublicEndPoint.Address}:{_stunQuery.PublicEndPoint.Port}, local bind is {_bindEp.Address}:{internalPort}");
+            Logger.Info($"Bound local socket at {(IPEndPoint) _socket.LocalEndPoint}");
+
+            Task.Run(async () => {
+                var discoverer = new NatDiscoverer();
+                var cts = new CancellationTokenSource(10000);
+                var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+                Logger.Info($"Open.NAt external ip: {device.GetExternalIPAsync().Result}");
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, internalPort, _stunQuery.PublicEndPoint.Port, $"RHMS Internal Peer {_connectionManager.GetSelfHostId()} Map"));
+
+                Logger.Info($"Create UPnP mapping {_stunQuery.PublicEndPoint.Port} -> {internalPort}");
+            });
+
+            // _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            // _socket.Bind(_bindEp);
+            NetworkStartAcceptingData();
+        }
+
+        private void NetworkStartAcceptingData() {
+            var container = new PacketDataContainer();
+            _socket.BeginReceiveFrom(container.Buffer, 0, container.Buffer.Length, SocketFlags.None, ref container.Remote, NetworkAcceptDataAsync, container);
+        }
+
+        private void NetworkAcceptDataAsync(IAsyncResult result) {
+            try {
+                var container = (PacketDataContainer) result.AsyncState;
+                var len = _socket.EndReceiveFrom(result, ref container.Remote);
+                if (len == 51) {
+                    Logger.Info($"Received data packet from [/{container.Remote}], len: {len}");
+                }
+            } catch (Exception e) {
+                Logger.Error("Accept data packet error", e);
+            } finally {
+                NetworkStartAcceptingData();
+            }
         }
 
         // STUN server list: https://gist.github.com/yetithefoot/7592580
@@ -87,7 +124,7 @@ namespace server.Networking
             WaitInternalErrors();
 
             var peerName = _connectionManager.GetSelfHostId();
-            var objResponse = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/register", $"name={peerName}&port={_bindEp.Port}", out var response);
+            var objResponse = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/register", $"name={peerName}&port={_remoteEp.Port}", out var response);
             if (response.StatusCode != HttpStatusCode.OK) {
                 if (objResponse == null) {
                     Logger.Warn($"Failed to register this collecting server on peer discovery service, http code: {response.StatusCode}");
@@ -116,8 +153,12 @@ namespace server.Networking
                 return;
             }
 
+            if (_remoteEp == null) {
+                return;
+            }
+
             WaitInternalErrors();
-            var obj = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/ping", $"port={_bindEp.Port}", out var response);
+            var obj = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/ping", $"port={_remoteEp.Port}", out var response);
                 
             if (response.StatusCode == HttpStatusCode.ExpectationFailed) {
                 RegisterPeer();
@@ -138,6 +179,17 @@ namespace server.Networking
 
             _internalErrorTimes = 0;
             _lastPeerPingTime = DateTime.Now.Ticks;
+        }
+
+        internal class PacketDataContainer
+        {
+            public byte[] Buffer;
+            public EndPoint Remote;
+
+            public PacketDataContainer() {
+                Remote = new IPEndPoint(IPAddress.Any, 0);
+                Buffer = new byte[2048];
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using server.Modules.Base;
 
 namespace server.Hardware.GPU
 {
-    public abstract class BaseGpuSensor : ISensor
+    public abstract class BaseGpuSensor : ISensorBase
     {
         protected readonly GenericGpu Gpu;
         protected bool IsInitialized;

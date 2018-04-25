@@ -19,7 +19,7 @@ namespace server.Hardware.CPU
 
         public abstract HardwareIdentifer Identify();
 
-        public ISensor[] GetSensors() {
+        public ISensorBase[] GetSensors() {
             throw new NotImplementedException();
         }
 

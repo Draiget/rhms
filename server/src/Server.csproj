@@ -86,6 +86,9 @@
       <HintPath>..\..\packages\NUnit.3.8.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Open.Nat, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Open.NAT.Core.2.1.0.0\lib\netstandard2.0\Open.Nat.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -117,7 +120,7 @@
     <Compile Include="Hardware\SensorType.cs" />
     <Compile Include="Hardware\GPU\GpuSensorThermal.cs" />
     <Compile Include="Hardware\IHardware.cs" />
-    <Compile Include="Hardware\ISensor.cs" />
+    <Compile Include="Hardware\ISensorBase.cs" />
     <Compile Include="Modules\Base\BaseHardwareModule.cs" />
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
