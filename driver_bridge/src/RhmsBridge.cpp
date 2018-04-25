@@ -176,7 +176,7 @@ DWORD LoadDriver() {
 		*ptr = '\0';
 	}
 
-	sprintf_s(g_DriverPath, "%s\\bin\\%s", dir, g_DriverFileName);
+	sprintf_s(g_DriverPath, "%s\\driver\\%s", dir, g_DriverFileName);
 
 	if (!IsFileExist(g_DriverPath)) {
 		return RHMS_BRIDGE_DRIVER_NOT_FOUND;

@@ -30,6 +30,7 @@ public class UdpPeerController extends AbstractController {
     public ResponseEntity<ResponseContainer> processSessionRequest(@RequestParam("name") String peerName,
                                                                    @RequestParam(value = "ip", required = false) String publicIp,
                                                                    @RequestParam("port") String natPort,
+                                                                   @RequestParam(value = "privatePort", required = false) String privatePort,
                                                                    HttpServletRequest request)
     {
         if (publicIp == null || publicIp.isEmpty()){
@@ -42,7 +43,7 @@ public class UdpPeerController extends AbstractController {
         InetSocketAddress remoteUser = InetSocketAddress.createUnresolved(publicIp, Integer.parseInt(natPort));
         UdpSession activeSession = udpSessionsRepository.findByAddress(remoteUser);
         if (activeSession != null){
-            udpSessionsRepository.updateSpecificSession(activeSession, peerName);
+            udpSessionsRepository.updateSpecificSession(activeSession, peerName, privatePort);
             ResponseContainer<String> container = new ResponseContainer<>();
             container.setBody("Already registered");
 
@@ -53,6 +54,13 @@ public class UdpPeerController extends AbstractController {
         }
 
         activeSession = udpSessionsRepository.registerSession(remoteUser, peerName);
+        if (privatePort != null && !privatePort.isEmpty()) {
+            try {
+                activeSession.privatePort = Integer.parseInt(privatePort);
+            } catch (NumberFormatException e) {
+                activeSession.privatePort = 0;
+            }
+        }
         if (activeSession == null){
             log.warn("Registered session for peer [ip={}, port={}, name={}] is failed, service return null",
                     activeSession.publicAddress.getHostName(),

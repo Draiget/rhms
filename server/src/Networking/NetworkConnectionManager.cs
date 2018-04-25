@@ -45,6 +45,13 @@ namespace server.Networking
 
         public void Shutdown() {
             _isRequestShutdown = true;
+
+            try {
+                _networkClient.OnShutdown();
+            } catch {
+                ;
+            }
+
             ThreadUtils.JoinIgnoreErrors(_networkThread);
         }
     }

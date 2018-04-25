@@ -35,16 +35,17 @@ namespace server.Networking.Stun
                 Type = StunMessageType.BindingRequest
             };
 
-            var response = PerformStunTransaction(sock, stunEp, request);
+            var hostCommunicationError = false;
+            var response = PerformStunTransaction(sock, stunEp, request, ref hostCommunicationError);
             if (response == null) {
-                return new StunQueryResult(StunNetworkType.UdpBlocked);
+                return new StunQueryResult(hostCommunicationError ? StunNetworkType.CommunicationError : StunNetworkType.UdpBlocked);
             }
 
             request.ChangeRequest = new StunChangeRequest(changeIp: true, changePort: true);
 
             // No active NAT in network
             if (sock.LocalEndPoint.Equals(response.MappedAddress)) {
-                var typeTestRespons = PerformStunTransaction(sock, stunEp, request);
+                var typeTestRespons = PerformStunTransaction(sock, stunEp, request, ref hostCommunicationError);
                 if (typeTestRespons != null) {
                     // No NAT
                     return new StunQueryResult(StunNetworkType.OpenInternet, response.MappedAddress);
@@ -55,13 +56,13 @@ namespace server.Networking.Stun
             }
 
             // We have active NAT, check it's type
-            var natTypeResponse = PerformStunTransaction(sock, stunEp, request);
+            var natTypeResponse = PerformStunTransaction(sock, stunEp, request, ref hostCommunicationError);
             if (natTypeResponse != null) {
                 // Full cone NAT
                 return new StunQueryResult(StunNetworkType.FullCone, response.MappedAddress);
             }
 
-            var test2Response = PerformStunTransaction(sock, stunEp, request);
+            var test2Response = PerformStunTransaction(sock, stunEp, request, ref hostCommunicationError);
             if (test2Response == null) {
                 throw new Exception("STUN server didn't response at test two");
             }
@@ -73,7 +74,7 @@ namespace server.Networking.Stun
 
             request.ChangeRequest = new StunChangeRequest(changeIp: false, changePort: true);
 
-            var test3Response = PerformStunTransaction(sock, stunEp, request);
+            var test3Response = PerformStunTransaction(sock, stunEp, request, ref hostCommunicationError);
             if (test3Response != null) {
                 // Resticted cone NAT
                 return new StunQueryResult(StunNetworkType.RestrictedCone, response.MappedAddress);
@@ -83,7 +84,7 @@ namespace server.Networking.Stun
             return new StunQueryResult(StunNetworkType.PortRestrictedCone, response.MappedAddress);
         }
 
-        private static StunMessage PerformStunTransaction(Socket sock, IPEndPoint stunEp, StunMessage request) {
+        private static StunMessage PerformStunTransaction(Socket sock, IPEndPoint stunEp, StunMessage request, ref bool hostCommunicationError) {
             var bytes = request.ToByteData();
             var startTime = DateTime.Now;
             while (startTime.AddSeconds(2) > DateTime.Now) {
@@ -99,6 +100,16 @@ namespace server.Networking.Stun
                         if (request.TransactionId.Equals(response.TransactionId)) {
                             return response;
                         }
+                    }
+                } catch (SocketException se) {
+                    if (se.SocketErrorCode == SocketError.ConnectionAborted ||
+                        se.SocketErrorCode == SocketError.ConnectionRefused ||
+                        se.SocketErrorCode == SocketError.ConnectionReset ||
+                        se.SocketErrorCode == SocketError.HostUnreachable ||
+                        se.SocketErrorCode == SocketError.HostDown) 
+                    {
+                        hostCommunicationError = true;
+                        return null;
                     }
                 } catch {
                     ;

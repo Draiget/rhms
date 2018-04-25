@@ -10,6 +10,7 @@ public class UdpSession implements Serializable {
 
     private long lastAliveTime;
     public InetSocketAddress publicAddress;
+    public int privatePort;
     public String peerName;
 
     public UdpSession(){

@@ -16,6 +16,7 @@ public interface IUdpSessionsService {
     boolean updatePeerName(InetSocketAddress publicAddress, String newPeerName);
     boolean removeSession(UdpSession session);
     boolean updateSpecificSession(UdpSession session, String newPeerName);
+    boolean updateSpecificSession(UdpSession session, String newPeerName, String privatePort);
     Optional<UdpSession> findPeer(InetSocketAddress address);
     List<UdpSession> getAll();
 }

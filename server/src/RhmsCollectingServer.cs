@@ -70,7 +70,7 @@ namespace server
                     foreach (var hardware in module.GetHardware()) {
                         hardware.TickUpdate();
 
-                        #if Rhms_DebugSensors
+#if Rhms_DebugSensors
                         foreach (var sensor in hardware.GetSensors()) {
                             if (sensor is IMultiValueSensor multi) {
                                 var outStr = string.Empty;
@@ -88,7 +88,26 @@ namespace server
                                 Logger.Info($"[{hardware.Identify().GetFullSystemName()}] S | {sensor.GetDisplayName()}: {sensorElement.GetValue()}{sensorElement.GetMeasurement()}");
                             }
                         }
-                        #endif
+#endif
+
+                        foreach (var sensor in hardware.GetSensors()) {
+                            if (sensor is IMultiValueSensor multi) {
+                                if (sensor.GetSystemName() != "cores_load_info") {
+                                    continue;
+                                }
+
+                                var outStr = string.Empty;
+                                foreach (var sensorElement in multi.GetElements()) {
+                                    if (!string.IsNullOrEmpty(outStr)) {
+                                        outStr += ", ";
+                                    }
+
+                                    outStr += $"{sensorElement.GetSystemTag()}={sensorElement.GetValue()}{sensorElement.GetMeasurement()}";
+                                }
+
+                                Logger.Info($"[{hardware.Identify().GetFullSystemName()}] M | {sensor.GetDisplayName()}: {outStr}");
+                            }
+                        }
                     }
                 }
 

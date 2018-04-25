@@ -40,7 +40,11 @@ namespace server.Addons
                 return Parse(response);
             } catch (WebException webex) {
                 outResponse = (HttpWebResponse)webex.Response;
-                return Parse(webex.Response);
+                try {
+                    return Parse(webex.Response);
+                } catch {
+                    return null;
+                }
             }
         }
 

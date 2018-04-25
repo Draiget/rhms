@@ -61,7 +61,7 @@ namespace server.Drivers
             }
         }
 
-        internal const string DriverFullPath = "bin\\" + DriverName + ".dll";
+        internal const string DriverFullPath = "driver\\" + DriverName + ".dll";
 
     }
 }

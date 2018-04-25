@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D2DC2DC5-C140-4B7B-B097-57EFA7E6C153}</ProjectGuid>
+    <ProjectGuid>{FE3D0677-DBAF-4A4D-946E-691DF1CBF9D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>gpu_radeon</RootNamespace>
-    <AssemblyName>gpu_radeon</AssemblyName>
+    <RootNamespace>cpu_intel</RootNamespace>
+    <AssemblyName>cpu_intel</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,37 +40,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\AdlApi.cs" />
-    <Compile Include="Api\Delegates\AdlApiGpu.cs" />
-    <Compile Include="Api\Enums\AdlStatus.cs" />
-    <Compile Include="Api\Hardware\RadeonGpu.cs" />
-    <Compile Include="Api\Hardware\RadeonGpuIdentifer.cs" />
-    <Compile Include="Api\Hardware\Sensors\Base\SensorBaseRadeonLoad.cs" />
-    <Compile Include="Api\Hardware\Sensors\Base\SensorBaseRadeonLoadMulti.cs" />
-    <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseRadeonLoad.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonFanInfo.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadCoreActivity.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadEngine.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadMemory.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadVddc.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonTemperature.cs" />
-    <Compile Include="Api\Helpers\LinkedDelegateAttribute.cs" />
-    <Compile Include="Api\Helpers\LinkedFieldAttribute.cs" />
-    <Compile Include="Api\Structures\AdlAdapterInfo.cs" />
-    <Compile Include="Api\Structures\AdlFanSpeedInfo.cs" />
-    <Compile Include="Api\Structures\AdlFanSpeedValue.cs" />
-    <Compile Include="Api\Structures\AdlpmActivity.cs" />
-    <Compile Include="Api\Structures\AdlTemperature.cs" />
-    <Compile Include="ModuleGpuRadeon.cs" />
+    <Compile Include="Api\Hardware\IntelCpu.cs" />
+    <Compile Include="Api\Hardware\IntelCpuIdentifier.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorBaseIntelCpu.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorBaseIntelCpuMulti.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseIntelCpu.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorIntelCoresLoad.cs" />
+    <Compile Include="ModuleCpuIntel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\server\src\Server.csproj">
-      <Project>{80485380-18f0-4f2e-bc99-c6d15471a59c}</Project>
+      <Project>{80485380-18F0-4F2E-BC99-C6D15471A59C}</Project>
       <Name>Server</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)server\output\$(ConfigurationName)\modules\$(TargetFileName)"

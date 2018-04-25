@@ -41,10 +41,10 @@ namespace server
 
             var state = KernelDriverBridge.InitializeEnvironment();
             if (state == KernelDriverInitState.RhmsDrvNoError) {
-                var cpuInfo = Drivers.Presentation.Cpuid.CollectAll();
-                if (cpuInfo != null) {
-                    Console.WriteLine(cpuInfo.ToString());
-                    Console.WriteLine($"Core loads: {cpuInfo.GetCpuLoad()}");
+                var cpusInfo = Drivers.Presentation.Cpuid.Get();
+                var firstCpu = cpusInfo?[0];
+                if (firstCpu != null) {
+                    Console.WriteLine(firstCpu.ToString());
                 }
             }
 

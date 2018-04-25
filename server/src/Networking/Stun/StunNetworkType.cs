@@ -8,6 +8,8 @@ namespace server.Networking.Stun
 {
     public enum StunNetworkType
     {
+        CommunicationError = -1,
+
         /// <summary>
         /// UDP is always blocked.
         /// </summary>

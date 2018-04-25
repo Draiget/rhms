@@ -112,6 +112,9 @@
     <Compile Include="Drivers\Kernel\Pci.cs" />
     <Compile Include="Drivers\Kernel\Pmc.cs" />
     <Compile Include="Drivers\Kernel\Tsc.cs" />
+    <Compile Include="Drivers\Presentation\CpuidProcessorInfo.cs" />
+    <Compile Include="Hardware\CPU\BaseCpuSensor.cs" />
+    <Compile Include="Hardware\GenericSensorHardware.cs" />
     <Compile Include="Hardware\GPU\BaseGpuSensor.cs" />
     <Compile Include="Hardware\IMultiValueSensor.cs" />
     <Compile Include="Hardware\ISensorElement.cs" />
@@ -140,7 +143,7 @@
     <Compile Include="Utils\Natives\SystemInformationClass.cs" />
     <Compile Include="Drivers\Presentation\Cpuid.cs" />
     <Compile Include="Drivers\Presentation\CpuidRegisters.cs" />
-    <Compile Include="Drivers\Presentation\CpuidCoreInfo.cs" />
+    <Compile Include="Drivers\Presentation\CpuidThreadInfo.cs" />
     <Compile Include="Drivers\Presentation\CpuVendor.cs" />
     <Compile Include="Drivers\Presentation\GpuVendor.cs" />
     <Compile Include="Hardware\CPU\GenericCpu.cs" />

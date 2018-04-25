@@ -3,29 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using server.Drivers.Presentation;
 
-namespace server.Hardware.CPU
+namespace server.Hardware
 {
-    public abstract class GenericCpu : IHardware
+    public abstract class GenericSensorHardware<T> where T : ISensorBase, IHardware
     {
-        protected Dictionary<SensorType, List<BaseCpuSensor>> AvaliableSensors;
+        protected Dictionary<SensorType, List<T>> AvaliableSensors;
 
-        protected readonly CpuidProcessorInfo ProcessorCpuid;
-
-        public CpuVendor Vendor => ProcessorCpuid[0, 0].Vendor;
-
-        protected GenericCpu(CpuidProcessorInfo cpuInfo){
-            ProcessorCpuid = cpuInfo;
-
-            AvaliableSensors = new Dictionary<SensorType, List<BaseCpuSensor>>();
+        protected GenericSensorHardware() {
+            AvaliableSensors = new Dictionary<SensorType, List<T>>();
             foreach (SensorType type in Enum.GetValues(typeof(SensorType))) {
-                AvaliableSensors[type] = new List<BaseCpuSensor>();
+                AvaliableSensors[type] = new List<T>();
             }
-        }
-
-        public CpuidProcessorInfo GetCpuidProcessorInfo() {
-            return ProcessorCpuid;
         }
 
         public virtual void InitializeSensors() { }
@@ -34,28 +23,28 @@ namespace server.Hardware.CPU
             return AvaliableSensors.ContainsKey(type);
         }
 
-        protected void AddAvaliableSensor(BaseCpuSensor sensor) {
+        protected void AddAvaliableSensor(T sensor) {
             AvaliableSensors[sensor.GetSensorType()].Add(sensor);
         }
 
-        public BaseCpuSensor GetSensorByType(SensorType type) {
+        public T GetSensorByType(SensorType type) {
             if (!IsSensorAvaliable(type)) {
-                return null;
+                return default(T);
             }
 
             return AvaliableSensors[type].FirstOrDefault();
         }
 
-        public BaseCpuSensor GetAllSensorsByType(SensorType type) {
+        public T GetAllSensorsByType(SensorType type) {
             if (!IsSensorAvaliable(type)) {
-                return null;
+                return default(T);
             }
 
             return AvaliableSensors[type].FirstOrDefault();
         }
 
-        public BaseCpuSensor[] GetAllSensors() {
-            var list = new List<BaseCpuSensor>();
+        public T[] GetAllSensors() {
+            var list = new List<T>();
             foreach (var s in AvaliableSensors.Values) {
                 list.AddRange(s);
             }
@@ -65,8 +54,8 @@ namespace server.Hardware.CPU
 
         public abstract HardwareIdentifer Identify();
 
-        public ISensorBase[] GetSensors() {
-            var list = new List<ISensorBase>();
+        public T[] GetSensors() {
+            var list = new List<T>();
             foreach (var s in AvaliableSensors.Values) {
                 list.AddRange(s);
             }

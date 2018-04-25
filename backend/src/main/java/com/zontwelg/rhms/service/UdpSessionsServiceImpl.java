@@ -90,6 +90,11 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
 
     @Override
     public boolean updateSpecificSession(UdpSession session, String newPeerName) {
+        return updateSpecificSession(session, newPeerName, null);
+    }
+
+    @Override
+    public boolean updateSpecificSession(UdpSession session, String newPeerName, String privatePort) {
         if (!sessionsRepo.sessionsList.contains(session)){
             return false;
         }
@@ -101,6 +106,15 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
 
         UdpSession targetSession = findSession.get();
         targetSession.peerName = newPeerName;
+
+        if (privatePort != null && !privatePort.isEmpty()) {
+            try {
+                targetSession.privatePort = Integer.parseInt(privatePort);
+            } catch (NumberFormatException e) {
+                targetSession.privatePort = 0;
+            }
+        }
+
         targetSession.updateKeepAlive();
         return true;
     }

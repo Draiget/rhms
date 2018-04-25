@@ -16,19 +16,19 @@ namespace server.Networking
 {
     public class NetworkClient
     {
-        
-
-        private Socket _socket;
+        private readonly Socket _socket;
         private StunQueryResult _stunQuery;
         private readonly RhmsCollectingServer _collectingServer;
         private readonly NetworkConnectionManager _connectionManager;
         private readonly IPEndPoint _bindEp;
         private IPEndPoint _remoteEp;
 
-        private string _peerControlHost;
+        private readonly string _peerControlHost;
         private long _lastPeerPingTime;
         private long _lastInternalErrorTime;
         private int _internalErrorTimes;
+
+        private Mapping _portMapping;
 
         public NetworkClient(RhmsCollectingServer server, NetworkConnectionManager connectionManager) {
             _connectionManager = connectionManager;
@@ -36,6 +36,7 @@ namespace server.Networking
             _peerControlHost = _collectingServer.GetSettings().PeerSignalServer.Host;
             _bindEp = new IPEndPoint(IPAddress.Parse(_collectingServer.GetSettings().BindAddress), 0);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _socket.SendTimeout = _socket.ReceiveTimeout = _collectingServer.GetSettings().PeerSignalServer.SocketTimeoutMs;
             _socket.Bind(_bindEp);
 
             if (_peerControlHost.EndsWith("/")) {
@@ -66,19 +67,34 @@ namespace server.Networking
             Logger.Debug($"P2P connections are listen as external {_stunQuery.PublicEndPoint.Address}:{_stunQuery.PublicEndPoint.Port}, local bind is {_bindEp.Address}:{internalPort}");
             Logger.Info($"Bound local socket at {(IPEndPoint) _socket.LocalEndPoint}");
 
+            _portMapping = new Mapping(Protocol.Udp, internalPort, _stunQuery.PublicEndPoint.Port, $"RHMS Internal Peer {_connectionManager.GetSelfHostId()} Map");
+
             Task.Run(async () => {
                 var discoverer = new NatDiscoverer();
                 var cts = new CancellationTokenSource(10000);
                 var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-                Logger.Info($"Open.NAt external ip: {device.GetExternalIPAsync().Result}");
-                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, internalPort, _stunQuery.PublicEndPoint.Port, $"RHMS Internal Peer {_connectionManager.GetSelfHostId()} Map"));
+                // Logger.Info($"Open.NAt external ip: {device.GetExternalIPAsync().Result}");
+                await device.CreatePortMapAsync(_portMapping);
 
-                Logger.Info($"Create UPnP mapping {_stunQuery.PublicEndPoint.Port} -> {internalPort}");
+                Logger.Info($"Create UPnP mapping {_portMapping}");
             });
 
-            // _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            // _socket.Bind(_bindEp);
             NetworkStartAcceptingData();
+        }
+
+        public void OnShutdown() {
+            if (_portMapping == null) {
+                return;
+            }
+
+            Task.Run(async () => {
+                var discoverer = new NatDiscoverer();
+                var cts = new CancellationTokenSource(10000);
+                var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+                Logger.Info("Removing UPnP mapping");
+                await device.DeletePortMapAsync(_portMapping);
+                _portMapping = null;
+            }).Wait();
         }
 
         private void NetworkStartAcceptingData() {
@@ -87,11 +103,25 @@ namespace server.Networking
         }
 
         private void NetworkAcceptDataAsync(IAsyncResult result) {
+            var isPingPacket = false;
             try {
                 var container = (PacketDataContainer) result.AsyncState;
+
                 var len = _socket.EndReceiveFrom(result, ref container.Remote);
                 if (len == 51) {
+                    isPingPacket = true;
                     Logger.Info($"Received data packet from [/{container.Remote}], len: {len}");
+                }
+
+                if (container.Remote == null || !isPingPacket) {
+                    return;
+                }
+
+                try {
+                    Logger.Info($"Response ping to [/{container.Remote}]");
+                    _socket.SendTo(new byte[2], container.Remote);
+                } catch {
+                    ;
                 }
             } catch (Exception e) {
                 Logger.Error("Accept data packet error", e);
@@ -103,12 +133,29 @@ namespace server.Networking
         // STUN server list: https://gist.github.com/yetithefoot/7592580
 
         public void CheckNatType() {
-            _stunQuery = StunQuery.Perform(_socket, "stun.l.google.com", 19302);
+            foreach (var stunServer in _collectingServer.GetSettings().StunServers) {
+                if (PerformNatQueryOn(stunServer.Host, stunServer.Port)) {
+                    break;
+                }
+            }
+
             if (_stunQuery == null) {
-                return;
+                throw new Exception("Unable to communicate with all STUN servers, no internet?");
             }
 
             Logger.Info($"NAT status: {_stunQuery.NetworkType} [address={_stunQuery.PublicEndPoint}]");
+        }
+
+        private bool PerformNatQueryOn(string host, int port) {
+            Logger.Debug($"Performing STUN query to {host}:{port}");
+            _stunQuery = StunQuery.Perform(_socket, host, port);
+            if (_stunQuery == null || _stunQuery.NetworkType == StunNetworkType.CommunicationError) {
+                _stunQuery = null;
+                Logger.Debug($"STUN query to {host}:{port} failed with communication error");
+                return false;
+            }
+
+            return true;
         }
 
         private void WaitInternalErrors() {
@@ -124,7 +171,9 @@ namespace server.Networking
             WaitInternalErrors();
 
             var peerName = _connectionManager.GetSelfHostId();
-            var objResponse = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/register", $"name={peerName}&port={_remoteEp.Port}", out var response);
+            var privatePort = ((IPEndPoint) _socket.LocalEndPoint).Port;
+
+            var objResponse = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/register", $"name={peerName}&port={_remoteEp.Port}&privatePort={privatePort}", out var response);
             if (response.StatusCode != HttpStatusCode.OK) {
                 if (objResponse == null) {
                     Logger.Warn($"Failed to register this collecting server on peer discovery service, http code: {response.StatusCode}");

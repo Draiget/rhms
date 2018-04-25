@@ -131,17 +131,19 @@ namespace server.Utils.Logging
 
         internal static string FormatLogStr(long ticks, string msg, LogLevel level, Thread ctx){
             var time = new DateTime(ticks);
-            return $"{time.Hour:00}:{time.Minute:00}:{time.Second:00}.{time.Millisecond:000} [{ctx.Name}-{ctx.ManagedThreadId}] ({level}) {msg}\r\n";
+            return $"{time.Hour:00}:{time.Minute:00}:{time.Second:00}.{time.Millisecond:000} " +
+                   $"[{ctx.Name ?? "<?>"}-{ctx.ManagedThreadId}] ({level}) {msg}\r\n";
         }
 
-        internal static string FormatPrintStr(string msg) {
-            return $"{DateTime.Now.Hour:00}:{DateTime.Now.Minute:00}:{DateTime.Now.Second:00} [{Thread.CurrentThread.Name}-{Thread.CurrentThread.ManagedThreadId}] {msg}";
+        internal static string FormatPrintStr(LogLevel level, string msg) {
+            return $"{DateTime.Now.Hour:00}:{DateTime.Now.Minute:00}:{DateTime.Now.Second:00} " +
+                   $"[{Thread.CurrentThread.Name ?? "<?>"}-{Thread.CurrentThread.ManagedThreadId}] ({level}) {msg}";
         }
 
         private static void AddLogMsg(string msg, LogLevel level, ConsoleColor clr){
             SystemDebug.Assert(IsInitialized, "Logger not initialized");
             AddToLogWriteQueue($"{msg}", level, Thread.CurrentThread);
-            var str = FormatPrintStr($"({level}) {msg}");
+            var str = FormatPrintStr(level, $"{msg}");
             SetNextColor(clr);
             Console.WriteLine(str);
             ResetColor();
@@ -162,9 +164,9 @@ namespace server.Utils.Logging
         public static void Error(string msg, Exception err = null){
             SystemDebug.Assert(IsInitialized, "Logger not initialized");
             AddToLogWriteQueue($"{msg}", LogLevel.Error, Thread.CurrentThread);
-            var str = err != null ? FormatPrintStr($"Exception details ({err.GetType()}): '{err.Message}'\n{err.StackTrace}") : FormatPrintStr($"(Error) {msg}");
+            var str = err != null ? FormatPrintStr(LogLevel.Error, $"Exception details ({err.GetType()}): '{err.Message}'\n{err.StackTrace}") : FormatPrintStr(LogLevel.Error, $"{msg}");
             SetNextColor(ConsoleColor.Red);
-            Console.WriteLine(FormatPrintStr($"(Error) {msg}"));
+            Console.WriteLine(FormatPrintStr(LogLevel.Error, $"{msg}"));
             Console.WriteLine(str);
             ResetColor();
         }

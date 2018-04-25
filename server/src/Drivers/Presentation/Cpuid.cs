@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework.Internal;
-using server.Utils;
-using server.Utils.Natives;
-using Logger = server.Utils.Logging.Logger;
 
 namespace server.Drivers.Presentation
 {
-    public class Cpuid
+    public static class Cpuid
     {
+        public const uint MaxCores = 32;
+
         /// <summary>
         /// Returns base CPUID information.
         /// CPUID index constant. 
@@ -24,138 +20,57 @@ namespace server.Drivers.Presentation
         /// CPUID index constant.
         /// </summary>
         public const uint CpuidExt = 0x80000000;
+        
+        /// <summary>
+        /// Present all installed CPUs threads by CPU index
+        /// </summary>
+        private static Dictionary<uint, CpuidProcessorInfo> _cpusMap;
 
-        public CpuVendor Vendor {
-            get;
-            private set;
+        /// <summary>
+        /// Getting shared dictionary with all processing threads information
+        /// </summary>
+        /// <returns>Dicrionary of processor thread information where key is a processor index (from 0)</returns>
+        public static Dictionary<uint, CpuidProcessorInfo> Get() {
+            return _cpusMap ?? (_cpusMap = GetInstalledProcessorsInfos());
         }
 
-        public uint LogicalCores {
-            get;
-            private set;
-        }
+        private static Dictionary<uint, CpuidProcessorInfo> GetInstalledProcessorsInfos() {
+            var cpusMap = new Dictionary<uint, CpuidProcessorInfo>();
+            var threads = new List<CpuidThreadInfo>();
 
-        public string BrandName {
-            get;
-            private set;
-        }
+            var cpus = 0u;
 
-        public string Name {
-            get;
-            private set;
-        }
-
-        public bool IsSupportMsr {
-            get;
-            private set;
-        }
-
-        public bool IsSupportTsc {
-            get;
-            private set;
-        }
-
-        public bool IsSupportInvariantTsc {
-            get;
-            private set;
-        }
-
-        public static Cpuid CollectAll(){
-            var cpuInfo = new Cpuid();
-
-            for (uint i = 0; i <= 128; i++) {
-                if (FillCpuidFromThread(ref cpuInfo, i)) {
-                    cpuInfo.LogicalCores++;
-                } else {
+            for (uint i = 0; i <= (MaxCores * 2) * 2; i++) {
+                if (!GetProcessorThreadInfo(i, out var threadInfo)) {
                     break;
                 }
+
+                cpus = Math.Max(threadInfo.ProcessorId, cpus);
+                threads.Add(threadInfo);
             }
 
-            return cpuInfo;
+            for (uint cpuIndex = 0; cpuIndex < cpus + 1; cpuIndex++) {
+                cpusMap.Add(cpuIndex, new CpuidProcessorInfo(
+                    threads.Where(x => x.ProcessorId == cpuIndex).ToList()));
+            }
+
+            return cpusMap;
         }
 
-        public static Cpuid CollectFromThread(uint threadId){
-            var cpuInfo = new Cpuid();
-
-            FillCpuidFromThread(ref cpuInfo, threadId, true);
-
-            return cpuInfo;
-        }
-
-        private static bool FillCpuidFromThread(ref Cpuid info, uint threadId, bool reportErrors = false) {
-            var affinityMask = 1UL << (int)threadId;
-            uint maxCpuidExtLen;
-
-            var registers = new CpuidRegisters();
-            if (!ReadTxOut(Cpuid0, 0, ref registers, affinityMask)) {
-                if (reportErrors) {
-                    Logger.Error($"Unnable to read CPUID from thread {threadId}, out of range?");
-                }
-
+        /// <summary>
+        /// Getting single processor thread information
+        /// </summary>
+        /// <param name="threadIndex">Summary processor thread index (of all threads, not of specific processor)</param>
+        /// <param name="info">Output processor thread CPUID info</param>
+        /// <returns>If information is retrieved</returns>
+        public static bool GetProcessorThreadInfo(uint threadIndex, out CpuidThreadInfo info) {
+            try {
+                info = new CpuidThreadInfo(threadIndex);
+                return true;
+            } catch {
+                info = null;
                 return false;
             }
-
-            if (registers.Eax <= Cpuid0) {
-                if (reportErrors) {
-                    Logger.Warn($"Empty CPUID information in thread {threadId}");
-                }
-
-                return false;
-            }
-
-            var maxCpuidLen = registers.Eax;
-            info.Vendor = VendorFromCpuidString(registers);
-
-            registers.Clear();
-            if (!ReadTxOut(CpuidExt, 0, ref registers, affinityMask)) {
-                if (reportErrors) {
-                    Logger.Error($"Unnable to read extended CPUID from thread {threadId}, not supported?");
-                }
-
-                return false;
-            }
-
-            if (registers.Eax > CpuidExt) {
-                maxCpuidExtLen = registers.Eax - CpuidExt;
-            } else {
-                if (reportErrors) {
-                    Logger.Warn($"Empty extended CPUID information in thread {threadId}");
-                }
-
-                return false;
-            }
-
-            maxCpuidLen = Math.Min(maxCpuidLen, 1024);
-            maxCpuidExtLen = Math.Min(maxCpuidExtLen, 1024);
-
-            // Read short core thread info
-            var dataRegisters = new CpuidRegisters[maxCpuidLen + 1];
-            for (uint i = 0; i < maxCpuidLen + 1; i++) {
-                dataRegisters[i] = new CpuidRegisters();
-                ReadTxOut(Cpuid0 + i, 0, ref dataRegisters[i], affinityMask);
-            }
-
-            info.IsSupportMsr = (dataRegisters[0].Edx & 0x20) != 0;
-            info.IsSupportTsc = (dataRegisters[0].Edx & 0x10) != 0;
-
-            // Read full core thread info
-            var extDataRegisters = new CpuidRegisters[maxCpuidExtLen + 1];
-            for (uint i = 0; i < maxCpuidExtLen + 1; i++) {
-                extDataRegisters[i] = new CpuidRegisters();
-                ReadTxOut(CpuidExt + i, 0, ref extDataRegisters[i], affinityMask);
-            }
-
-            info.IsSupportInvariantTsc = (extDataRegisters[0].Edx & 0x100) != 0;
-
-            var coreNameBuilder = new StringBuilder();
-            for (uint i = 2; i <= 4; i++) {
-                ReadTxOut(CpuidExt + i, 0, ref registers, affinityMask);
-                registers.GetVendorExtendedString(ref coreNameBuilder);
-            }
-
-            info.BrandName = coreNameBuilder.ToString().Trim().TrimEnd(' ');
-            info.Name = RemoveSpechialBrandSymbolsFromString(coreNameBuilder);
-            return true;
         }
 
         public static string RemoveSpechialBrandSymbolsFromString(StringBuilder b) {
@@ -179,71 +94,6 @@ namespace server.Drivers.Presentation
             return str.Trim();
         }
 
-        private long[] _totalTimes;
-        private long[] _idleTimes;
-
-        public float GetCpuLoad(){
-            long[] newIdleTimes;
-            long[] newTotalTimes;
-
-            var total = 0f;
-            if (!GetCpuLoadTime(out newIdleTimes, out newTotalTimes)) {
-                return -1f;
-            }
-
-            if (newIdleTimes == null || newTotalTimes == null) {
-                return -1f;
-            }
-
-            if (_idleTimes == null) {
-                _totalTimes = newTotalTimes;
-                _idleTimes = newIdleTimes;
-                return GetCpuLoad();
-            }
-
-            for (uint core = 0; core < LogicalCores; core++) {
-                total += (float)(newIdleTimes[core] - _idleTimes[core]) / (newTotalTimes[core] - _totalTimes[core]);
-            }
-
-            if (LogicalCores > 0) {
-                total = 1.0f - total / LogicalCores;
-                total = total < 0 ? 0 : total;
-            } else {
-                total = 0;
-            }
-
-            _idleTimes = newIdleTimes;
-            _totalTimes = newIdleTimes;
-            return total * 100;
-        }
-
-        private float GetCoreLoadPercent(uint coreId){
-            if (coreId > LogicalCores) {
-                return -1f;
-            }
-
-            long[] newIdleTimes;
-            long[] newTotalTimes;
-
-            if (!GetCpuLoadTime(out newIdleTimes, out newTotalTimes)) {
-                return -1f;
-            }
-
-            if (newIdleTimes == null || newTotalTimes == null) {
-                return -1f;
-            }
-
-            var totalLoad = (float)newIdleTimes[coreId] / newTotalTimes[coreId];
-            if (totalLoad > 0) {
-                totalLoad = 1.0f - totalLoad / LogicalCores;
-                totalLoad = totalLoad < 0 ? 0 : totalLoad;
-            } else {
-                totalLoad = 0;
-            }
-
-            return totalLoad;
-        }
-
         internal static bool ReadTxOut(uint index, uint subLeaf, ref CpuidRegisters registers, ulong threadAffinityMask){
             return Kernel.Cpuid.ReadTx(
                 index, 
@@ -255,7 +105,7 @@ namespace server.Drivers.Presentation
                 (UIntPtr)threadAffinityMask);
         }
 
-        internal static CpuVendor VendorFromCpuidString(CpuidRegisters registers) {
+        public static CpuVendor VendorFromCpuidString(CpuidRegisters registers) {
             switch (registers.GetVendorString()) {
                 case "GenuineIntel":
                     return CpuVendor.Intel;
@@ -264,37 +114,6 @@ namespace server.Drivers.Presentation
                 default:
                     return CpuVendor.Unknown;
             }
-        }
-
-        private static bool GetCpuLoadTime(out long[] idle, out long[] total) {
-            var informations = new SSystemProcessorPerformanceInformation[64];
-            var size = Marshal.SizeOf(typeof(SSystemProcessorPerformanceInformation));
-
-            idle = null;
-            total = null;
-
-            if (Native.NtQuerySystemInformation(
-                SystemInformationClass.SystemProcessorPerformanceInformation, 
-                informations,
-                informations.Length * size, 
-                out var returnLength) != 0) 
-            {
-                return false;
-            }
-
-            idle = new long[(int)returnLength / size];
-            total = new long[(int)returnLength / size];
-
-            for (var i = 0; i < idle.Length; i++) {
-                idle[i] = informations[i].IdleTime;
-                total[i] = informations[i].KernelTime + informations[i].UserTime;
-            }
-
-            return true;
-        }
-
-        public override string ToString(){
-            return $"CPUID [Vendor={Vendor}, LogicalCores={LogicalCores}, BrandName='{BrandName}', Name='{Name}']";
         }
     }
 }
