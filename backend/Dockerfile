@@ -4,7 +4,7 @@ VOLUME /tmp
 
 ADD backend-snapshot.jar app.jar
 
-EXPOSE 8080:8085
+EXPOSE 8051:8051
 
 ENV JAVA_OPTS=""
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
