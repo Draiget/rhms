@@ -1,5 +1,6 @@
 # Ignore VS stuff
 .vs
+.user
 
 /server/buildstage
 /server/output
