@@ -48,6 +48,7 @@
     <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseIntelCpu.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorIntelCpuCoresLoad.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorIntelCpuFrequency.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorIntelCpuPowers.cs" />
     <Compile Include="ModuleCpuIntel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
