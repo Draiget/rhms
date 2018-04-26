@@ -8,7 +8,25 @@ namespace server.Drivers.Presentation
 {
     public class CpuidRegisters
     {
-        public uint Eax, Ebx, Ecx, Edx;
+        /// <summary>
+        /// Offset 0
+        /// </summary>
+        public uint Eax;
+
+        /// <summary>
+        /// Offset 1
+        /// </summary>
+        public uint Ebx;
+
+        /// <summary>
+        /// Offset 2
+        /// </summary>
+        public uint Ecx;
+
+        /// <summary>
+        /// Offset 3
+        /// </summary>
+        public uint Edx;
 
         public CpuidRegisters(){
             Clear();

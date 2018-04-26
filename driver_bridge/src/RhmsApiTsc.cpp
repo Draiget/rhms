@@ -4,6 +4,15 @@
 extern bool g_IsTSC;
 extern bool g_IsNT;
 
+BOOL RHMS_ReadTscRaw(PULONGLONG ret) {
+	if (!g_IsTSC) {
+		return false;
+	}
+
+	*ret = __rdtsc();
+	return true;
+}
+
 BOOL WINAPI RHMS_ReadTsc(PDWORD eax, PDWORD edx) {
 	if (eax == nullptr || edx == nullptr || !g_IsTSC) {
 		return false;

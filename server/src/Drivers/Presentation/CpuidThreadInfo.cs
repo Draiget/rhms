@@ -11,8 +11,15 @@ namespace server.Drivers.Presentation
 {
     public class CpuidThreadInfo
     {
-        private readonly CpuidRegisters[] _dataRegisters;
-        private readonly CpuidRegisters[] _extDataRegisters;
+        public CpuidRegisters[] DataRegisters {
+            get;
+            private set;
+        }
+
+        public CpuidRegisters[] DataRegistersExt {
+            get;
+            private set;
+        }
 
         public CpuVendor Vendor {
             get;
@@ -105,17 +112,17 @@ namespace server.Drivers.Presentation
             maxCpuidExtLen = Math.Min(maxCpuidExtLen, 1024);
 
             // Read short core thread info
-            var dataRegisters = new CpuidRegisters[maxCpuidLen + 1];
+            DataRegisters = new CpuidRegisters[maxCpuidLen + 1];
             for (uint i = 0; i < maxCpuidLen + 1; i++) {
-                dataRegisters[i] = new CpuidRegisters();
-                Cpuid.ReadTxOut(Cpuid.Cpuid0 + i, 0, ref dataRegisters[i], affinityMask);
+                DataRegisters[i] = new CpuidRegisters();
+                Cpuid.ReadTxOut(Cpuid.Cpuid0 + i, 0, ref DataRegisters[i], affinityMask);
             }
-            
+
             // Read full core thread info
-            var extDataRegisters = new CpuidRegisters[maxCpuidExtLen + 1];
+            DataRegistersExt = new CpuidRegisters[maxCpuidExtLen + 1];
             for (uint i = 0; i < maxCpuidExtLen + 1; i++) {
-                extDataRegisters[i] = new CpuidRegisters();
-                Cpuid.ReadTxOut(Cpuid.CpuidExt + i, 0, ref extDataRegisters[i], affinityMask);
+                DataRegistersExt[i] = new CpuidRegisters();
+                Cpuid.ReadTxOut(Cpuid.CpuidExt + i, 0, ref DataRegistersExt[i], affinityMask);
             }
 
             var coreNameBuilder = new StringBuilder();
@@ -127,16 +134,16 @@ namespace server.Drivers.Presentation
             BrandName = coreNameBuilder.ToString().Trim().TrimEnd(' ').Replace("\0", string.Empty);
             Name = Cpuid.RemoveSpechialBrandSymbolsFromString(coreNameBuilder);
 
-            Family = ((dataRegisters[1].Eax & 0x0FF00000) >> 20) + ((dataRegisters[1].Eax & 0x0F00) >> 8);
-            Model = ((dataRegisters[1].Eax & 0x0F0000) >> 12) + ((dataRegisters[1].Eax & 0xF0) >> 4);
-            Stepping = dataRegisters[1].Eax & 0x0F;
-            ApicId = (dataRegisters[1].Ebx >> 24) & 0xFF;
+            Family = ((DataRegisters[1].Eax & 0x0FF00000) >> 20) + ((DataRegisters[1].Eax & 0x0F00) >> 8);
+            Model = ((DataRegisters[1].Eax & 0x0F0000) >> 12) + ((DataRegisters[1].Eax & 0xF0) >> 4);
+            Stepping = DataRegisters[1].Eax & 0x0F;
+            ApicId = (DataRegisters[1].Ebx >> 24) & 0xFF;
 
             if (Vendor == CpuVendor.Intel) {
-                var maxCoreAndThreadIdPerPackage = (dataRegisters[1].Ebx >> 16) & 0xFF;
+                var maxCoreAndThreadIdPerPackage = (DataRegisters[1].Ebx >> 16) & 0xFF;
                 uint maxCoreIdPerPackage;
                 if (maxCpuidLen >= 4) {
-                    maxCoreIdPerPackage = ((dataRegisters[4].Eax >> 26) & 0x3F) + 1;
+                    maxCoreIdPerPackage = ((DataRegisters[4].Eax >> 26) & 0x3F) + 1;
                 } else {
                     maxCoreIdPerPackage = 1;
                 }
@@ -146,7 +153,7 @@ namespace server.Drivers.Presentation
             } else if (Vendor == CpuVendor.Amd) {
                 uint corePerPackage;
                 if (maxCpuidExtLen >= 8) {
-                    corePerPackage = (extDataRegisters[8].Ecx & 0xFF) + 1;
+                    corePerPackage = (DataRegistersExt[8].Ecx & 0xFF) + 1;
                 } else {
                     corePerPackage = 1;
                 }

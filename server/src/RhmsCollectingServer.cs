@@ -92,7 +92,7 @@ namespace server
 
                         foreach (var sensor in hardware.GetSensors()) {
                             if (sensor is IMultiValueSensor multi) {
-                                if (sensor.GetSystemName() != "cores_load_info") {
+                                if (hardware.Identify().GetHardwareType() != HardwareType.Cpu) {
                                     continue;
                                 }
 

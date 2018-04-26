@@ -25,7 +25,7 @@ namespace cpu_intel.Api.Hardware
         }
 
         public override string GetModel() {
-            return HardwareRef.Model;
+            return HardwareRef.ModelName;
         }
 
         public override string GetFullSystemName() {

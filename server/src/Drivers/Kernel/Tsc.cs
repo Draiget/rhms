@@ -14,6 +14,14 @@ namespace server.Drivers.Kernel
     internal static class Tsc
     {
         /// <summary>
+        /// Read TSC data without spicify registers
+        /// </summary>
+        /// <param name="value">Out value</param>
+        /// <returns>Success of failure</returns>
+        [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_ReadTscRaw", CallingConvention = CallingConvention.Winapi)]
+        internal static extern bool Read(ref ulong value);
+
+        /// <summary>
         /// Read TSC data shared
         /// </summary>
         /// <param name="eax">EAX register (bit 0-31)</param>

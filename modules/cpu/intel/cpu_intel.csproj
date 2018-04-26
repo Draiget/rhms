@@ -42,10 +42,12 @@
   <ItemGroup>
     <Compile Include="Api\Hardware\IntelCpu.cs" />
     <Compile Include="Api\Hardware\IntelCpuIdentifier.cs" />
+    <Compile Include="Api\Hardware\MicroArchitecture.cs" />
     <Compile Include="Api\Hardware\Sensors\Base\SensorBaseIntelCpu.cs" />
     <Compile Include="Api\Hardware\Sensors\Base\SensorBaseIntelCpuMulti.cs" />
     <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseIntelCpu.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorIntelCoresLoad.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorIntelCpuCoresLoad.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorIntelCpuFrequency.cs" />
     <Compile Include="ModuleCpuIntel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

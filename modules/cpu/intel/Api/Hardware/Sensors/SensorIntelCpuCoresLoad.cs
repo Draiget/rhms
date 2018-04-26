@@ -12,13 +12,13 @@ using server.Utils;
 namespace cpu_intel.Api.Hardware.Sensors
 {
     [SensorRegister]
-    public class SensorIntelCoresLoad : SensorBaseIntelCpuMulti
+    public class SensorIntelCpuCoresLoad : SensorBaseIntelCpuMulti
     {
         private readonly SensorElementIntelCpuCoreLoad[] _coreSensors;
         private readonly SensorElementIntelCpuTotalLoad _cpuTotalLoad;
         private readonly ISensorElement[] _sensors;
 
-        public SensorIntelCoresLoad(IntelCpu cpu)
+        public SensorIntelCpuCoresLoad(IntelCpu cpu)
             : base(cpu) 
         {
             _coreSensors = new SensorElementIntelCpuCoreLoad[cpu.CoreCount];

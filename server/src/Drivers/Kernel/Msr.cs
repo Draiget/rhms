@@ -11,7 +11,7 @@ namespace server.Drivers.Kernel
     /// Model-specific register functions.
     /// <see cref="http://download.intel.com/products/processor/manual/325384.pdf"/>
     /// </summary>
-    internal static class Msr
+    public static class Msr
     {
         /// <summary>
         /// Read MSR data shared function
@@ -21,7 +21,7 @@ namespace server.Drivers.Kernel
         /// <param name="edx">EDX out register (bit 32-63)</param>
         /// <returns>Success of failure</returns>
         [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_ReadMsr", CallingConvention = CallingConvention.Winapi)]
-        internal static extern bool Read(uint index, ref uint eax, ref uint edx);
+        public static extern bool Read(uint index, ref uint eax, ref uint edx);
 
         /// <summary>
         /// Read MSR data (thread context)

@@ -5,6 +5,15 @@
 
 /**
 * \brief Read TSC data shared
+* \param ret Total return value (not register-specific)
+* \return Success of failure
+*/
+RHMS_API_EXPOSED BOOL WINAPI RHMS_ReadTscRaw(
+	PULONGLONG ret
+);
+
+/**
+* \brief Read TSC data shared
 * \param eax EAX register (bit 0-31)
 * \param edx EDX register (bit 32-63)
 * \return Success of failure

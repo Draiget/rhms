@@ -147,5 +147,22 @@ namespace server.Utils
             CTRL_LOGOFF_EVENT = 5,
             CTRL_SHUTDOWN_EVENT
         }
+
+        [DllImport("Kernel32", CallingConvention = CallingConvention.Winapi)]
+        private static extern UIntPtr SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
+
+        [DllImport("Kernel32", CallingConvention = CallingConvention.Winapi)]
+        private static extern IntPtr GetCurrentThread();
+
+        public static ulong SetThreadAffinity(ulong mask) {
+            UIntPtr uIntPtrMask;
+            try {
+                uIntPtrMask = (UIntPtr)mask;
+            } catch (OverflowException) {
+                throw new ArgumentOutOfRangeException(nameof(mask));
+            }
+
+            return (ulong)SetThreadAffinityMask(GetCurrentThread(), uIntPtrMask);
+        }
     }
 }
