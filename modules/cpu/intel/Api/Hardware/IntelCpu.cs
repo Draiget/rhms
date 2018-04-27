@@ -237,9 +237,9 @@ namespace cpu_intel.Api.Hardware
 
         private float[] GetTjMaxFromMsr() {
             uint eax = 0, edx = 0;
-            var result = new float[CoreCount];
-            for (uint i = 0; i < CoreCount; i++) {
-                if (Msr.ReadTx(Ia32TemperatureTarget, ref eax, ref edx, (UIntPtr)(1UL << (int)ProcessorCpuid[i, 0].ThreadIndex))) {
+            var result = new float[ThreadsCount];
+            for (uint i = 0; i < ThreadsCount; i++) {
+                if (Msr.ReadTx(Ia32TemperatureTarget, ref eax, ref edx, (UIntPtr)(1UL << (int)i))) {
                     result[i] = (eax >> 16) & 0xFF;
                 } else {
                     result[i] = 100;
@@ -279,12 +279,24 @@ namespace cpu_intel.Api.Hardware
         }
 
         private float[] FillCoresFloats(float value) {
-            var result = new float[CoreCount];
+            var result = new float[ThreadsCount];
             for (var i = 0; i < result.Length; i++) {
                 result[i] = value;
             }
 
             return result;
+        }
+
+        public float GetTjMaxOfThreadAt(uint threadIndex) {
+            return _tjMax[threadIndex];
+        }
+
+        public float GetTjMaxOfCoreAt(uint coreIndex, uint threadIndex = 0) {
+            if (ThreadsCount == CoreCount * 2) {
+                return _tjMax[coreIndex / 2 + threadIndex];
+            }
+
+            return _tjMax[coreIndex];
         }
 
         public override string ToString() {
