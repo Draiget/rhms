@@ -43,12 +43,18 @@ namespace cpu_intel.Api.Hardware.Sensors
 
                 _sensors = new ISensorElement[_powerSensors.Length];
                 for (var i = 0; i < _powerSensors.Length; i++) {
-                    _sensors[i] = _powerSensors[i];
+                    if (_powerSensors[i] != null) {
+                        _sensors[i] = _powerSensors[i];
+                    }
                 }
                 return;
             }
 
             _sensors = new ISensorElement[0];
+        }
+
+        public override SensorType GetSensorType() {
+            return SensorType.Power;
         }
 
         public override string GetDisplayName() {
@@ -61,7 +67,7 @@ namespace cpu_intel.Api.Hardware.Sensors
 
         public override void TickSpecificLoad(CpuidProcessorInfo info) {
             foreach (var sensor in _powerSensors) {
-                if (sensor.IsActive()) {
+                if (sensor != null && sensor.IsActive()) {
                     sensor.Update(_energyUnitMultiplier);
                 }
             }

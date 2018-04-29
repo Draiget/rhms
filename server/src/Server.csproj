@@ -118,12 +118,16 @@
     <Compile Include="Hardware\GPU\BaseGpuSensor.cs" />
     <Compile Include="Hardware\IMultiValueSensor.cs" />
     <Compile Include="Hardware\ISensorElement.cs" />
+    <Compile Include="Hardware\BaseSensorsHarwdare.cs" />
     <Compile Include="Hardware\ISingleValueSensor.cs" />
+    <Compile Include="Hardware\Motherboard\BaseMotherboardSensor.cs" />
+    <Compile Include="Hardware\Motherboard\GenericMotherboard.cs" />
     <Compile Include="Hardware\SensorRegisterAttribute.cs" />
     <Compile Include="Hardware\SensorType.cs" />
     <Compile Include="Hardware\GPU\GpuSensorThermal.cs" />
     <Compile Include="Hardware\IHardware.cs" />
     <Compile Include="Hardware\ISensorBase.cs" />
+    <Compile Include="Hardware\SmBios.cs" />
     <Compile Include="Modules\Base\BaseHardwareModule.cs" />
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
@@ -137,6 +141,12 @@
     <Compile Include="Networking\Stun\StunQuery.cs" />
     <Compile Include="Networking\Stun\StunQueryResult.cs" />
     <Compile Include="RhmsSettings.cs" />
+    <Compile Include="Settings\BaseModuleSettings.cs" />
+    <Compile Include="Settings\BaseSettings.cs" />
+    <Compile Include="Settings\DynamicSettingsCategory.cs" />
+    <Compile Include="Settings\PersistentSettingsCategory.cs" />
+    <Compile Include="Settings\SettingsManager.cs" />
+    <Compile Include="Settings\SettingsIoResult.cs" />
     <Compile Include="Utils\AssemblyUtils.cs" />
     <Compile Include="Utils\MathUtils.cs" />
     <Compile Include="Utils\Natives\SSystemProcessorPerformanceInformation.cs" />
@@ -180,7 +190,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Backend\" />
     <Folder Include="Modules\OutputModules\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

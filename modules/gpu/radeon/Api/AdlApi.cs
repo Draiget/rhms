@@ -36,6 +36,10 @@ namespace gpu_radeon.Api
             return true;
         }
 
+        public static bool IfSupported() {
+            return Native.IfLibraryIsExists(DllName);
+        }
+
         public static AdlApiGpu.ADL_Main_Memory_AllocDelegate AdlMainMemoryAlloc;
 
         [LinkedField(typeof(AdlApiGpu))]

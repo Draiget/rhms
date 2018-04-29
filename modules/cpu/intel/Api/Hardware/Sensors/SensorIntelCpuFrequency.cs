@@ -35,6 +35,10 @@ namespace cpu_intel.Api.Hardware.Sensors
 
             _sensors[_coreFrequenciesSensors.Length] = _baseClock;
         }
+        
+        public override SensorType GetSensorType() {
+            return SensorType.Clocks;
+        }
 
         public override string GetDisplayName() {
             return "Cores Frequency";

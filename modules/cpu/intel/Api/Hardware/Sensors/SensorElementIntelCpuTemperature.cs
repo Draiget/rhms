@@ -44,6 +44,10 @@ namespace cpu_intel.Api.Hardware.Sensors
             IsSensorActive = _sensors.Length > 0;
         }
 
+        public override SensorType GetSensorType() {
+            return SensorType.Temperature;
+        }
+
         public override string GetDisplayName() {
             return "CPU Temperatures";
         }

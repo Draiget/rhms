@@ -38,6 +38,10 @@ namespace cpu_intel.Api.Hardware.Sensors
             InitLoadData();
         }
 
+        public override SensorType GetSensorType() {
+            return SensorType.Utilization;
+        }
+
         public override void TickSpecificLoad(CpuidProcessorInfo info) {
             UpdateLoadData();
 
@@ -132,6 +136,10 @@ namespace cpu_intel.Api.Hardware.Sensors
             _totalLoad = total * 100;
             _totalTimes = newTotalTimes;
             _idleTimes = newIdleTimes;
+        }
+
+        public override string ToString() {
+            return $"SensorIntelCpuCoresLoad [CpuModel={Cpu.ModelName}, Type={GetSensorType()}, Name={GetDisplayName()}]";
         }
     }
 

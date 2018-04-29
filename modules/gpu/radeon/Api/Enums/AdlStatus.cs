@@ -9,6 +9,6 @@ namespace gpu_radeon.Api.Enums
     public enum AdlStatus
     {
         Err = -1,
-        Ok = 0,
+        Ok = 0
     }
 }

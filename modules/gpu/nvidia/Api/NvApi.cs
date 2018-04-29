@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Security;
+using System.Text;
 using gpu_nvidia.Api.Delegates;
 using gpu_nvidia.Api.Enums;
 using gpu_nvidia.Api.Structures;
@@ -18,10 +21,10 @@ namespace gpu_nvidia.Api
     {
         public static readonly uint GpuThermalSettingsVer = (uint)Marshal.SizeOf(typeof(NvGpuThermalSettings)) | 0x10000;
         public static readonly uint GpuClocksVer = (uint)Marshal.SizeOf(typeof(NvClocks)) | 0x20000;
+        public static readonly uint GpuMemoryInfoVer = (uint)Marshal.SizeOf(typeof(NvMemoryInfo)) | 0x20000;
         /*public static readonly uint GpuPstatesVer = (uint)Marshal.SizeOf(typeof(NvPStates)) | 0x10000;
         public static readonly uint GpuUsagesVer = (uint)Marshal.SizeOf(typeof(NvUsages)) | 0x10000;
         public static readonly uint GpuCoolerSettingsVer = (uint) Marshal.SizeOf(typeof(NvGpuCoolerSettings)) | 0x20000;
-        public static readonly uint GpuMemoryInfoVer = (uint)Marshal.SizeOf(typeof(NvMemoryInfo)) | 0x20000;
         public static readonly uint DisplayDriverVersionVer = (uint) Marshal.SizeOf(typeof(NvDisplayDriverVersion)) | 0x10000;
         public static readonly uint GpuCoolerLevelsVer = (uint)Marshal.SizeOf(typeof(NvGpuCoolerLevels)) | 0x10000;*/
 
@@ -41,6 +44,24 @@ namespace gpu_nvidia.Api
 
         [LinkedFunctionId(FunctionId.NvAPI_EnumPhysicalGPUs)]
         public static NvApiGpu.NvAPI_EnumPhysicalGPUs NvApiEnumPhysicalGpUs;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GetPhysicalGPUsFromDisplay)]
+        public static NvApiGpu.NvAPI_GetPhysicalGPUsFromDisplay NvApiGetPhysicalGpUsFromDisplay;
+
+        [LinkedFunctionId(FunctionId.NvAPI_EnumNvidiaDisplayHandle)]
+        public static NvApiGpu.NvAPI_EnumNvidiaDisplayHandle NvApiEnumNvidiaDisplayHandle;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetThermalSettings)]
+        public static NvApiGpu.NvAPI_GPU_GetThermalSettings GetThermalSettings;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetAllClocks)]
+        public static NvApiGpu.NvAPI_GPU_GetAllClocks GetAllClocks;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetMemoryInfo)]
+        public static NvApiGpu.NvAPI_GPU_GetMemoryInfo GetMemoryInfo;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetFullName)]
+        public static NvApiGpu.NvAPI_GPU_GetFullName GpuGetFullName;
 
         private delegate IntPtr NvApiQueryInterfaceDelegate(uint id);
         private delegate NvStatus NvApiInitializeDelegate();
@@ -75,6 +96,26 @@ namespace gpu_nvidia.Api
             }
 
             return false;
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
+        public static NvStatus NvApiGpuGetFullName(NvPhysicalGpuHandle handle, out string name) {
+            if (GpuGetFullName == null) {
+                name = "Unknown";
+                return NvStatus.FunctionNotFound;
+            }
+
+            try {
+                var builder = new StringBuilder(short.MaxValue);
+                var status = GpuGetFullName(handle, builder);
+                name = builder.ToString();
+                return status;
+            } catch (AccessViolationException ave) {
+                Logger.Error($"Unable to get GPU name from handle {handle}", ave);
+                name = "Unknown";
+                return NvStatus.FunctionNotFound;
+            }
         }
 
         private static void SetupDelegates(){

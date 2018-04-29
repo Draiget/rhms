@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UdpSessionsServiceImpl implements IUdpSessionsService {
@@ -18,7 +19,7 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
     UdpSessionsRepository sessionsRepo;
 
     @Override
-    public UdpSession registerSession(InetSocketAddress publicAddress, String peerName) {
+    public UdpSession registerSession(InetSocketAddress publicAddress, String peerName, String accessKey) {
         UdpSession old = findByAddress(publicAddress);
         if (old != null){
             old.peerName = peerName;
@@ -26,7 +27,7 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
             return old;
         }
 
-        UdpSession newSession = new UdpSession(publicAddress, peerName);
+        UdpSession newSession = new UdpSession(publicAddress, peerName, accessKey);
         sessionsRepo.sessionsList.add(newSession);
         return newSession;
     }
@@ -35,7 +36,7 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
     public UdpSession findByAddress(InetSocketAddress publicAddress) {
         return sessionsRepo.sessionsList
                 .stream()
-                .filter(x -> x.publicAddress.equals(publicAddress))
+                .filter(x -> x.getPublicAddress().equals(publicAddress))
                 .findFirst()
                 .orElse(null);
     }
@@ -53,10 +54,18 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
     public UdpSession findByPeerNameAndAddress(String ip, int port, String peerName) {
         return sessionsRepo.sessionsList
                 .stream()
-                .filter(x -> x.publicAddress.getHostName().equals(ip) && x.publicAddress.getPort() == port)
+                .filter(x -> x.getPublicAddress().getHostName().equals(ip) && x.getPublicAddress().getPort() == port)
                 .filter(x -> x.peerName.contentEquals(peerName))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public List<UdpSession> findByAccessKey(String accessKey) {
+        return sessionsRepo.sessionsList
+                .stream()
+                .filter(x -> x.getAccessKey().contentEquals(accessKey))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -89,12 +98,12 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
     }
 
     @Override
-    public boolean updateSpecificSession(UdpSession session, String newPeerName) {
+    public boolean updateSpecificSession(UdpSession session, String newPeerName, String accessKey) {
         return updateSpecificSession(session, newPeerName, null);
     }
 
     @Override
-    public boolean updateSpecificSession(UdpSession session, String newPeerName, String privatePort) {
+    public boolean updateSpecificSession(UdpSession session, String newPeerName, String privatePort, String accessKey) {
         if (!sessionsRepo.sessionsList.contains(session)){
             return false;
         }
@@ -121,7 +130,7 @@ public class UdpSessionsServiceImpl implements IUdpSessionsService {
 
     @Override
     public Optional<UdpSession> findPeer(InetSocketAddress address) {
-        return sessionsRepo.sessionsList.stream().filter(x -> x.publicAddress.equals(address)).findFirst();
+        return sessionsRepo.sessionsList.stream().filter(x -> x.getPublicAddress().equals(address)).findFirst();
     }
 
     @Override

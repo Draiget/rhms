@@ -3,7 +3,7 @@
 namespace gpu_nvidia.Api.Structures
 {
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    internal struct NvClocks
+    public struct NvClocks
     {
         public uint Version;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = NvApi.MaxClocksPerGpu)]

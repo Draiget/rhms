@@ -63,6 +63,7 @@ namespace gpu_nvidia.Helpers
         NvAPI_GPU_GetCurrentPstate = 0x927DA4F6,
         NvAPI_GPU_GetDynamicPStatesInfoEx = 0x60DED2ED,
         NvAPI_GPU_GetThermalSettings = 0xE3640A56,
+        NvAPI_GPU_GetAllClocks = 0x1BD69F49,
         NvAPI_I2CRead = 0x2FDE12C5,
         NvAPI_I2CWrite = 0xE812EB07,
         NvAPI_GPU_WorkstationFeatureSetup = 0x6C1F3FE4,

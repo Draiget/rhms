@@ -46,6 +46,10 @@ namespace cpu_intel
             return true;
         }
 
+        public override bool CheckForSystemSupport() {
+            return _server.IsKernelDriverAvailable();
+        }
+
         public override void Close() {
             // No actions need
         }
@@ -64,6 +68,10 @@ namespace cpu_intel
                 Logger.Error("Unable to initialize CPUID hardware", e);
                 return false;
             }
+        }
+
+        public override void AfterHardwareTick() {
+            ExportDataToGrafana(_server);
         }
     }
 }

@@ -36,6 +36,10 @@ namespace gpu_radeon.Api.Hardware.Sensors
             return _loadMemory;
         }
 
+        public override SensorType GetSensorType() {
+            return SensorType.Clocks;
+        }
+
         public override string GetDisplayName() {
             return "Memory Clock";
         }

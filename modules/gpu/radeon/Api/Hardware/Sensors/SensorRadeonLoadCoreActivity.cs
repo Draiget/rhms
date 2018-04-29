@@ -35,6 +35,10 @@ namespace gpu_radeon.Api.Hardware.Sensors
             return _coreActivity;
         }
 
+        public override SensorType GetSensorType() {
+            return SensorType.Utilization;
+        }
+
         public override string GetDisplayName() {
             return "Core Load";
         }

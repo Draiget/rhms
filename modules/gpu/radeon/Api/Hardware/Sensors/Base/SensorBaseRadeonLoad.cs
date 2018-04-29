@@ -32,10 +32,6 @@ namespace gpu_radeon.Api.Hardware.Sensors.Base
             return AdlApi.AdlGetCurrentActivity(Gpu.AdapterIndex, ref Activity) == AdlApi.AdlOk;
         }
 
-        public override SensorType GetSensorType() {
-            return SensorType.Utilization;
-        }
-
         public override BaseModule GetModuleHandle() {
             return ModuleGpuRadeon.ModuleHandle;
         }

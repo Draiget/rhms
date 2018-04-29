@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +26,10 @@ namespace server
         private static bool _isCanShutdown;
         public static Logger AppLogger;
         public static RhmsCollectingServer CollectingServer;
+        public static KernelDriverInitState KernelDriverInitState;
 
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
         internal static void Main(string[] args) {
             _isCanShutdown = false;
             Native.SetConsoleCtrlHandler(ConsoleCtrlCheck, true);
@@ -39,8 +44,8 @@ namespace server
 
             BridgeDriver.RegisterLoggerCallback(DriverLoggerCallback);
 
-            var state = KernelDriverBridge.InitializeEnvironment();
-            if (state == KernelDriverInitState.RhmsDrvNoError) {
+            KernelDriverInitState = KernelDriverBridge.InitializeEnvironment();
+            if (KernelDriverInitState == KernelDriverInitState.RhmsDrvNoError) {
                 var cpusInfo = Drivers.Presentation.Cpuid.Get();
                 var firstCpu = cpusInfo?[0];
                 if (firstCpu != null) {
@@ -48,11 +53,11 @@ namespace server
                 }
             }
 
-            Logger.Auto(state == KernelDriverInitState.RhmsDrvNoError ? DriverLogLevel.Info : DriverLogLevel.Error,
-                        $"Load driver state: {state}");
+            Logger.Auto(KernelDriverInitState == KernelDriverInitState.RhmsDrvNoError ? DriverLogLevel.Info : DriverLogLevel.Error,
+                        $"Load driver state: {KernelDriverInitState}");
 
-            if (state != KernelDriverInitState.RhmsDrvNoError) {
-                if (state == KernelDriverInitState.RhmsDriverManagerIncorrectDrvSignature) {
+            if (KernelDriverInitState != KernelDriverInitState.RhmsDrvNoError) {
+                if (KernelDriverInitState == KernelDriverInitState.RhmsDriverManagerIncorrectDrvSignature) {
                     Logger.Warn("Kernel driver signature checking is enabled in your system, RHMS server is not able to load custom kernel driver.");
                     Logger.Warn("You need to disable signature checking on target subsystem.");
                 } else {
@@ -72,12 +77,17 @@ namespace server
             }
 
             Logger.Info("Initialize collecting server");
-            CollectingServer.Initialize();
-
+            if (!CollectingServer.Initialize()) {
+                Logger.Error("Could not initialize RHMS Collecting Server! Press any key to exit.");
+                Console.ReadLine();
+                return;
+            }
+            
             Logger.Info("Loading modules");
             CollectingServer.GetModuleLoader().LoadFromFolder(Directory.GetCurrentDirectory() + @"\modules");
             Logger.Info("Loading modules has finished.");
 
+            CollectingServer.StartNetworkUpdates();
             CollectingServer.StartHardwareUpdates();
             _isCanShutdown = true;
 

@@ -62,6 +62,8 @@ namespace server.Modules.Base
             throw new NotImplementedException();
         }
 
+        public abstract bool IsKernelDriverAvailable();
+
         public abstract BaseModuleLoader GetModuleLoader();
 
         public void Shutdown() {

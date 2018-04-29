@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using server.Addons;
+using server.Drivers;
 using server.Hardware;
 using server.Modules;
 using server.Modules.Base;
@@ -41,10 +42,13 @@ namespace server
 
             // Temporary here
             Manager = new NetworkConnectionManager(this);
-            Manager.Initialize();
 
             _isThreadsActive = true;
             return true;
+        }
+
+        public override bool IsKernelDriverAvailable() {
+            return Program.KernelDriverInitState == KernelDriverInitState.RhmsDrvNoError;
         }
 
         public override BaseModuleLoader GetModuleLoader(){
@@ -75,6 +79,10 @@ namespace server
                             if (sensor is IMultiValueSensor multi) {
                                 var outStr = string.Empty;
                                 foreach (var sensorElement in multi.GetElements()) {
+                                    if (sensorElement == null) {
+                                        continue;
+                                    }
+
                                     if (!string.IsNullOrEmpty(outStr)) {
                                         outStr += ", ";
                                     }
@@ -90,7 +98,7 @@ namespace server
                         }
 #endif
 
-                        foreach (var sensor in hardware.GetSensors()) {
+                        /*foreach (var sensor in hardware.GetSensors()) {
                             if (sensor is IMultiValueSensor multi) {
                                 if (hardware.Identify().GetHardwareType() != HardwareType.Cpu) {
                                     continue;
@@ -107,7 +115,7 @@ namespace server
 
                                 Logger.Info($"[{hardware.Identify().GetFullSystemName()}] M | {sensor.GetDisplayName()}: {outStr}");
                             }
-                        }
+                        }*/
                     }
                 }
 
@@ -124,7 +132,7 @@ namespace server
         }
 
         public override void StartNetworkUpdates() {
-            throw new NotImplementedException();
+            Manager.Initialize();
         }
     }
 }

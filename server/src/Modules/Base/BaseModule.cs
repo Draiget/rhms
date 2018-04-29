@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using server.Hardware;
+using server.Settings;
 using server.Utils.Logging;
 
 namespace server.Modules.Base
@@ -60,6 +61,21 @@ namespace server.Modules.Base
         /// <returns>System support module status</returns>
         public virtual bool CheckForSystemSupport() {
             return true;
+        }
+
+        internal BaseModuleSettings SettingsInstance;
+
+        public virtual dynamic GetSettingsType() {
+            return null;
+        }
+
+        public BaseModuleSettings Settings {
+            get => _moduleLoader.GetSettingsFor(this);
+            set => _moduleLoader.SaveSettingsFor(this, value);
+        }
+
+        public SettingsIoResult? SaveSettings() {
+            return _moduleLoader.SaveSettingsFor(this);
         }
 
         /// <summary>

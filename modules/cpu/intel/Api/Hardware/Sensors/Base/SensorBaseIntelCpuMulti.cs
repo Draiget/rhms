@@ -28,15 +28,15 @@ namespace cpu_intel.Api.Hardware.Sensors.Base
         }
 
         public abstract void TickSpecificLoad(CpuidProcessorInfo info);
-
-        public override SensorType GetSensorType() {
-            return SensorType.Utilization;
-        }
-
+        
         public override BaseModule GetModuleHandle() {
             return ModuleCpuIntel.ModuleHandle;
         }
 
         public abstract ISensorElement[] GetElements();
+
+        public override string ToString() {
+            return $"BaseIntelMultiSensor [Type={GetSensorType()}, Name={GetDisplayName()}]";
+        }
     }
 }

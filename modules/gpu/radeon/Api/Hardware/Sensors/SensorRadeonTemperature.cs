@@ -70,7 +70,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetMeasurement() {
-            return "V";
+            return "°C";
         }
 
         public void SetValue(double value) {

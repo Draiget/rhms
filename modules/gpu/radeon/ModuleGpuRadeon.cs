@@ -57,6 +57,14 @@ namespace gpu_radeon
             AdlApi.Shutdown();
         }
 
+        public override bool CheckForSystemSupport() {
+            return AdlApi.IfSupported();
+        }
+
+        public override dynamic GetSettingsType() {
+            return typeof(ModuleSettings);
+        }
+
         public override bool InitializeHardware() {
             var adaptersCount = 0;
             AdlApi.AdlGetNumberOfAdapters(ref adaptersCount);
@@ -100,38 +108,7 @@ namespace gpu_radeon
         }
 
         public override void AfterHardwareTick() {
-            if (!_server.GetSettings().InfluxOutput.Enabled) {
-                return;
-            }
-
-            var influxDb = _server.GetInfluxDbConnection();
-            foreach (var hardware in Hardware) {
-                var influxData = new List<InfluxDataPair> {
-                    new InfluxDataTag("vendor", hardware.Identify().GetVendor())
-                };
-
-                foreach (var sensor in hardware.GetSensors()) {
-                    if (sensor.IsAvaliable()) {
-                        continue;
-                    }
-
-                    influxData.Add(new InfluxDataTag("sensor", sensor.GetSystemName()));
-
-                    if (sensor is IMultiValueSensor multi) {
-                        foreach (var sensorElement in multi.GetElements()) {
-                            influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
-                        }
-                    }
-
-                    if (sensor is ISingleValueSensor single) {
-                        var sensorElement = single.GetElement();
-                        influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
-                    }
-                    
-                }
-
-                influxDb.Write(new InfluxWriteData("gpu", influxData.ToArray()));
-            }
+            ExportDataToGrafana(_server);
         }
     }
 }

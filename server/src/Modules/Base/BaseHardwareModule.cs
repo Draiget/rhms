@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using server.Addons;
 using server.Hardware;
 
 namespace server.Modules.Base
@@ -44,6 +45,41 @@ namespace server.Modules.Base
 
         public override string ToString() {
             return $"BaseHardwareModule[logId='{GetLogIdentifer()}', name='{GetName()}']";
+        }
+
+        public void ExportDataToGrafana(BaseCollectingServer server) {
+            if (!server.GetSettings().InfluxOutput.Enabled) {
+                return;
+            }
+
+            var influxDb = server.GetInfluxDbConnection();
+            foreach (var hardware in Hardware) {
+                var influxData = new List<InfluxDataPair> {
+                    new InfluxDataTag("vendor", hardware.Identify().GetVendor())
+                };
+
+                foreach (var sensor in hardware.GetSensors()) {
+                    if (sensor.IsAvaliable()) {
+                        continue;
+                    }
+
+                    influxData.Add(new InfluxDataTag("sensor", sensor.GetSystemName()));
+
+                    if (sensor is IMultiValueSensor multi) {
+                        foreach (var sensorElement in multi.GetElements()) {
+                            influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
+                        }
+                    }
+
+                    if (sensor is ISingleValueSensor single) {
+                        var sensorElement = single.GetElement();
+                        influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
+                    }
+
+                }
+
+                influxDb.Write(new InfluxWriteData("gpu", influxData.ToArray()));
+            }
         }
     }
 }

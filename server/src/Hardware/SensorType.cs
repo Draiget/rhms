@@ -6,6 +6,8 @@
         Temperature,
         FanSpd,
         Clocks,
-        Utilization
+        Utilization,
+        Power,
+        MemoryLoad
     }
 }

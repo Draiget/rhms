@@ -31,6 +31,7 @@ public class UdpPeerController extends AbstractController {
                                                                    @RequestParam(value = "ip", required = false) String publicIp,
                                                                    @RequestParam("port") String natPort,
                                                                    @RequestParam(value = "privatePort", required = false) String privatePort,
+                                                                   @RequestParam("accessKey") String accessKey,
                                                                    HttpServletRequest request)
     {
         if (publicIp == null || publicIp.isEmpty()){
@@ -43,7 +44,7 @@ public class UdpPeerController extends AbstractController {
         InetSocketAddress remoteUser = InetSocketAddress.createUnresolved(publicIp, Integer.parseInt(natPort));
         UdpSession activeSession = udpSessionsRepository.findByAddress(remoteUser);
         if (activeSession != null){
-            udpSessionsRepository.updateSpecificSession(activeSession, peerName, privatePort);
+            udpSessionsRepository.updateSpecificSession(activeSession, peerName, privatePort, accessKey);
             ResponseContainer<String> container = new ResponseContainer<>();
             container.setBody("Already registered");
 
@@ -53,7 +54,7 @@ public class UdpPeerController extends AbstractController {
             return new ResponseEntity<>(container, responseHeaders, HttpStatus.OK);
         }
 
-        activeSession = udpSessionsRepository.registerSession(remoteUser, peerName);
+        activeSession = udpSessionsRepository.registerSession(remoteUser, peerName, accessKey);
         if (privatePort != null && !privatePort.isEmpty()) {
             try {
                 activeSession.privatePort = Integer.parseInt(privatePort);
@@ -63,8 +64,8 @@ public class UdpPeerController extends AbstractController {
         }
         if (activeSession == null){
             log.warn("Registered session for peer [ip={}, port={}, name={}] is failed, service return null",
-                    activeSession.publicAddress.getHostName(),
-                    activeSession.publicAddress.getPort(),
+                    activeSession.ipAddress,
+                    activeSession.publicPort,
                     peerName);
 
             ResponseContainer container = new ResponseContainer<>();
@@ -77,8 +78,8 @@ public class UdpPeerController extends AbstractController {
         }
 
         log.info("Registered session for peer [ip={}, port={}, name={}] is successful",
-                activeSession.publicAddress.getHostName(),
-                activeSession.publicAddress.getPort(),
+                activeSession.ipAddress,
+                activeSession.publicPort,
                 activeSession.peerName);
 
         ResponseContainer<String> container = new ResponseContainer<>();
@@ -93,6 +94,7 @@ public class UdpPeerController extends AbstractController {
     @GetMapping("/ping")
     public ResponseEntity<ResponseContainer> processPingRequest(@RequestParam("port") String natPort,
                                                                 @RequestParam(value = "ip", required = false) String publicIp,
+                                                                @RequestParam("accessKey") String accessKey,
                                                                 HttpServletRequest request)
     {
         if (publicIp == null || publicIp.isEmpty()){
@@ -107,6 +109,11 @@ public class UdpPeerController extends AbstractController {
         if (activeSession == null){
             return responseSessionExpiredOrNotExists();
         }
+
+        if (!activeSession.getAccessKey().contentEquals(accessKey)){
+            return responseInvalidAccessKey();
+        }
+
         activeSession.updateKeepAlive();
 
         /*log.debug("Update session for peer [ip={}, port={}, name={}]",
@@ -145,8 +152,8 @@ public class UdpPeerController extends AbstractController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ResponseContainer> processListAllPeers() {
-        List<UdpSession> sessions = udpSessionsRepository.getAll();
+    public ResponseEntity<ResponseContainer> processListAllPeers(@RequestParam("accessKey") String accesKey) {
+        List<UdpSession> sessions = udpSessionsRepository.findByAccessKey(accesKey);
 
         ResponseContainer<List<UdpSession>> container = new ResponseContainer<>();
         container.setBody(sessions);
@@ -159,11 +166,16 @@ public class UdpPeerController extends AbstractController {
     @GetMapping("/connect")
     public ResponseEntity<ResponseContainer> processPeerConnection(@RequestParam("name") String peerName,
                                                                    @RequestParam("ip") String peerIp,
-                                                                   @RequestParam("peerPort") String peerPort)
+                                                                   @RequestParam("peerPort") String peerPort,
+                                                                   @RequestParam("accesKey") String accessKey)
     {
         UdpSession session = udpSessionsRepository.findByPeerNameAndAddress(peerIp, Integer.parseInt(peerPort), peerName);
         if (session == null){
             return responseSessionExpiredOrNotExists();
+        }
+
+        if (!session.getAccessKey().contentEquals(accessKey)){
+            return responseInvalidAccessKey();
         }
 
         ResponseContainer<String> container = new ResponseContainer<>();
@@ -172,6 +184,16 @@ public class UdpPeerController extends AbstractController {
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         return new ResponseEntity<>(container, responseHeaders, HttpStatus.OK);
+    }
+
+    public ResponseEntity<ResponseContainer> responseInvalidAccessKey(){
+        ResponseContainer container = new ResponseContainer<>();
+        container.addError(makeError(HttpStatus.FORBIDDEN.value(), "Invalid access key for this session"));
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        return new ResponseEntity<>(container, responseHeaders, HttpStatus.EXPECTATION_FAILED);
     }
 
     public ResponseEntity<ResponseContainer> responseSessionExpiredOrNotExists(){

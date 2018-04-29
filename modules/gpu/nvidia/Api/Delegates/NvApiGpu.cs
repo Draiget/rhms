@@ -14,10 +14,28 @@ namespace gpu_nvidia.Api.Delegates
             [In] [Out] [MarshalAs(UnmanagedType.LPArray, SizeConst = NvPhysicalGpuHandle.MaxPhysicalGPUs)] NvPhysicalGpuHandle[]
                 gpuHandles, [Out] out uint gpuCount);
 
+        [FunctionId(FunctionId.NvAPI_GetPhysicalGPUsFromDisplay)]
+        public delegate NvStatus NvAPI_GetPhysicalGPUsFromDisplay(
+            NvDisplayHandle displayHandle, [Out] NvPhysicalGpuHandle[] gpuHandles,
+            out uint gpuCount);
+
+        [FunctionId(FunctionId.NvAPI_EnumNvidiaDisplayHandle)]
+        public delegate NvStatus NvAPI_EnumNvidiaDisplayHandle(
+            int thisEnum,
+            ref NvDisplayHandle displayHandle);
+
         [FunctionId(FunctionId.NvAPI_EnumTCCPhysicalGPUs)]
         public delegate NvStatus NvAPI_EnumTCCPhysicalGPUs(
             [In] [Out] [MarshalAs(UnmanagedType.LPArray, SizeConst = NvPhysicalGpuHandle.MaxPhysicalGPUs)] NvPhysicalGpuHandle[]
                 gpuHandles, [Out] out uint gpuCount);
+
+        [FunctionId(FunctionId.NvAPI_GPU_GetAllClocks)]
+        public delegate NvStatus NvAPI_GPU_GetAllClocks(
+            NvPhysicalGpuHandle gpuHandle, ref NvClocks nvClocks);
+
+        [FunctionId(FunctionId.NvAPI_GPU_GetMemoryInfo)]
+        public delegate NvStatus NvAPI_GPU_GetMemoryInfo(
+            NvDisplayHandle displayHandle, ref NvMemoryInfo nvMemoryInfo);
 
         [FunctionId(FunctionId.NvAPI_GPU_GetAGPAperture)]
         public delegate NvStatus NvAPI_GPU_GetAGPAperture(
@@ -50,7 +68,7 @@ namespace gpu_nvidia.Api.Delegates
 
         [FunctionId(FunctionId.NvAPI_GPU_GetFullName)]
         public delegate NvStatus NvAPI_GPU_GetFullName(
-            [In] NvPhysicalGpuHandle physicalGpu, [Out] out StringBuilder name);
+            NvPhysicalGpuHandle gpuHandle, StringBuilder name);
 
         [FunctionId(FunctionId.NvAPI_GPU_GetGpuCoreCount)]
         public delegate NvStatus NvAPI_GPU_GetGpuCoreCount(
@@ -85,8 +103,8 @@ namespace gpu_nvidia.Api.Delegates
 
         [FunctionId(FunctionId.NvAPI_GPU_GetThermalSettings)]
         public delegate NvStatus NvAPI_GPU_GetThermalSettings(
-            [In] NvPhysicalGpuHandle physicalGpu,
-            [In] NvGpuThermalSettings sensorIndex);
+            NvPhysicalGpuHandle gpuHandle, int sensorIndex,
+            ref NvGpuThermalSettings nvGPUThermalSettings);
 
         [FunctionId(FunctionId.NvAPI_GPU_GetVbiosOEMRevision)]
         public delegate NvStatus NvAPI_GPU_GetVbiosOEMRevision(

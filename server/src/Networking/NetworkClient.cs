@@ -24,16 +24,20 @@ namespace server.Networking
         private IPEndPoint _remoteEp;
 
         private readonly string _peerControlHost;
+        private readonly string _apiAccessKey;
         private long _lastPeerPingTime;
         private long _lastInternalErrorTime;
         private int _internalErrorTimes;
 
         private Mapping _portMapping;
+        private object _natUpnpCreateLocker;
+        private bool _requestShutdown;
 
         public NetworkClient(RhmsCollectingServer server, NetworkConnectionManager connectionManager) {
             _connectionManager = connectionManager;
             _collectingServer = server;
             _peerControlHost = _collectingServer.GetSettings().PeerSignalServer.Host;
+            _apiAccessKey = _collectingServer.GetSettings().ApiAccessKey;
             _bindEp = new IPEndPoint(IPAddress.Parse(_collectingServer.GetSettings().BindAddress), 0);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             _socket.SendTimeout = _socket.ReceiveTimeout = _collectingServer.GetSettings().PeerSignalServer.SocketTimeoutMs;
@@ -42,6 +46,8 @@ namespace server.Networking
             if (_peerControlHost.EndsWith("/")) {
                 _peerControlHost = _peerControlHost.Substring(0, _peerControlHost.Length - 1);
             }
+
+            _natUpnpCreateLocker = new object();
         }
 
         public void Initialize() {
@@ -61,6 +67,13 @@ namespace server.Networking
                 }
             }
 
+            if (_stunQuery.NetworkType == StunNetworkType.UdpBlocked) {
+                Logger.Warn("First NAT detectiont return that UDP is fully blocked. Trying second time with timeout of 5 seconds ...");
+                Thread.Sleep(5000);
+                Initialize();
+                return;
+            }
+
             _remoteEp = _stunQuery.PublicEndPoint;
             var internalPort = ((IPEndPoint)_socket.LocalEndPoint).Port;
 
@@ -69,37 +82,67 @@ namespace server.Networking
 
             _portMapping = new Mapping(Protocol.Udp, internalPort, _stunQuery.PublicEndPoint.Port, $"RHMS Internal Peer {_connectionManager.GetSelfHostId()} Map");
 
+            Monitor.Enter(_natUpnpCreateLocker);
             Task.Run(async () => {
-                var discoverer = new NatDiscoverer();
-                var cts = new CancellationTokenSource(10000);
-                var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-                // Logger.Info($"Open.NAt external ip: {device.GetExternalIPAsync().Result}");
-                await device.CreatePortMapAsync(_portMapping);
+                try {
+                    var discoverer = new NatDiscoverer();
+                    var cts = new CancellationTokenSource(10000);
+                    var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+                    // Logger.Info($"Open.NAt external ip: {device.GetExternalIPAsync().Result}");
+                    await device.CreatePortMapAsync(_portMapping);
 
-                Logger.Info($"Create UPnP mapping {_portMapping}");
-            });
+                    Logger.Info($"Created UPnP mapping {_portMapping}");
+                } catch (Exception e) {
+                    Logger.Error("Unable to create UPnP mapping!", e);
+                }
+            }).Wait();
+            Monitor.Exit(_natUpnpCreateLocker);
 
             NetworkStartAcceptingData();
         }
 
         public void OnShutdown() {
+            if (_requestShutdown) {
+                return;
+            }
+
+            _requestShutdown = true;
             if (_portMapping == null) {
                 return;
             }
 
+            Monitor.Enter(_natUpnpCreateLocker);
             Task.Run(async () => {
-                var discoverer = new NatDiscoverer();
-                var cts = new CancellationTokenSource(10000);
-                var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-                Logger.Info("Removing UPnP mapping");
-                await device.DeletePortMapAsync(_portMapping);
-                _portMapping = null;
+                try {
+                    var discoverer = new NatDiscoverer();
+                    var cts = new CancellationTokenSource(10000);
+                    var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+                    Logger.Info("Removing UPnP mapping");
+                    await device.DeletePortMapAsync(_portMapping);
+                } catch (Exception e) {
+                    Logger.Error("Unable to remove UPnP mapping!", e);
+                } finally {
+                    _portMapping = null;
+                }
             }).Wait();
+
+            Monitor.Exit(_natUpnpCreateLocker);
+
+            _socket?.Close();
+            _socket?.Dispose();
         }
 
         private void NetworkStartAcceptingData() {
+            if (_socket == null) {
+                return;
+            }
+
             var container = new PacketDataContainer();
-            _socket.BeginReceiveFrom(container.Buffer, 0, container.Buffer.Length, SocketFlags.None, ref container.Remote, NetworkAcceptDataAsync, container);
+            try {
+                _socket.BeginReceiveFrom(container.Buffer, 0, container.Buffer.Length, SocketFlags.None, ref container.Remote, NetworkAcceptDataAsync, container);
+            } catch (ObjectDisposedException) {
+                ;
+            }
         }
 
         private void NetworkAcceptDataAsync(IAsyncResult result) {
@@ -110,9 +153,9 @@ namespace server.Networking
                 var len = _socket.EndReceiveFrom(result, ref container.Remote);
                 if (len == 51) {
                     isPingPacket = true;
-                    Logger.Info($"Received data packet from [/{container.Remote}], len: {len}");
                 }
 
+                Logger.Info($"Received data packet from [/{container.Remote}], len: {len}");
                 if (container.Remote == null || !isPingPacket) {
                     return;
                 }
@@ -123,6 +166,8 @@ namespace server.Networking
                 } catch {
                     ;
                 }
+            } catch (ObjectDisposedException) {
+                ;
             } catch (Exception e) {
                 Logger.Error("Accept data packet error", e);
             } finally {
@@ -173,7 +218,11 @@ namespace server.Networking
             var peerName = _connectionManager.GetSelfHostId();
             var privatePort = ((IPEndPoint) _socket.LocalEndPoint).Port;
 
-            var objResponse = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/register", $"name={peerName}&port={_remoteEp.Port}&privatePort={privatePort}", out var response);
+            var objResponse = HttpUtils.SendGet(
+                $"{_peerControlHost}/udp-peer/register",
+                $"name={peerName}&port={_remoteEp.Port}&privatePort={privatePort}&accessKey={_apiAccessKey}", 
+                out var response);
+
             if (response.StatusCode != HttpStatusCode.OK) {
                 if (objResponse == null) {
                     Logger.Warn($"Failed to register this collecting server on peer discovery service, http code: {response.StatusCode}");
@@ -207,7 +256,7 @@ namespace server.Networking
             }
 
             WaitInternalErrors();
-            var obj = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/ping", $"port={_remoteEp.Port}", out var response);
+            var obj = HttpUtils.SendGet($"{_peerControlHost}/udp-peer/ping", $"port={_remoteEp.Port}&accessKey={_apiAccessKey}", out var response);
                 
             if (response.StatusCode == HttpStatusCode.ExpectationFailed) {
                 RegisterPeer();

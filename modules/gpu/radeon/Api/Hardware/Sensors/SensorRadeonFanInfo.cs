@@ -60,6 +60,10 @@ namespace gpu_radeon.Api.Hardware.Sensors
             return _sensors;
         }
 
+        public override SensorType GetSensorType() {
+            return SensorType.FanSpd;
+        }
+
         public override string GetDisplayName() {
             return "FAN Info";
         }

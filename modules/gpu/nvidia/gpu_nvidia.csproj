@@ -43,7 +43,16 @@
   <ItemGroup>
     <Compile Include="Api\Enums\NvThermalController.cs" />
     <Compile Include="Api\Enums\NvThermalTarget.cs" />
+    <Compile Include="Api\Structures\NvDisplayHandle.cs" />
+    <Compile Include="Api\Structures\NvMemoryInfo.cs" />
     <Compile Include="Hardware\NVidiaGpu.cs" />
+    <Compile Include="Hardware\NVidiaGpuIdentifer.cs" />
+    <Compile Include="Hardware\Sensors\Base\SensorBaseNVidiaLoad.cs" />
+    <Compile Include="Hardware\Sensors\Base\SensorBaseNVidiaLoadMulti.cs" />
+    <Compile Include="Hardware\Sensors\Base\SensorElementBaseNVidiaLoad.cs" />
+    <Compile Include="Hardware\Sensors\SensorNVidiaClocks.cs" />
+    <Compile Include="Hardware\Sensors\SensorNVidiaMemory.cs" />
+    <Compile Include="Hardware\Sensors\SensorNVidiaTemperature.cs" />
     <Compile Include="Helpers\FunctionId.cs" />
     <Compile Include="Helpers\FunctionIdAttribute.cs" />
     <Compile Include="Helpers\LinkedFunctionIdAttribute.cs" />

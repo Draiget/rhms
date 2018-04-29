@@ -25,9 +25,11 @@ namespace server
                 new StunServerSettings("stun.softjoys.com"), 
                 new StunServerSettings("stun.xten.com"), 
                 new StunServerSettings("stun.rixtelecom.se"),
-            }
+            },
+            ApiAccessKey = "rhms-dc-zontwelg-shared"
         };
 
+        public string ApiAccessKey;
         public string CollectingServerPeerName;
         public string BindAddress;
         public SectionInfluxDb InfluxOutput;

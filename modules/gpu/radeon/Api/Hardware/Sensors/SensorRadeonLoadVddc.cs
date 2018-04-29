@@ -35,6 +35,10 @@ namespace gpu_radeon.Api.Hardware.Sensors
             return _sensorVddc;
         }
 
+        public override SensorType GetSensorType() {
+            return SensorType.Voltage;
+        }
+
         public override string GetDisplayName() {
             return "VDDC";
         }
