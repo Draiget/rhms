@@ -24,11 +24,13 @@ namespace gpu_radeon.Api.Hardware.Sensors
             _coreActivity.SetActive(activity.ActivityPercent >= 0);
             if (activity.ActivityPercent >= 0) {
                 IsSensorActive = true;
+                _coreActivity.SetActive(IsSensorActive);
                 _coreActivity.Update(activity);
                 return;
             }
 
             IsSensorActive = false;
+            _coreActivity.SetActive(IsSensorActive);
         }
 
         public override ISensorElement GetElement() {
@@ -60,7 +62,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "load_percent";
+            return "radeon_load_core";
         }
     }
 }

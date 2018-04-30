@@ -21,9 +21,21 @@ namespace server.Addons
         public bool IsTag;
 
         public InfluxDataPair(string key, string value, bool isTag = false) {
-            Key = key;
-            Value = value;
+            Key = FixValueFormat(key);
+            Value = FixValueFormat(value);
             IsTag = isTag;
+        }
+
+        private string FixValueFormat(string input) {
+            return input.Replace("=", "").Replace(",", ".").Replace(" ", "-");
+        }
+
+        public override string ToString() {
+            if (IsTag) {
+                return $"Influx Tag [Key={Key}, Value={Value}]";
+            }
+
+            return $"Influx Data [Key={Key}, Value={Value}]";
         }
     }
 
@@ -79,7 +91,7 @@ namespace server.Addons
                 req += " ";
                 var isFirst = false;
                 foreach (var value in _values) {
-                    req += (isFirst ? ":" : "") + $"{value.Key}={value.Value}";
+                    req += (isFirst ? "," : "") + $"{value.Key}={value.Value}";
                     isFirst = true;
                 }
 

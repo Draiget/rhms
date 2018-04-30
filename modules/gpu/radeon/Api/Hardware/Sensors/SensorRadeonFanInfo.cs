@@ -81,7 +81,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "max_rpm";
+            return "radeon_fan_max_rpm";
         }
     }
 
@@ -93,7 +93,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "min_rpm";
+            return "radeon_fan_min_rpm";
         }
     }
 
@@ -105,7 +105,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "fan_rpm";
+            return "radeon_fan_rpm";
         }
     }
 }

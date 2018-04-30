@@ -33,9 +33,13 @@ namespace gpu_nvidia.Api.Delegates
         public delegate NvStatus NvAPI_GPU_GetAllClocks(
             NvPhysicalGpuHandle gpuHandle, ref NvClocks nvClocks);
 
+        [FunctionId(FunctionId.NvAPI_GPU_GetDynamicPStatesInfoEx)]
+        public delegate NvStatus NvAPI_GPU_GetPStatesInfoEx(
+            NvPhysicalGpuHandle gpuHandle, ref NvPStates nvPStates);
+
         [FunctionId(FunctionId.NvAPI_GPU_GetMemoryInfo)]
         public delegate NvStatus NvAPI_GPU_GetMemoryInfo(
-            NvDisplayHandle displayHandle, ref NvMemoryInfo nvMemoryInfo);
+            NvPhysicalGpuHandle gpuHandle, ref NvMemoryInfo nvMemoryInfo);
 
         [FunctionId(FunctionId.NvAPI_GPU_GetAGPAperture)]
         public delegate NvStatus NvAPI_GPU_GetAGPAperture(
@@ -63,8 +67,8 @@ namespace gpu_nvidia.Api.Delegates
 
         [FunctionId(FunctionId.NvAPI_GPU_GetDynamicPStatesInfoEx)]
         public delegate NvStatus NvAPI_GPU_GetDynamicPStatesInfoEx(
-            [In] NvPhysicalGpuHandle physicalGpu,
-            [In] NvDynamicPerformanceStatesInfo performanceStatesInfoEx);
+            NvPhysicalGpuHandle physicalGpu,
+            ref NvDynamicPerformanceStatesInfo performanceStatesInfoEx);
 
         [FunctionId(FunctionId.NvAPI_GPU_GetFullName)]
         public delegate NvStatus NvAPI_GPU_GetFullName(

@@ -164,5 +164,9 @@ namespace server.Utils
 
             return (ulong)SetThreadAffinityMask(GetCurrentThread(), uIntPtrMask);
         }
+
+        [DllImport("Kernel32", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx buffer);
     }
 }

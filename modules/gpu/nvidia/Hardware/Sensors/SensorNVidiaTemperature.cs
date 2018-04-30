@@ -99,7 +99,7 @@ namespace gpu_nvidia.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return $"temp_{_tag}";
+            return $"nvidia_temp_{_tag}";
         }
     }
 }

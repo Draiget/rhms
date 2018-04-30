@@ -113,7 +113,7 @@ namespace cpu_intel.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "base_clock";
+            return "intel_base_clock";
         }
     }
 
@@ -135,7 +135,7 @@ namespace cpu_intel.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return $"core_{_coreIndex}_clock";
+            return $"intel_core_{_coreIndex}_clock";
         }
     }
 }

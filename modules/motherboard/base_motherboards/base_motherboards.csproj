@@ -40,6 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Hardware\AnyRam.cs" />
+    <Compile Include="Api\Hardware\AnyRamIdentifier.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseRam.cs" />
+    <Compile Include="Api\Hardware\Sensors\RamLoadSensor.cs" />
+    <Compile Include="Api\Hardware\Sensors\Base\SensorBaseRamMulti.cs" />
     <Compile Include="Api\Hardware\SuperIoChip.cs" />
     <Compile Include="ModuleBaseMotherboards.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -50,9 +55,7 @@
       <Name>Server</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Api\Hardware\Sensors\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)server\output\$(ConfigurationName)\modules\$(TargetFileName)"

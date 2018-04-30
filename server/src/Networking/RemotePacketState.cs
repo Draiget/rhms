@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace server.Hardware
+namespace server.Networking
 {
-    public enum HardwareType
+    public class RemotePacketState
     {
-        Cpu,
-        Gpu,
-        Ram
+
     }
 }

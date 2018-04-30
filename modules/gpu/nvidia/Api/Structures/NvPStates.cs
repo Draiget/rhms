@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 namespace gpu_nvidia.Api.Structures
 {
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    public struct NvMemoryInfo
+    public struct NvPStates
     {
         public uint Version;
+        public uint Flags;
 
-        public uint DedicatedVideoMemory;
-        public uint AvailableDedicatedVideoMemory;
-        public uint SystemVideoMemory;
-        public uint SharedSystemMemory;
-        public uint CurAvailableDedicatedVideoMemory;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = NvApi.MaxPstatesPerGpu)]
+        public NvPState[] PStates;
     }
 }

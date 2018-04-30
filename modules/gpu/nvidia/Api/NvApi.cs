@@ -22,8 +22,8 @@ namespace gpu_nvidia.Api
         public static readonly uint GpuThermalSettingsVer = (uint)Marshal.SizeOf(typeof(NvGpuThermalSettings)) | 0x10000;
         public static readonly uint GpuClocksVer = (uint)Marshal.SizeOf(typeof(NvClocks)) | 0x20000;
         public static readonly uint GpuMemoryInfoVer = (uint)Marshal.SizeOf(typeof(NvMemoryInfo)) | 0x20000;
-        /*public static readonly uint GpuPstatesVer = (uint)Marshal.SizeOf(typeof(NvPStates)) | 0x10000;
-        public static readonly uint GpuUsagesVer = (uint)Marshal.SizeOf(typeof(NvUsages)) | 0x10000;
+        public static readonly uint GpuPstatesVer = (uint)Marshal.SizeOf(typeof(NvPStates)) | 0x10000;
+        /*public static readonly uint GpuUsagesVer = (uint)Marshal.SizeOf(typeof(NvUsages)) | 0x10000;
         public static readonly uint GpuCoolerSettingsVer = (uint) Marshal.SizeOf(typeof(NvGpuCoolerSettings)) | 0x20000;
         public static readonly uint DisplayDriverVersionVer = (uint) Marshal.SizeOf(typeof(NvDisplayDriverVersion)) | 0x10000;
         public static readonly uint GpuCoolerLevelsVer = (uint)Marshal.SizeOf(typeof(NvGpuCoolerLevels)) | 0x10000;*/
@@ -57,11 +57,23 @@ namespace gpu_nvidia.Api
         [LinkedFunctionId(FunctionId.NvAPI_GPU_GetAllClocks)]
         public static NvApiGpu.NvAPI_GPU_GetAllClocks GetAllClocks;
 
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetDynamicPStatesInfoEx)]
+        public static NvApiGpu.NvAPI_GPU_GetPStatesInfoEx GetDynamicPStatesInfoEx;
+
         [LinkedFunctionId(FunctionId.NvAPI_GPU_GetMemoryInfo)]
         public static NvApiGpu.NvAPI_GPU_GetMemoryInfo GetMemoryInfo;
 
         [LinkedFunctionId(FunctionId.NvAPI_GPU_GetFullName)]
         public static NvApiGpu.NvAPI_GPU_GetFullName GpuGetFullName;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetPCIIdentifiers)]
+        public static NvApiGpu.NvAPI_GPU_GetPCIIdentifiers GetPciIdentifiers;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetBusSlotId)]
+        public static NvApiGpu.NvAPI_GPU_GetBusSlotId GetBusSlotId;
+
+        [LinkedFunctionId(FunctionId.NvAPI_GPU_GetBusId)]
+        public static NvApiGpu.NvAPI_GPU_GetBusId GetBusId;
 
         private delegate IntPtr NvApiQueryInterfaceDelegate(uint id);
         private delegate NvStatus NvApiInitializeDelegate();

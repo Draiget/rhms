@@ -109,7 +109,7 @@ namespace cpu_intel.Api.Hardware.Sensors
             for (var coreId = 0u; coreId < cores.Count; coreId++) {
                 var value = 0f;
                 for (var threadId = 0; threadId < cores[coreId].Count; threadId++) {
-                    var index = cores[coreId][threadId].ThreadId;
+                    var index = cores[coreId][threadId].ThreadIndex;
                     if (index < newIdleTimes.Length && index < _totalTimes.Length) {
                         var idle =
                             (newIdleTimes[index] - _idleTimes[index]) /
@@ -161,7 +161,7 @@ namespace cpu_intel.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return $"core_{_coreIndex}_load";
+            return $"intel_core_{_coreIndex}_load";
         }
     }
 
@@ -177,7 +177,7 @@ namespace cpu_intel.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "core_total_load";
+            return "intel_core_total_load";
         }
     }
 }

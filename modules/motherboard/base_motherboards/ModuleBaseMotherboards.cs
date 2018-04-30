@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using base_motherboards.Api.Hardware;
 using server.Drivers.Presentation;
 using server.Modules.Base;
 using server.Utils.Logging;
@@ -50,13 +51,19 @@ namespace base_motherboards
 
         public override bool InitializeHardware() {
             try {
-                
+                var ram = new AnyRam();
+                ram.InitializeSensors();
+                AddHardware(ram);
 
                 return true;
             } catch (Exception e) {
                 Logger.Error("Unable to initialize chipset hardware", e);
                 return false;
             }
+        }
+
+        public override void ScheduledModuleUpdateTick() {
+            ExportDataToGrafana(_server);
         }
     }
 }

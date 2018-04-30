@@ -78,7 +78,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "temp";
+            return "radeon_temp";
         }
     }
 }

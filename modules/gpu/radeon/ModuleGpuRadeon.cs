@@ -107,7 +107,7 @@ namespace gpu_radeon
             gpu.SetAdapterId(adapterId);
         }
 
-        public override void AfterHardwareTick() {
+        public override void ScheduledModuleUpdateTick() {
             ExportDataToGrafana(_server);
         }
     }

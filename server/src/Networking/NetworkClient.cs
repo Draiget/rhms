@@ -16,6 +16,9 @@ namespace server.Networking
 {
     public class NetworkClient
     {
+        private readonly byte[] _handshakeIn = { 0x44, 0x43, 0x0020, 0x10, 0x32, 0x95 };
+        private readonly byte[] _handshakeOut = { 0x92, 0x74, 0x53, 0x10 };
+
         private readonly Socket _socket;
         private StunQueryResult _stunQuery;
         private readonly RhmsCollectingServer _collectingServer;
@@ -145,24 +148,28 @@ namespace server.Networking
             }
         }
 
+        private Dictionary<IPEndPoint, RemotePacketState> _remotePackets = new Dictionary<IPEndPoint, RemotePacketState>();
+
         private void NetworkAcceptDataAsync(IAsyncResult result) {
             var isPingPacket = false;
             try {
                 var container = (PacketDataContainer) result.AsyncState;
 
                 var len = _socket.EndReceiveFrom(result, ref container.Remote);
-                if (len == 51) {
+                if (len == _handshakeIn.Length && container.ValidateBlock(_handshakeIn)) {
                     isPingPacket = true;
                 }
 
-                Logger.Info($"Received data packet from [/{container.Remote}], len: {len}");
                 if (container.Remote == null || !isPingPacket) {
                     return;
                 }
 
+                Logger.Info($"Received handshake packet from [/{container.Remote}], len: {len}");
+
                 try {
-                    Logger.Info($"Response ping to [/{container.Remote}]");
-                    _socket.SendTo(new byte[2], container.Remote);
+                    Logger.Info($"Response auth success to [/{container.Remote}]");
+                    _handshakeOut[_handshakeOut.Length - 1] = (byte)new Random().Next(byte.MinValue, byte.MaxValue);
+                    _socket.SendTo(_handshakeOut, container.Remote);
                 } catch {
                     ;
                 }
@@ -287,6 +294,14 @@ namespace server.Networking
             public PacketDataContainer() {
                 Remote = new IPEndPoint(IPAddress.Any, 0);
                 Buffer = new byte[2048];
+            }
+
+            public bool ValidateBlock(byte[] data) {
+                if (Buffer.Length < data.Length) {
+                    return false;
+                }
+
+                return !data.Where((t, i) => Buffer[i] != t).Any();
             }
         }
     }

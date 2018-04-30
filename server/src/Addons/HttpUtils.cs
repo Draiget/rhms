@@ -5,13 +5,14 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Newtonsoft.Json.Linq;
 
 namespace server.Addons
 {
     public static class HttpUtils
     {
-        public static HttpStatusCode SendPost(string host, string rawData) {
+        public static JObject SendPost(string host, string rawData, out HttpWebResponse outResponse) {
             var bytes = Encoding.UTF8.GetBytes(rawData);
             var request = WebRequest.Create(host);
 
@@ -23,8 +24,18 @@ namespace server.Addons
             stream.Write(bytes, 0, bytes.Length);
             stream.Close();
 
-            var response = request.GetResponse();
-            return ((HttpWebResponse) response).StatusCode;
+            try {
+                var response = request.GetResponse();
+                outResponse = (HttpWebResponse) response;
+                return Parse(response);
+            } catch (WebException webex) {
+                outResponse = (HttpWebResponse)webex.Response;
+                try {
+                    return Parse(webex.Response);
+                } catch {
+                    return null;
+                }
+            }
         }
 
         public static JObject SendGet(string host, string args, out HttpWebResponse outResponse) {
@@ -56,6 +67,10 @@ namespace server.Addons
 
                 using (var sr = new StreamReader(responseStream)) {
                     var raw = sr.ReadToEnd();
+                    if (string.IsNullOrEmpty(raw)) {
+                        return null;
+                    }
+
                     return JObject.Parse(raw);
                 }
             }

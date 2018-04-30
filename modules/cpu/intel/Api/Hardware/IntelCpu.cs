@@ -256,6 +256,8 @@ namespace cpu_intel.Api.Hardware
 
         public uint ModelId => ProcessorCpuid[0, 0].Model;
 
+        public uint ProcessorId => ProcessorCpuid[0, 0].ProcessorId;
+
         public uint Stepping => ProcessorCpuid[0, 0].Stepping;
 
         public override void InitializeSensors() {

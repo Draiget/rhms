@@ -95,7 +95,7 @@ namespace gpu_nvidia
             return;
         }
 
-        public override void AfterHardwareTick() {
+        public override void ScheduledModuleUpdateTick() {
             ExportDataToGrafana(_server);
         }
     }

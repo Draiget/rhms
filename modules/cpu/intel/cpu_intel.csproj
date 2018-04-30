@@ -47,7 +47,7 @@
     <Compile Include="Api\Hardware\Sensors\Base\SensorBaseIntelCpuMulti.cs" />
     <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseIntelCpu.cs" />
     <Compile Include="Api\Hardware\Sensors\Base\SensorElementBaseIntelCpuVoid.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorElementIntelCpuTemperature.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorIntelCpuTemperature.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorIntelCpuCoresLoad.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorIntelCpuFrequency.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorIntelCpuPowers.cs" />

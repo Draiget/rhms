@@ -5,35 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 using server.Hardware;
 
-namespace gpu_nvidia.Hardware
+namespace base_motherboards.Api.Hardware
 {
-    public class NVidiaGpuIdentifer : HardwareIdentifer
+    public class AnyRamIdentifier : HardwareIdentifer
     {
-        protected new NVidiaGpu HardwareRef;
+        public AnyRam Ram;
 
-        public NVidiaGpuIdentifer(NVidiaGpu hardware)
+        public AnyRamIdentifier(AnyRam hardware)
             : base(hardware) {
-            HardwareRef = hardware;
+
         }
 
         public override HardwareType GetHardwareType() {
-            return HardwareType.Gpu;
+            return HardwareType.Ram;
         }
 
         public override string GetVendor() {
-            return "NVidia";
+            return "internal";
         }
 
         public override string GetModel() {
-            return HardwareRef.GpuModelName;
+            return "internal";
         }
 
         public override string GetFullSystemName() {
-            return HardwareRef.GpuFullName;
+            return "Shared Memory Info";
         }
 
         public override string GetHardwareId() {
-            return $"{HardwareRef.BusId}-{GetModel().Replace(" ", "_").ToLower().Trim()}";
+            return "shared";
         }
     }
 }

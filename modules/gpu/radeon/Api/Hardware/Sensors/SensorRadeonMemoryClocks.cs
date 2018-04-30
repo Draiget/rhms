@@ -12,20 +12,20 @@ using server.Utils;
 namespace gpu_radeon.Api.Hardware.Sensors
 {
     [SensorRegister]
-    public class SensorRadeonLoadMemory : SensorBaseRadeonLoad
+    public class SensorRadeonMemoryClocks : SensorBaseRadeonLoad
     {
-        private readonly SensorElementRadeonLoadMemory _loadMemory;
+        private readonly SensorElementRadeonMemoryClock _memoryClock;
 
-        public SensorRadeonLoadMemory(RadeonGpu gpu)
+        public SensorRadeonMemoryClocks(RadeonGpu gpu)
             : base(gpu) {
-            _loadMemory = new SensorElementRadeonLoadMemory();
+            _memoryClock = new SensorElementRadeonMemoryClock();
         }
 
         public override void TickSpecificLoad(AdlpmActivity activity) {
-            _loadMemory.SetActive(activity.MemoryClock >= 0);
+            _memoryClock.SetActive(activity.MemoryClock >= 0);
             if (activity.MemoryClock >= 0) {
                 IsSensorActive = true;
-                _loadMemory.Update(activity);
+                _memoryClock.Update(activity);
                 return;
             }
 
@@ -33,7 +33,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override ISensorElement GetElement() {
-            return _loadMemory;
+            return _memoryClock;
         }
 
         public override SensorType GetSensorType() {
@@ -49,7 +49,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
     }
 
-    internal class SensorElementRadeonLoadMemory : SensorElementBaseRadeonLoad<AdlpmActivity>
+    internal class SensorElementRadeonMemoryClock : SensorElementBaseRadeonLoad<AdlpmActivity>
     {
         public override void Update(AdlpmActivity info) {
             Value = 0.01f * info.MemoryClock;
@@ -61,7 +61,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "load_mem_mhz";
+            return "radeon_clock_memory";
         }
     }
 }

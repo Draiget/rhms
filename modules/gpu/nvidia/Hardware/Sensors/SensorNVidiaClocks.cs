@@ -113,7 +113,7 @@ namespace gpu_nvidia.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return $"clock_{_tag}";
+            return $"nvidia_clock_{_tag}";
         }
     }
 }

@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using cpu_intel.Api.Hardware.Sensors.Base;
 using server.Drivers.Kernel;
 using server.Drivers.Presentation;
 using server.Hardware;
 using server.Utils;
 
-namespace cpu_intel.Api.Hardware.Sensors
+namespace cpu_intel.Api.Hardware.Sensors.Base
 {
     [SensorRegister]
-    public class SensorElementIntelCpuTemperature : SensorBaseIntelCpuMulti
+    public class SensorIntelCpuTemperature : SensorBaseIntelCpuMulti
     {
         private readonly ISensorElement[] _sensors;
         private readonly SensorElementIntelCpuPackageTemp _cpuPackageTemp;
         private readonly SensorElementIntelCpuThreadTemp[] _cpuThreadsTemp;
 
-        public SensorElementIntelCpuTemperature(IntelCpu cpu)
+        public SensorIntelCpuTemperature(IntelCpu cpu)
             : base(cpu) 
         {
             var tempSensors = new List<ISensorElement>();
@@ -133,7 +129,7 @@ namespace cpu_intel.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return $"temp_thread_{_threadIndex}";
+            return $"intel_temp_thread_{_threadIndex}";
         }
     }
 }

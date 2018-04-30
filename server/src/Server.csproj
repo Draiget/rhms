@@ -91,6 +91,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -114,6 +116,8 @@
     <Compile Include="Drivers\Kernel\Tsc.cs" />
     <Compile Include="Drivers\Presentation\CpuidProcessorInfo.cs" />
     <Compile Include="Hardware\CPU\BaseCpuSensor.cs" />
+    <Compile Include="Hardware\RAM\BaseRamSensor.cs" />
+    <Compile Include="Hardware\RAM\GenericRam.cs" />
     <Compile Include="Hardware\GenericSensorHardware.cs" />
     <Compile Include="Hardware\GPU\BaseGpuSensor.cs" />
     <Compile Include="Hardware\IMultiValueSensor.cs" />
@@ -133,6 +137,7 @@
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
     <Compile Include="Modules\Helpers\LinkedFunctionIdBaseAttribute.cs" />
     <Compile Include="Networking\NetworkConnectionManager.cs" />
+    <Compile Include="Networking\RemotePacketState.cs" />
     <Compile Include="Networking\Stun\StunChangeRequest.cs" />
     <Compile Include="Networking\Stun\StunErrorCode.cs" />
     <Compile Include="Networking\Stun\StunMessage.cs" />
@@ -149,6 +154,7 @@
     <Compile Include="Settings\SettingsIoResult.cs" />
     <Compile Include="Utils\AssemblyUtils.cs" />
     <Compile Include="Utils\MathUtils.cs" />
+    <Compile Include="Utils\Natives\MemoryStatusEx.cs" />
     <Compile Include="Utils\Natives\SSystemProcessorPerformanceInformation.cs" />
     <Compile Include="Utils\Natives\SystemInformationClass.cs" />
     <Compile Include="Drivers\Presentation\Cpuid.cs" />

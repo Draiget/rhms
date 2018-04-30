@@ -31,5 +31,9 @@ namespace cpu_intel.Api.Hardware
         public override string GetFullSystemName() {
             return HardwareRef.FullName;
         }
+
+        public override string GetHardwareId() {
+            return $"{HardwareRef.ProcessorId}-{GetModel().Replace(' ', '_').ToLower().Trim()}";
+        }
     }
 }

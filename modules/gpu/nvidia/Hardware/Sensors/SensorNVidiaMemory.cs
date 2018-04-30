@@ -12,28 +12,54 @@ using server.Utils;
 
 namespace gpu_nvidia.Hardware.Sensors
 {
-    //[SensorRegister]
+    [SensorRegister]
     public class SensorNVidiaMemory : SensorBaseNVidiaLoadMulti
     {
         private readonly ISensorElement[] _sensors;
+        private readonly SensorElementNVidiaMemoryLoad _memAvail;
+        private readonly SensorElementNVidiaMemoryLoad _memUsed;
+        private readonly SensorElementNVidiaMemoryLoad _memFree;
+        private readonly SensorElementNVidiaMemoryUsage _memLoad;
 
         public SensorNVidiaMemory(NVidiaGpu gpu)
             : base(gpu) {
+            _memAvail = new SensorElementNVidiaMemoryLoad("total");
+            _memUsed = new SensorElementNVidiaMemoryLoad("used");
+            _memFree = new SensorElementNVidiaMemoryLoad("free");
+            _memLoad = new SensorElementNVidiaMemoryUsage("load");
+
+            _sensors = new ISensorElement[] {
+                _memAvail, _memUsed, _memFree, _memLoad
+            };
         }
 
         public override void Tick() {
-            throw new NotImplementedException();
+            var info = ObrainMemoryInfo();
+            if (info == null) {
+                IsSensorActive = false;
+                return;
+            }
+
+            var totalMem = info.Value.DedicatedVideoMemory;
+            var freeMem = info.Value.CurAvailableDedicatedVideoMemory;
+            var usedMem = (float)Math.Max(totalMem - freeMem, 0);
+
+            _memFree.Update(freeMem / 1024f);
+            _memAvail.Update(totalMem / 1024f);
+            _memUsed.Update(usedMem / 1024);
+            _memLoad.Update(100f * usedMem / totalMem);
+
+            IsSensorActive = true;
         }
 
         public NvMemoryInfo? ObrainMemoryInfo() {
             var memoryInfo = new NvMemoryInfo {
-                Version = NvApi.GpuMemoryInfoVer,
-                Values = new uint[NvApi.MaxMemoryValuesPerGpu]
+                Version = NvApi.GpuMemoryInfoVer
             };
 
-            /*if (NvApi.GetMemoryInfo(Gpu.AdapterHandle, ref memoryInfo) == NvStatus.Ok) {
+            if (NvApi.GetMemoryInfo(Gpu.AdapterHandle, ref memoryInfo) == NvStatus.Ok) {
                 return memoryInfo;
-            }*/
+            }
 
             return null;
         }
@@ -55,6 +81,18 @@ namespace gpu_nvidia.Hardware.Sensors
         }
     }
 
+    internal class SensorElementNVidiaMemoryUsage : SensorElementNVidiaMemoryLoad
+    {
+
+        public SensorElementNVidiaMemoryUsage(string tag) 
+            : base(tag) {
+        }
+
+        public override string GetMeasurement() {
+            return "%";
+        }
+    }
+
     internal class SensorElementNVidiaMemoryLoad : SensorElementBaseNVidiaLoad<float>
     {
         private readonly string _tag;
@@ -69,11 +107,11 @@ namespace gpu_nvidia.Hardware.Sensors
         }
 
         public override string GetMeasurement() {
-            return "MHz";
+            return "Mb";
         }
 
         public override string GetSystemTag() {
-            return $"clock_{_tag}";
+            return $"nvidia_memory_{_tag}";
         }
     }
 }

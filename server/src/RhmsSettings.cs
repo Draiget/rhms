@@ -11,8 +11,9 @@ namespace server
     {
         public static RhmsSettings Default => new RhmsSettings {
             BindAddress = "0.0.0.0",
-            InfluxOutput = new SectionInfluxDb("http://127.0.0.1:8086", "rhms") { Enabled = false },
+            InfluxOutput = new SectionInfluxDb("http://gs1.dc.zontwelg.com:8086", "rhms") { Enabled = false },
             HardwareSensorsUpdateInterval = 500,
+            ShceduledModuleUpdateInterval = 10000,
             PeerSignalServer = new RequiredSectionPeerSignalServer("http://srv-ps.rhms.zontwelg.com/", 4000),
             CollectingServerPeerName = "srv-dc1.cp-rig1",
             StunServers = new [] {
@@ -34,6 +35,7 @@ namespace server
         public string BindAddress;
         public SectionInfluxDb InfluxOutput;
         public int HardwareSensorsUpdateInterval;
+        public int ShceduledModuleUpdateInterval;
         public RequiredSectionPeerSignalServer PeerSignalServer;
         public StunServerSettings[] StunServers;
 
@@ -48,6 +50,7 @@ namespace server
             public string Host;
             public string Database;
             public string Retention = "two_months";
+            public bool EnableDebugOutput = false;
 
             public SectionInfluxDb(string influxDbHost, string influxDbName){
                 Host = influxDbHost;

@@ -29,7 +29,11 @@ namespace gpu_radeon.Api.Hardware
         }
 
         public override string GetFullSystemName() {
-            return $"{HardwareRef.AdapterIndex}-" + HardwareRef.GetAdlInfo().AdapterName.Replace(' ', '-').ToLower();
+            return $"{HardwareRef.AdapterIndex}-" + HardwareRef.GetAdlInfo().AdapterName.Replace(' ', '_').ToLower();
+        }
+
+        public override string GetHardwareId() {
+            return GetFullSystemName();
         }
     }
 }

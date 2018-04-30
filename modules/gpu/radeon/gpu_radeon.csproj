@@ -52,7 +52,7 @@
     <Compile Include="Api\Hardware\Sensors\SensorRadeonFanInfo.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadCoreActivity.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadEngine.cs" />
-    <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadMemory.cs" />
+    <Compile Include="Api\Hardware\Sensors\SensorRadeonMemoryClocks.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonLoadVddc.cs" />
     <Compile Include="Api\Hardware\Sensors\SensorRadeonTemperature.cs" />
     <Compile Include="Api\Helpers\LinkedDelegateAttribute.cs" />

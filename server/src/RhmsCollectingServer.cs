@@ -37,7 +37,8 @@ namespace server
 
         public override bool Initialize() {
             if (Settings.InfluxOutput.Enabled) {
-                _influxConnection = new InfluxDbConnection(Settings.InfluxOutput.Host, Settings.InfluxOutput.Database, Settings.InfluxOutput.Retention);
+                _influxConnection = new InfluxDbConnection(Settings.InfluxOutput, this);
+                _influxConnection.CheckCreateDatabase();
             }
 
             // Temporary here
@@ -69,6 +70,7 @@ namespace server
 
         private void WorkerHardwareUpdater() {
             var loadedModules = _moduleLoader.GetHardwareModules();
+            var lastAfterTickUpdate = DateTime.MinValue;
             while (_isThreadsActive) {
                 foreach (var module in loadedModules) {
                     foreach (var hardware in module.GetHardware()) {
@@ -100,7 +102,7 @@ namespace server
 
                         /*foreach (var sensor in hardware.GetSensors()) {
                             if (sensor is IMultiValueSensor multi) {
-                                if (hardware.Identify().GetHardwareType() != HardwareType.Cpu) {
+                                if (hardware.Identify().GetHardwareType() != HardwareType.Gpu || sensor.GetSensorType() != SensorType.MemoryLoad) {
                                     continue;
                                 }
 
@@ -117,13 +119,19 @@ namespace server
                             }
                         }*/
                     }
+
+                    module.PostHardwareTick(this);
                 }
 
-                foreach (var module in loadedModules) {
-                    try {
-                        module.AfterHardwareTick();
-                    } catch (Exception e) {
-                        Logger.Error($"Error after hardware tick in module [{module.GetLogIdentifer()}] '{module.GetName()}'", e);
+                if ((DateTime.Now - lastAfterTickUpdate).TotalMilliseconds > Settings.ShceduledModuleUpdateInterval) {
+                    lastAfterTickUpdate = DateTime.Now;
+
+                    foreach (var module in loadedModules) {
+                        try {
+                            module.ScheduledModuleUpdateTick();
+                        } catch (Exception e) {
+                            Logger.Error($"Error after hardware tick in module [{module.GetLogIdentifer()}] '{module.GetName()}'", e);
+                        }
                     }
                 }
 

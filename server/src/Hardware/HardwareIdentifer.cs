@@ -21,5 +21,7 @@ namespace server.Hardware
         public abstract string GetModel();
 
         public abstract string GetFullSystemName();
+
+        public abstract string GetHardwareId();
     }
 }

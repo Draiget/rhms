@@ -8,14 +8,11 @@ using System.Threading.Tasks;
 namespace gpu_nvidia.Api.Structures
 {
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    public struct NvMemoryInfo
+    public struct NvUsages
     {
         public uint Version;
 
-        public uint DedicatedVideoMemory;
-        public uint AvailableDedicatedVideoMemory;
-        public uint SystemVideoMemory;
-        public uint SharedSystemMemory;
-        public uint CurAvailableDedicatedVideoMemory;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = NvApi.MaxUsagesPerGpu)]
+        public uint[] Usage;
     }
 }

@@ -147,7 +147,7 @@ namespace cpu_intel.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return $"power_{_powerNameId}";
+            return $"intel_power_{_powerNameId}";
         }
     }
 }

@@ -24,11 +24,13 @@ namespace gpu_radeon.Api.Hardware.Sensors
             _loadEngine.SetActive(activity.EngineClock >= 0);
             if (activity.EngineClock >= 0) {
                 IsSensorActive = true;
+                _loadEngine.SetActive(IsSensorActive);
                 _loadEngine.Update(activity);
                 return;
             }
 
             IsSensorActive = false;
+            _loadEngine.SetActive(IsSensorActive);
         }
 
         public override ISensorElement GetElement() {
@@ -60,7 +62,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "load_engine_mhz";
+            return "radeon_clock_engine";
         }
     }
 }

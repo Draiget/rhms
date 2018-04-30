@@ -70,7 +70,7 @@ namespace cpu_intel
             }
         }
 
-        public override void AfterHardwareTick() {
+        public override void ScheduledModuleUpdateTick() {
             ExportDataToGrafana(_server);
         }
     }

@@ -15,10 +15,10 @@ namespace server.Modules.Base
         }
 
         /// <summary>
-        /// Method is calling after all hardware are updated and information collected.
-        /// May be used to store sensors and hardware data to database, or use it with custom influx API handlers
+        /// <p>Method is calling after all modules are updated when specific schedule time is spent (see interval in config <see cref="RhmsSettings.ShceduledModuleUpdateInterval"/>)</p>
+        /// <p>May be used to store sensors and hardware data to database, or use it with custom influx API handlers</p>
         /// </summary>
-        public virtual void AfterHardwareTick() { }
+        public virtual void ScheduledModuleUpdateTick() { }
 
         /// <summary>
         /// Specific hardware initialization stage, can be overriden and using for loading external API or calling exporing functions
@@ -38,7 +38,7 @@ namespace server.Modules.Base
         /// <p>Adds hardware that can be supported with this specific module.</p>
         /// <p>Hardware can't be removed from this list, use <see cref="InitializeHardware"/> to prevent module loading</p>
         /// </summary>
-        /// <param name="hardware"></param>
+        /// <param name="hardware">Reference on adding hardware</param>
         public void AddHardware(IHardware hardware) {
             Hardware.Add(hardware);
         }
@@ -47,6 +47,12 @@ namespace server.Modules.Base
             return $"BaseHardwareModule[logId='{GetLogIdentifer()}', name='{GetName()}']";
         }
 
+        /// <summary>
+        /// <p>Method is calling after all hardware are updated and information collected.</p>
+        /// <p>Notice: Calling every TICK (see interval as config value <see cref="RhmsSettings.HardwareSensorsUpdateInterval"/>)</p>
+        /// </summary>
+        public virtual void PostHardwareTick(BaseCollectingServer server) { }
+
         public void ExportDataToGrafana(BaseCollectingServer server) {
             if (!server.GetSettings().InfluxOutput.Enabled) {
                 return;
@@ -54,16 +60,17 @@ namespace server.Modules.Base
 
             var influxDb = server.GetInfluxDbConnection();
             foreach (var hardware in Hardware) {
-                var influxData = new List<InfluxDataPair> {
-                    new InfluxDataTag("vendor", hardware.Identify().GetVendor())
-                };
-
                 foreach (var sensor in hardware.GetSensors()) {
-                    if (sensor.IsAvaliable()) {
+                    if (!sensor.IsAvaliable()) {
                         continue;
                     }
 
-                    influxData.Add(new InfluxDataTag("sensor", sensor.GetSystemName()));
+                    var influxData = new List<InfluxDataPair> {
+                        new InfluxDataTag("vendor", hardware.Identify().GetVendor()),
+                        new InfluxDataTag("hw_id", hardware.Identify().GetHardwareId()),
+                        new InfluxDataTag("sensor", sensor.GetSystemName()),
+                        new InfluxDataTag("sensor_type", sensor.GetSensorType().ToString().ToLower())
+                    };
 
                     if (sensor is IMultiValueSensor multi) {
                         foreach (var sensorElement in multi.GetElements()) {
@@ -76,9 +83,8 @@ namespace server.Modules.Base
                         influxData.Add(new InfluxDataPair(sensorElement.GetSystemTag(), $"{sensorElement.GetValue():F4}"));
                     }
 
+                    influxDb.Write(new InfluxWriteData(hardware.Identify().GetHardwareType().ToString().ToLower(), influxData.ToArray()));
                 }
-
-                influxDb.Write(new InfluxWriteData("gpu", influxData.ToArray()));
             }
         }
     }

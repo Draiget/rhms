@@ -24,11 +24,13 @@ namespace gpu_radeon.Api.Hardware.Sensors
             _sensorVddc.SetActive(activity.Vddc >= 0);
             if (activity.Vddc >= 0) {
                 IsSensorActive = true;
+                _sensorVddc.SetActive(IsSensorActive);
                 _sensorVddc.Update(activity);
                 return;
             }
 
             IsSensorActive = false;
+            _sensorVddc.SetActive(IsSensorActive);
         }
 
         public override ISensorElement GetElement() {
@@ -60,7 +62,7 @@ namespace gpu_radeon.Api.Hardware.Sensors
         }
 
         public override string GetSystemTag() {
-            return "core_vddc";
+            return "radeon_core_vddc";
         }
     }
 }
