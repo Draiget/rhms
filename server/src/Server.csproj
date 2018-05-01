@@ -136,6 +136,11 @@
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\Helpers\FunctionIdAttribute.cs" />
     <Compile Include="Modules\Helpers\LinkedFunctionIdBaseAttribute.cs" />
+    <Compile Include="Networking\Control\NetPacket.cs" />
+    <Compile Include="Networking\Control\NetPacketRegisterAttribute.cs" />
+    <Compile Include="Networking\Control\NetworkRemoteControl.cs" />
+    <Compile Include="Networking\Control\Packets\PacketCPing.cs" />
+    <Compile Include="Networking\Control\Packets\PacketCReboot.cs" />
     <Compile Include="Networking\NetworkConnectionManager.cs" />
     <Compile Include="Networking\RemotePacketState.cs" />
     <Compile Include="Networking\Stun\StunChangeRequest.cs" />

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using server.Drivers;
 using server.Drivers.Kernel;
 using server.Modules;
+using server.Networking.Control;
 using server.Utils;
 using server.Utils.Logging;
 
@@ -33,6 +34,7 @@ namespace server
         internal static void Main(string[] args) {
             _isCanShutdown = false;
             Native.SetConsoleCtrlHandler(ConsoleCtrlCheck, true);
+            NetworkRemoteControl.Initialize();
 
             Console.Title = "RHMS Client Data Collecting Server";
             Thread.CurrentThread.Name = "main";

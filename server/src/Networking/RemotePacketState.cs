@@ -8,6 +8,12 @@ namespace server.Networking
 {
     public class RemotePacketState
     {
+        public byte MagicByte {
+            get;
+        }
 
+        public RemotePacketState() {
+            MagicByte = (byte)new Random().Next(byte.MinValue, byte.MaxValue);
+        }
     }
 }

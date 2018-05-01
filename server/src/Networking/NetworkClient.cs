@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Open.Nat;
 using server.Addons;
+using server.Networking.Control;
 using server.Networking.Stun;
 using server.Utils;
 using server.Utils.Logging;
@@ -51,6 +52,7 @@ namespace server.Networking
             }
 
             _natUpnpCreateLocker = new object();
+            NetworkRemoteControl.ClientInstance = this;
         }
 
         public void Initialize() {
@@ -148,31 +150,46 @@ namespace server.Networking
             }
         }
 
-        private Dictionary<IPEndPoint, RemotePacketState> _remotePackets = new Dictionary<IPEndPoint, RemotePacketState>();
+        private readonly Dictionary<EndPoint, RemotePacketState> _remotePackets = new Dictionary<EndPoint, RemotePacketState>();
 
         private void NetworkAcceptDataAsync(IAsyncResult result) {
-            var isPingPacket = false;
             try {
                 var container = (PacketDataContainer) result.AsyncState;
 
                 var len = _socket.EndReceiveFrom(result, ref container.Remote);
-                if (len == _handshakeIn.Length && container.ValidateBlock(_handshakeIn)) {
-                    isPingPacket = true;
+                if (!_remotePackets.ContainsKey(container.Remote)) {
+                    if (len != _handshakeIn.Length || !container.ValidateBlock(_handshakeIn)) {
+                        return;
+                    }
+
+                    Logger.Info($"Received handshake packet from [/{container.Remote}], len: {len}");
+                    try {
+                        Logger.Info($"Response auth success to [/{container.Remote}]");
+                        var instanceRemoteState = new RemotePacketState();
+                        _remotePackets.Add(container.Remote, instanceRemoteState);
+                        _handshakeOut[_handshakeOut.Length - 1] = instanceRemoteState.MagicByte;
+                        _socket.SendTo(_handshakeOut, container.Remote);
+                    } catch {
+                        ;
+                    }
                 }
 
-                if (container.Remote == null || !isPingPacket) {
+                var remoteState = _remotePackets[container.Remote];
+
+                // If user trying to send auth handshake again, response that all ok
+                if (container.ValidateBlock(_handshakeIn)) {
+                    _handshakeOut[_handshakeOut.Length - 1] = remoteState.MagicByte;
+                    _socket.SendTo(_handshakeOut, container.Remote);
                     return;
                 }
 
-                Logger.Info($"Received handshake packet from [/{container.Remote}], len: {len}");
-
-                try {
-                    Logger.Info($"Response auth success to [/{container.Remote}]");
-                    _handshakeOut[_handshakeOut.Length - 1] = (byte)new Random().Next(byte.MinValue, byte.MaxValue);
-                    _socket.SendTo(_handshakeOut, container.Remote);
-                } catch {
-                    ;
+                var magicByteRemote = container.Buffer[0];
+                if (magicByteRemote != remoteState.MagicByte) {
+                    Logger.Warn($"Invalid remote magic byte '{magicByteRemote}' instead of '{remoteState.MagicByte}' from [/{container.Remote as IPEndPoint}]");
+                    return;
                 }
+
+                NetworkRemoteControl.AcceptPacket(remoteState, container);
             } catch (ObjectDisposedException) {
                 ;
             } catch (Exception e) {
@@ -180,6 +197,10 @@ namespace server.Networking
             } finally {
                 NetworkStartAcceptingData();
             }
+        }
+
+        public void SendPacket(byte[] buffer, PacketDataContainer dataContainer) {
+            _socket.SendTo(buffer, dataContainer.Remote);
         }
 
         // STUN server list: https://gist.github.com/yetithefoot/7592580
@@ -286,7 +307,7 @@ namespace server.Networking
             _lastPeerPingTime = DateTime.Now.Ticks;
         }
 
-        internal class PacketDataContainer
+        public class PacketDataContainer
         {
             public byte[] Buffer;
             public EndPoint Remote;
