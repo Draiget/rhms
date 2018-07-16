@@ -2,16 +2,18 @@
 #define RHMS_DRIVER_MANAGER_H
 
 /*
- * Driver status codes
+ * Driver command codes
  */
 
 #define RHMS_DRIVER_INSTALL				1
 #define RHMS_DRIVER_REMOVE				2
 #define RHMS_DRIVER_SYSTEM_INSTALL		3
 #define	RHMS_DRIVER_SYSTEM_UNINSTALL	4
+#define RHMS_DISPLAY_DRIVER_STOP		5
+#define RHMS_DISPLAY_DRIVER_START		6
 
 /*
- * Driver manager statuses
+ * Driver manager states
  */
 
 #define RHMS_DRIVER_MANAGER_UNKNOWN_ERR								-2
@@ -21,12 +23,17 @@
 #define RHMS_DRIVER_MANAGER_OPENSCM_FAILED_ACCESS_DENIED			13
 #define RHMS_DRIVER_MANAGER_OPENSCM_FAILED_DATABASE_DOES_NOT_EXIST	14
 #define RHMS_DRIVER_MANAGER_INCORRECT_DRV_SIGNATURE					15
+#define RHMS_DRIVER_MANAGER_DISPLAY_NOT_FOUND_OR_ENABLED_ALREADY	16
+#define RHMS_DRIVER_MANAGER_DISPLAY_NOT_FOUND_OR_DISABLED_ALREADY	17
+#define RHMS_DRIVER_MANAGER_DISPLAY_DRIVER_ENABLE_OK				18
+#define RHMS_DRIVER_MANAGER_DISPLAY_DRIVER_DISABLE_OK				19
 
+#include "RhmsExportsApi.h"
 
 /*
  * Driver manage functions
  */
 
-int ManageDriver(const char* driver_id, const char* driver_path, USHORT function);
+RHMS_API_EXPOSED int ManageDriver(const char* driver_id, const char* driver_path, USHORT function);
 
 #endif

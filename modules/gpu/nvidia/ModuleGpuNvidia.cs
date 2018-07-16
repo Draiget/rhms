@@ -73,6 +73,8 @@ namespace gpu_nvidia
             return $"nVidia api dll '{NvApi.DllName}' is not found in your system";
         }
 
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
         public override bool Open(){
             if (!NvApi.Initialize()) {
                 Logger.Error("NvAPI initialization failed");

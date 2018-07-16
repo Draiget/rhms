@@ -12,15 +12,19 @@ namespace server.Networking.Control.Packets
     {
         private string _tmp;
 
-        public override void Process(StreamReader sr, RemotePacketState state) {
+        public override void Read(StreamReader sr, RemotePacketState state) {
             var input = sr.ReadToEnd();
             if (input.StartsWith("ping")) {
                 _tmp = "pong";
             }
         }
 
-        public override void Response(StreamWriter sw, RemotePacketState state) {
+        public override void Write(StreamWriter sw, RemotePacketState state) {
             sw.Write(_tmp);
+        }
+
+        public override void Process(NetPacketHandler handler) {
+            handler.ProcessPingPacket(this);
         }
     }
 }

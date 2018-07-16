@@ -116,11 +116,6 @@ public class UdpPeerController extends AbstractController {
 
         activeSession.updateKeepAlive();
 
-        /*log.debug("Update session for peer [ip={}, port={}, name={}]",
-                activeSession.publicAddress.getHostName(),
-                activeSession.publicAddress.getPort(),
-                activeSession.peerName);*/
-
         ResponseContainer<String> container = new ResponseContainer<>();
         container.setBody("Session updated");
         HttpHeaders responseHeaders = new HttpHeaders();

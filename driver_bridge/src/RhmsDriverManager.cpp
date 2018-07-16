@@ -4,6 +4,11 @@
 #include <cstdio>
 #include "RhmsDefs.h"
 
+#include <setupapi.h>
+#include <tlhelp32.h>
+#include <devguid.h>
+#pragma comment(lib, "setupapi.lib")
+
 extern HANDLE g_Handle;
 RHMS_USE_LOGGER();
 
@@ -14,6 +19,9 @@ static BOOL StopDriver(SC_HANDLE h_sc_manager, const char* driver_id);
 static BOOL SystemInstallDriver(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
 static BOOL IsSystemDriverInstalled(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
 static BOOL IsServiceExists(SC_HANDLE h_sc_manager, const char* driver_id, const char* driver_path);
+static DWORD SetDisplayDriverState(DWORD driver_state);
+static BOOL RefreshNotifyIcons();
+static BOOL RefreshNotifyWindow(const HWND window);
 
 /**
  * \brief Manage driver in system (install, remove, permanent/system install)
@@ -25,7 +33,7 @@ static BOOL IsServiceExists(SC_HANDLE h_sc_manager, const char* driver_id, const
 int ManageDriver(const char* driver_id, const char* driver_path, USHORT function) {
 	int retn_code = false;
 
-	if (driver_id == nullptr || driver_path == nullptr) {
+	if (function < RHMS_DISPLAY_DRIVER_STOP && (driver_id == nullptr || driver_path == nullptr)) {
 		return RHMS_DRIVER_MANAGER_ID_OR_PATH_EMPTY;
 	}
 
@@ -95,6 +103,23 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
 				}
 			}
 			break;
+		case RHMS_DISPLAY_DRIVER_STOP:
+			if (!SetDisplayDriverState(DICS_DISABLE)) {
+				retn_code = RHMS_DRIVER_MANAGER_DISPLAY_NOT_FOUND_OR_DISABLED_ALREADY;
+			}
+			else {
+				RefreshNotifyIcons();
+				retn_code = RHMS_DRIVER_MANAGER_DISPLAY_DRIVER_DISABLE_OK;
+			}
+			break;
+		case RHMS_DISPLAY_DRIVER_START:
+			if (!SetDisplayDriverState(DICS_ENABLE)){
+				retn_code = RHMS_DRIVER_MANAGER_DISPLAY_NOT_FOUND_OR_ENABLED_ALREADY;
+			} else {
+				retn_code = RHMS_DRIVER_MANAGER_DISPLAY_DRIVER_ENABLE_OK;
+			}
+
+			break;
 
 		default:
 			retn_code = FALSE;
@@ -106,6 +131,87 @@ int ManageDriver(const char* driver_id, const char* driver_path, USHORT function
 	}
 
 	return retn_code;
+}
+
+DWORD SetDisplayDriverState(DWORD driver_state) {
+	BOOL retn_code = false;
+	DWORD dw_size;
+
+	const auto devices = SetupDiGetClassDevs(&GUID_DEVCLASS_DISPLAY, nullptr, nullptr, DIGCF_PRESENT);
+	if (devices == INVALID_HANDLE_VALUE){
+		return 0;
+	}
+
+	SP_DEVINFO_DATA device;
+	SP_PROPCHANGE_PARAMS params;
+	DWORD result = 0;
+
+	for (auto i = 0; device.cbSize = sizeof device, SetupDiEnumDeviceInfo(devices, i, &device); i++) {
+		params.ClassInstallHeader.cbSize = sizeof params.ClassInstallHeader;
+		params.ClassInstallHeader.InstallFunction = DIF_PROPERTYCHANGE;
+		params.StateChange = driver_state;
+		params.Scope = DICS_FLAG_GLOBAL;
+		params.HwProfile = 0;
+
+		if (SetupDiSetClassInstallParams(devices, &device, &params.ClassInstallHeader, sizeof params)) {
+			if (SetupDiCallClassInstaller(DIF_PROPERTYCHANGE, devices, &device)) {
+				result++;
+			}
+		}
+	}
+
+	SetupDiDestroyDeviceInfoList(devices);
+	return result;
+}
+
+BOOL RefreshNotifyIcons() {
+	auto parent = FindWindowA("Shell_TrayWnd", nullptr);
+	if (!parent) {
+		return FALSE;
+	}
+
+	parent = FindWindowExA(parent, nullptr, "TrayNotifyWnd", nullptr);
+	if (!parent) {
+		return FALSE;
+	}
+
+	parent = FindWindowExA(parent, nullptr, "SysPager", nullptr);
+	if (!parent) {
+		return FALSE;
+	}
+
+	auto window = FindWindowExA(parent, nullptr, "ToolbarWindow32", "Notification Area");
+	if (window) {
+		RefreshNotifyWindow(window);
+	}
+
+	window = FindWindowExA(parent, nullptr, "ToolbarWindow32", "User Promoted Notification Area");
+	if (window) {
+		RefreshNotifyWindow(window);
+	}
+
+	parent = FindWindowA("NotifyIconOverflowWindow", nullptr);
+	if (parent)	{
+		window = FindWindowExA(parent, nullptr, "ToolbarWindow32", "Overflow Notification Area");
+		if (window) {
+			RefreshNotifyWindow(window);
+		}
+	}
+
+	return TRUE;
+}
+
+BOOL RefreshNotifyWindow(const HWND window) {
+	RECT rect;
+	GetClientRect(window, &rect);
+
+	for (auto y = 0; y < rect.bottom; y += 4) {
+		for (auto x = 0; x < rect.right; x += 4) {
+			PostMessage(window, WM_MOUSEMOVE, 0, (y << 16) | (x & 65535));
+		}
+	}
+
+	return TRUE;
 }
 
 /**

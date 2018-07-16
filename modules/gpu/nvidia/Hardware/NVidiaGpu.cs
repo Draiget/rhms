@@ -6,6 +6,7 @@ using gpu_nvidia.Api.Structures;
 using server.Hardware;
 using server.Hardware.GPU;
 using server.Utils;
+using server.Utils.Logging;
 
 namespace gpu_nvidia.Hardware
 {
@@ -76,11 +77,25 @@ namespace gpu_nvidia.Hardware
             return _gpuIdentifer;
         }
 
+        private uint _nlpCounter;
+
         public override void TickUpdate() {
             var sensors = GetSensors();
             foreach (var sensor in sensors) {
-                if (sensor.IsAvaliable()) {
-                    sensor.Tick();
+                if (sensor != null && sensor.IsAvaliable()) {
+                    try {
+                        // Sensors are destroying display driver reboot
+                        sensor.Tick();
+
+                        if (_nlpCounter - 1 > 0) {
+                            _nlpCounter--;
+                        }
+                    } catch (NullReferenceException nre) {
+                        _nlpCounter++;
+                        if (_nlpCounter < 5) {
+                            Logger.Error("Sensor tick null error", nre);
+                        }
+                    }
                 }
             }
         }

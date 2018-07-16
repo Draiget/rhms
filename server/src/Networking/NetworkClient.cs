@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Open.Nat;
@@ -42,7 +42,14 @@ namespace server.Networking
             _collectingServer = server;
             _peerControlHost = _collectingServer.GetSettings().PeerSignalServer.Host;
             _apiAccessKey = _collectingServer.GetSettings().ApiAccessKey;
-            _bindEp = new IPEndPoint(IPAddress.Parse(_collectingServer.GetSettings().BindAddress), 0);
+
+            var sourceBindAddress = _collectingServer.GetSettings().BindAddress;
+            if (!IPAddress.TryParse(sourceBindAddress, out var bindIpAddress)) {
+                bindIpAddress = IPAddress.Parse(RhmsSettings.Default.BindAddress);
+                Logger.Warn($"Invalid IP address specified in settings '{sourceBindAddress}', using default '{bindIpAddress}'");
+            }
+
+            _bindEp = new IPEndPoint(bindIpAddress, 0);
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             _socket.SendTimeout = _socket.ReceiveTimeout = _collectingServer.GetSettings().PeerSignalServer.SocketTimeoutMs;
             _socket.Bind(_bindEp);
@@ -53,6 +60,11 @@ namespace server.Networking
 
             _natUpnpCreateLocker = new object();
             NetworkRemoteControl.ClientInstance = this;
+            PacketHandler = new NetPacketHandler(server, connectionManager, this);
+        }
+
+        public NetPacketHandler PacketHandler {
+            get;
         }
 
         public void Initialize() {
@@ -93,7 +105,6 @@ namespace server.Networking
                     var discoverer = new NatDiscoverer();
                     var cts = new CancellationTokenSource(10000);
                     var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-                    // Logger.Info($"Open.NAt external ip: {device.GetExternalIPAsync().Result}");
                     await device.CreatePortMapAsync(_portMapping);
 
                     Logger.Info($"Created UPnP mapping {_portMapping}");
@@ -199,8 +210,25 @@ namespace server.Networking
             }
         }
 
-        public void SendPacket(byte[] buffer, PacketDataContainer dataContainer) {
-            _socket.SendTo(buffer, dataContainer.Remote);
+        public void SendPacket(NetPacket packet, PacketDataContainer dataContainer, RemotePacketState remoteState) {
+            if (packet == null) {
+                Logger.Warn("Trying to send empty packet!");
+                return;
+            }
+
+            var packetId = NetworkRemoteControl.FindPacketIdByType(packet.GetType());
+            if (packetId == null) {
+                Logger.Debug($"Trying to send unknown packet {packet.GetType().FullName}");
+                return;
+            }
+
+            using (var ms = new MemoryStream()) {
+                using (var bw = new BinaryWriter(ms)) {
+                    bw.Write((uint)packetId);
+                    packet.Write(new StreamWriter(ms), remoteState);
+                    _socket.SendTo(ms.GetBuffer(), dataContainer.Remote);
+                }
+            }
         }
 
         // STUN server list: https://gist.github.com/yetithefoot/7592580

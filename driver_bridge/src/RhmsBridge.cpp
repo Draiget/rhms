@@ -138,6 +138,18 @@ void RHMS_DeinitializeDriver() {
 	g_DriverInitizlied = false;
 }
 
+int RHMS_ManageGraphicsDriver(int code) {
+	if (!g_DriverInitizlied) {
+		return 0;
+	}
+
+	if (RHMS_IsNT()) {
+		return ManageDriver(nullptr, nullptr, code);
+	}
+
+	return 0;
+}
+
 bool RHMS_RegisterLoggerCallback(logger_callback_fn callback_ref) {
 	if (callback_ref == nullptr){
 		return false;

@@ -59,6 +59,14 @@ namespace server.Drivers.Kernel
         internal static extern KernelDriverInitState Initialize();
 
         /// <summary>
+        /// Driver manage (internal use ONLY)
+        /// </summary>
+        /// <param name="function"></param>
+        /// <returns></returns>
+        [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_ManageGraphicsDriver", CallingConvention = CallingConvention.Winapi)]
+        internal static extern KernelDriverInitState ManageGraphicsDriver(KernelDriverManageFunction function);
+
+        /// <summary>
         /// Initializing driver (stopping driver service)
         /// </summary>
         [DllImport(KernelDriverBridge.DriverFullPath, EntryPoint = "RHMS_DeinitializeDriver", CallingConvention = CallingConvention.Winapi)]

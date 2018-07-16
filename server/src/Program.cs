@@ -79,12 +79,18 @@ namespace server
             }
 
             Logger.Info("Initialize collecting server");
-            if (!CollectingServer.Initialize()) {
-                Logger.Error("Could not initialize RHMS Collecting Server! Press any key to exit.");
+            try {
+                if (!CollectingServer.Initialize()) {
+                    Logger.Error("Could not initialize RHMS Collecting Server! Press any key to exit.");
+                    Console.ReadLine();
+                    return;
+                }
+            } catch (Exception e) {
+                Logger.Error("Could not initialize RHMS Collecting Server, internal error has occured! Press any key to exit.", e);
                 Console.ReadLine();
                 return;
             }
-            
+
             Logger.Info("Loading modules");
             CollectingServer.GetModuleLoader().LoadFromFolder(Directory.GetCurrentDirectory() + @"\modules");
             Logger.Info("Loading modules has finished.");

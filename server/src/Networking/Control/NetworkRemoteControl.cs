@@ -48,6 +48,8 @@ namespace server.Networking.Control
             Buffer.BlockCopy(packetData.Buffer, 5, packetBuffer, 0, packetBuffer.Length);
 
             var packetId = BitConverter.ToUInt32(packetData.Buffer, 1);
+            Logger.Debug($"Trying to accept packet with id {packetId}");
+
             Type packetType;
             if ((packetType = FindPacketWithId(packetId)) == null) {
                 // Unknown packet
@@ -65,19 +67,15 @@ namespace server.Networking.Control
 
             try {
                 using (var sr = new StreamReader(new MemoryStream(packetBuffer))) {
-                    netPacket.Process(sr, remoteState);
-                    using (var ms = new MemoryStream()) {
-                        using (var bw = new BinaryWriter(ms)) {
-                            bw.Write(packetId);
-                            using (var sw = new StreamWriter(ms)) {
-                                netPacket.Response(sw, remoteState);
-                                ClientInstance?.SendPacket(ms.GetBuffer(), packetData);
-                            }
-                        }
-                    }
+                    netPacket.Read(sr, remoteState);
+                    netPacket.Process(ClientInstance.PacketHandler);
+
+                    new Task(() => {
+                        ClientInstance?.SendPacket(netPacket, packetData, remoteState);
+                    }).RunSynchronously();
                 }
             } catch (Exception e) {
-                Logger.Error($"Unable to process packet {netPacket}");
+                Logger.Error($"Unable to process packet '{netPacket}'", e);
             }
         }
 

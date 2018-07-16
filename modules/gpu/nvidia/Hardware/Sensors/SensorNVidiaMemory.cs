@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using gpu_nvidia.Api;
@@ -52,6 +54,8 @@ namespace gpu_nvidia.Hardware.Sensors
             IsSensorActive = true;
         }
 
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
         public NvMemoryInfo? ObrainMemoryInfo() {
             var memoryInfo = new NvMemoryInfo {
                 Version = NvApi.GpuMemoryInfoVer

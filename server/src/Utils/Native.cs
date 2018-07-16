@@ -85,7 +85,7 @@ namespace server.Utils
             outDelegate = Delegate.CreateDelegate(delegateType, wrapperType, attr.EntryPoint);
         }
 
-        private static Type CreatePInvokeWrapper(Type delegateType, DllImportAttribute attr){
+        private static Type CreatePInvokeWrapper(Type delegateType, DllImportAttribute attr) {
             var typeBuilder = _moduleBuilder.DefineType("PInvokeDelegateFactoryInternalWrapperType" + _wrapperTypes.Count);
 
             var methodInfo = delegateType.GetMethod("Invoke");
@@ -102,10 +102,10 @@ namespace server.Utils
             }
 
             var methodBuilder = typeBuilder.DefinePInvokeMethod(
-                attr.EntryPoint, 
+                attr.EntryPoint,
                 attr.Value,
                 MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.PinvokeImpl, CallingConventions.Standard,
-                methodInfo.ReturnType, 
+                methodInfo.ReturnType,
                 parameterTypes,
                 attr.CallingConvention,
                 attr.CharSet);
@@ -140,7 +140,8 @@ namespace server.Utils
 
         public delegate bool HandlerRoutine(CtrlTypes CtrlType);
 
-        public enum CtrlTypes {
+        public enum CtrlTypes
+        {
             CTRL_C_EVENT = 0,
             CTRL_BREAK_EVENT,
             CTRL_CLOSE_EVENT,
@@ -168,5 +169,59 @@ namespace server.Utils
         [DllImport("Kernel32", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx buffer);
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        internal struct TokPriv1Luid { public int Count; public long Luid; public int Attr; }
+        [DllImport("kernel32.dll", ExactSpelling = true)]
+        internal static extern IntPtr GetCurrentProcess();
+        [DllImport("advapi32.dll", ExactSpelling = true, SetLastError = true)]
+        internal static extern bool OpenProcessToken(IntPtr h, int acc, ref IntPtr phtok);
+        [DllImport("advapi32.dll", SetLastError = true)]
+        internal static extern bool LookupPrivilegeValue(string host, string name, ref long pluid);
+        [DllImport("advapi32.dll", ExactSpelling = true, SetLastError = true)]
+        internal static extern bool AdjustTokenPrivileges(IntPtr htok, bool disall, ref TokPriv1Luid newst, int len, IntPtr prev, IntPtr relen);
+        [DllImport("user32.dll", ExactSpelling = true, SetLastError = true)]
+
+        internal static extern bool ExitWindowsEx(int flg, int rea);
+        internal const int SE_PRIVILEGE_ENABLED = 0x00000002;
+        internal const int TOKEN_QUERY = 0x00000008;
+        internal const int TOKEN_ADJUST_PRIVILEGES = 0x00000020;
+        internal const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
+        internal const int EWX_LOGOFF = 0x00000000;
+        internal const int EWX_SHUTDOWN = 0x00000001;
+        internal const int EWX_REBOOT = 0x00000002;
+        internal const int EWX_FORCE = 0x00000004;
+        internal const int EWX_POWEROFF = 0x00000008;
+        internal const int EWX_FORCEIFHUNG = 0x00000010;
+
+        private static void DoExitWin(int flg) {
+            TokPriv1Luid tp;
+            var hproc = GetCurrentProcess();
+            var htok = IntPtr.Zero;
+            OpenProcessToken(hproc, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);
+            tp.Count = 1;
+            tp.Luid = 0;
+            tp.Attr = SE_PRIVILEGE_ENABLED;
+            LookupPrivilegeValue(null, SE_SHUTDOWN_NAME, ref tp.Luid);
+            AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
+            ExitWindowsEx(flg, 0);
+        }
+
+        public static void RestartComputerApi() {
+            DoExitWin(EWX_REBOOT);
+        }
+
+        public static void RestartComputerCommand() {
+            var psi = new System.Diagnostics.ProcessStartInfo(@"shutdown", @"/r /t 0") {
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+            };
+
+            System.Diagnostics.Process.Start(psi);
+        }
     }
 }

@@ -106,6 +106,7 @@
     <Compile Include="Addons\InfluxDbConnection.cs" />
     <Compile Include="Drivers\KernelDriverInitState.cs" />
     <Compile Include="Drivers\KernelDriverBridge.cs" />
+    <Compile Include="Drivers\KernelDriverManageFunction.cs" />
     <Compile Include="Drivers\Kernel\BridgeDriver.cs" />
     <Compile Include="Drivers\Kernel\Cpuid.cs" />
     <Compile Include="Drivers\Kernel\Htl.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Networking\Control\NetworkRemoteControl.cs" />
     <Compile Include="Networking\Control\Packets\PacketCPing.cs" />
     <Compile Include="Networking\Control\Packets\PacketCReboot.cs" />
+    <Compile Include="Networking\NetPacketHandler.cs" />
     <Compile Include="Networking\NetworkConnectionManager.cs" />
     <Compile Include="Networking\RemotePacketState.cs" />
     <Compile Include="Networking\Stun\StunChangeRequest.cs" />

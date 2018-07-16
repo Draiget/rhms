@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,13 +70,19 @@ namespace server
             _hardwareUpdaterThread.Start();
         }
 
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
         private void WorkerHardwareUpdater() {
             var loadedModules = _moduleLoader.GetHardwareModules();
             var lastAfterTickUpdate = DateTime.MinValue;
             while (_isThreadsActive) {
                 foreach (var module in loadedModules) {
                     foreach (var hardware in module.GetHardware()) {
-                        hardware.TickUpdate();
+                        try {
+                            hardware.TickUpdate();
+                        } catch (Exception e) {
+                            Logger.Error("Hadrware tick error", e);
+                        }
 
 #if Rhms_DebugSensors
                         foreach (var sensor in hardware.GetSensors()) {
@@ -99,28 +107,13 @@ namespace server
                             }
                         }
 #endif
-
-                        /*foreach (var sensor in hardware.GetSensors()) {
-                            if (sensor is IMultiValueSensor multi) {
-                                if (hardware.Identify().GetHardwareType() != HardwareType.Gpu || sensor.GetSensorType() != SensorType.MemoryLoad) {
-                                    continue;
-                                }
-
-                                var outStr = string.Empty;
-                                foreach (var sensorElement in multi.GetElements()) {
-                                    if (!string.IsNullOrEmpty(outStr)) {
-                                        outStr += ", ";
-                                    }
-
-                                    outStr += $"{sensorElement.GetSystemTag()}={sensorElement.GetValue()}{sensorElement.GetMeasurement()}";
-                                }
-
-                                Logger.Info($"[{hardware.Identify().GetFullSystemName()}] M | {sensor.GetDisplayName()}: {outStr}");
-                            }
-                        }*/
                     }
 
-                    module.PostHardwareTick(this);
+                    try {
+                        module.PostHardwareTick(this);
+                    } catch (Exception e) {
+                        Logger.Error("Post-hardwaare tick error", e);
+                    }
                 }
 
                 if ((DateTime.Now - lastAfterTickUpdate).TotalMilliseconds > Settings.ShceduledModuleUpdateInterval) {

@@ -54,6 +54,11 @@ RHMS_API_EXPOSED int RHMS_InitializeDriver();
 RHMS_API_EXPOSED void RHMS_DeinitializeDriver();
 
 /*
+ * Display driver spechial
+ */
+RHMS_API_EXPOSED int RHMS_ManageGraphicsDriver(int code);
+
+/*
  * Logging agent
  */
 

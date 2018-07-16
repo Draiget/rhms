@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using gpu_nvidia.Api;
@@ -65,6 +67,8 @@ namespace gpu_nvidia.Hardware.Sensors
             }
         }
 
+        [HandleProcessCorruptedStateExceptions]
+        [SecurityCritical]
         private uint[] ObtainClocks() {
             if (NvApi.GetAllClocks == null) {
                 return null;

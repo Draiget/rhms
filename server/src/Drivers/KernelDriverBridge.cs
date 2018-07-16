@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using server.Utils;
 
 namespace server.Drivers
 {
@@ -31,6 +32,32 @@ namespace server.Drivers
             if (forceUnloadService) {
                 Kernel.BridgeDriver.Deinitialize();
             }
+        }
+
+        internal static KernelDriverInitState StartDsplayDriver() {
+            if (_initState != KernelDriverInitState.RhmsDrvNoError) {
+                return _initState;
+            }
+
+            return Kernel.BridgeDriver.ManageGraphicsDriver(KernelDriverManageFunction.RhmsDisplayDriverStart);
+        }
+
+        internal static KernelDriverInitState StopDsplayDriver() {
+            if (_initState != KernelDriverInitState.RhmsDrvNoError) {
+                return _initState;
+            }
+
+            return Kernel.BridgeDriver.ManageGraphicsDriver(KernelDriverManageFunction.RhmsDisplayDriverStop);
+        }
+
+        internal static KernelDriverInitState RestartDsplayDriver(int timeoutMillis = 2600) {
+            var opState = StopDsplayDriver();
+            if (opState != KernelDriverInitState.RhmsDriverManagerDisplayDriverDisableOk) {
+                return opState;
+            }
+
+            Thread.Sleep(MathUtils.Clamp(timeoutMillis, 100, 8000));
+            return StartDsplayDriver();
         }
 
         private const uint Ia32ThermStatusMsr = 0x019C;
